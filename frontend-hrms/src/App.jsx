@@ -159,13 +159,21 @@ import TaskPage from "./pages/TaskPage";
 import ReportsPage from "./pages/ReportsPage";
 import UserPage from "./pages/UserPage";
 import Layout from "./components/Layout";
-
+import LoginPage from "./pages/LoginPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
     <Router>
 
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={<LoginPage/>}/>
+
+        <Route path="/"
+          element={
+            <ProtectedRoute>  
+              <Layout/>
+            </ProtectedRoute>
+        }>
           <Route index element={<DashboardPage />} />
           <Route path="/employees" element={<EmployeePage />} />
           <Route path="/attendance" element={<AttendancePage />} />
