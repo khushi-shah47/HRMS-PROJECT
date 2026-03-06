@@ -151,3 +151,50 @@ MODIFY password VARCHAR(255) NOT NULL;
 
 ALTER TABLE users
 ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+CREATE TABLE tasks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  assigned_to INT,
+  assigned_by INT,
+  status ENUM('pending','in_progress','completed') DEFAULT 'pending',
+  priority ENUM('low','medium','high') DEFAULT 'medium',
+  due_date DATE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (assigned_to) REFERENCES employees(id) ON DELETE CASCADE,
+  FOREIGN KEY (assigned_by) REFERENCES employees(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_tasks_employee
+ON tasks(assigned_to);
+
+CREATE TABLE task_comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  task_id INT NOT NULL,
+  employee_id INT NOT NULL,
+  comment TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+  FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+);
+
+CREATE TABLE task_attachments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  task_id INT NOT NULL,
+  file_url VARCHAR(500),
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
+ALTER TABLE employees
+ADD phone VARCHAR(20),
+ADD join_date DATE;
+
+ALTER TABLE employees
+ADD CONSTRAINT fk_department
+FOREIGN KEY (department_id) REFERENCES departments(id)
+ON DELETE SET NULL;

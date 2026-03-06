@@ -137,13 +137,6 @@ const AttendancePage = ({ employeeId, onShowAll }) => {
               <CheckCircleIcon sx={{ mr: 1 }} />
               Present
             </ToggleButton>
-            <ToggleButton 
-              value="wfh" 
-              sx={{ py: 1.5, color: "#0288d1", '&.Mui-selected': { bgcolor: "#03a9f4", color: "white", '&:hover': { bgcolor: "#0288d1" } } }}
-            >
-              <HomeIcon sx={{ mr: 1 }} />
-              WFH
-            </ToggleButton>
           </ToggleButtonGroup>
         </Box>
 

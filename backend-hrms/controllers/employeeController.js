@@ -131,81 +131,133 @@
 
 import db from "../config/db.js";
 
-/* GET ALL WITH PAGINATION + DEPARTMENT JOIN */
+/* =========================================
+   GET ALL EMPLOYEES (Pagination + Search)
+========================================= */
 export const getEmployees = (req, res) => {
 
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const search = req.query.search;
+  const search = req.query.search || "";
 
   const offset = (page - 1) * limit;
 
-  let baseQuery = `
+  const baseQuery = `
     FROM employees e
     LEFT JOIN departments d ON e.department_id = d.id
   `;
 
-  let where = [];
+  let where = "";
   let params = [];
 
   if (search) {
-    where.push("e.name LIKE ?");
+    where = "WHERE e.name LIKE ?";
     params.push(`%${search}%`);
   }
 
-  if (where.length) {
-    baseQuery += " WHERE " + where.join(" AND ");
-  }
-
   const dataQuery = `
-    SELECT e.*, d.name AS department_name
+    SELECT 
+      e.id,
+      e.name,
+      e.email,
+      e.phone,
+      e.position,
+      e.department_id,
+      d.name AS department_name,
+      e.join_date,
+      e.created_at
     ${baseQuery}
+    ${where}
     ORDER BY e.id DESC
     LIMIT ? OFFSET ?
   `;
 
-  const countQuery = `SELECT COUNT(*) as total ${baseQuery}`;
+  const countQuery = `
+    SELECT COUNT(*) AS total
+    ${baseQuery}
+    ${where}
+  `;
 
-  db.query(dataQuery, [...params, limit, offset], (err, data) => {
-    if (err) return res.status(500).json(err);
+  db.query(dataQuery, [...params, limit, offset], (err, employees) => {
+
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Database error" });
+    }
 
     db.query(countQuery, params, (err2, count) => {
-      if (err2) return res.status(500).json(err2);
+
+      if (err2) {
+        console.error(err2);
+        return res.status(500).json({ message: "Database error" });
+      }
 
       res.json({
-        data,
-        currentPage: page,
-        totalPages: Math.ceil(count[0].total / limit),
-        totalEmployees: count[0].total
+        employees,
+        pagination: {
+          currentPage: page,
+          totalPages: Math.ceil(count[0].total / limit),
+          totalEmployees: count[0].total
+        }
       });
+
     });
+
   });
+
 };
 
 
-/* GET SINGLE */
+/* =========================================
+   GET SINGLE EMPLOYEE
+========================================= */
 export const getEmployeeById = (req, res) => {
 
   const { id } = req.params;
 
-  db.query(
-    `SELECT e.*, d.name AS department_name
-     FROM employees e
-     LEFT JOIN departments d ON e.department_id = d.id
-     WHERE e.id = ?`,
-    [id],
-    (err, result) => {
-      if (err) return res.status(500).json(err);
-      res.json(result[0]);
+  const sql = `
+    SELECT 
+      e.id,
+      e.name,
+      e.email,
+      e.phone,
+      e.position,
+      e.department_id,
+      d.name AS department_name,
+      e.join_date
+    FROM employees e
+    LEFT JOIN departments d ON e.department_id = d.id
+    WHERE e.id = ?
+  `;
+
+  db.query(sql, [id], (err, result) => {
+
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Database error" });
     }
-  );
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.json(result[0]);
+
+  });
+
 };
 
 
-/* CREATE */
+/* =========================================
+   ADD EMPLOYEE
+========================================= */
 export const addEmployee = (req, res) => {
 
   const { name, email, phone, position, department_id, join_date } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ message: "Name and Email are required" });
+  }
 
   const sql = `
     INSERT INTO employees
@@ -213,53 +265,79 @@ export const addEmployee = (req, res) => {
     VALUES (?,?,?,?,?,?)
   `;
 
-  db.query(sql, [name,email,phone,position,department_id,join_date], (err,result) => {
+  db.query(
+    sql,
+    [name, email, phone, position, department_id, join_date],
+    (err, result) => {
 
-    if (err) return res.status(500).json(err);
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Database error" });
+      }
 
-    res.status(201).json({
-      message: "Employee added",
-      id: result.insertId
-    });
+      res.status(201).json({
+        message: "Employee created successfully",
+        employeeId: result.insertId
+      });
 
-  });
+    }
+  );
+
 };
 
 
-/* UPDATE */
-export const updateEmployee = (req,res) => {
+/* =========================================
+   UPDATE EMPLOYEE
+========================================= */
+export const updateEmployee = (req, res) => {
 
   const { id } = req.params;
-  const { name,email,phone,position,department_id,join_date } = req.body;
+  const { name, email, phone, position, department_id, join_date } = req.body;
 
   const sql = `
     UPDATE employees
-    SET name=?,email=?,phone=?,position=?,department_id=?,join_date=?
+    SET name=?, email=?, phone=?, position=?, department_id=?, join_date=?
     WHERE id=?
   `;
 
-  db.query(sql,[name,email,phone,position,department_id,join_date,id],(err)=>{
+  db.query(
+    sql,
+    [name, email, phone, position, department_id, join_date, id],
+    (err) => {
 
-    if(err) return res.status(500).json(err);
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Database error" });
+      }
 
-    res.json({ message:"Employee updated" });
+      res.json({ message: "Employee updated successfully" });
 
-  });
+    }
+  );
 
 };
 
 
-/* DELETE */
-export const deleteEmployee = (req,res)=>{
+/* =========================================
+   DELETE EMPLOYEE
+========================================= */
+export const deleteEmployee = (req, res) => {
 
   const { id } = req.params;
 
-  db.query("DELETE FROM employees WHERE id=?", [id], (err)=>{
+  db.query(
+    "DELETE FROM employees WHERE id = ?",
+    [id],
+    (err) => {
 
-    if(err) return res.status(500).json(err);
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Database error" });
+      }
 
-    res.json({ message:"Employee deleted" });
+      res.json({ message: "Employee deleted successfully" });
 
-  });
+    }
+  );
 
 };

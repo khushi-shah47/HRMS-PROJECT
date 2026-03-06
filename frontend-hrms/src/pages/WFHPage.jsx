@@ -192,7 +192,7 @@ const WFHPage = ({ employeeId }) => {
         <Button
           variant="contained"
           color="primary"
-          sx={{ mt: 2 }}
+          sx={{ mt: 2, display: 'flex', justifyContent: 'center', width: '100%' }}
           onClick={applyWFH}
         >
           Apply WFH

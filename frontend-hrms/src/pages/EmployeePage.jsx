@@ -53,10 +53,12 @@ const EmployeePage = () => {
       const res = await fetch("http://localhost:5000/api/employees");
       if (!res.ok) throw new Error("Failed to fetch employees");
       const data = await res.json();
-      const formatted = data.map(emp => ({
-        ...emp,
-        join_date: emp.join_date ? emp.join_date.split('T')[0] : ''
-      }));
+      const formatted = Array.isArray(data)
+        ? data.map(emp => ({
+          ...emp,
+          join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
+        }))
+      : [];;
       setEmployees(formatted);
     } catch (error) {
       console.error("Error:", error);

@@ -15,10 +15,13 @@ import PolicyPage from "./pages/PolicyPage";
 import EmployeePage from "./pages/EmployeePage";
 import DepartmentPage from "./pages/DepartmentPage";
 import UserPage from "./pages/UserPage";
+import TaskPage from "./pages/TaskPage";
+import ReportsPage from "./pages/ReportsPage";
 
 function App() {
   const employeeId = 1;
   const [currentPage, setCurrentPage] = useState("attendance");
+  const [showAllAttendance, setShowAllAttendance] = useState(false);
    const navItems = [
     { id: "attendance", label: "Attendance" },
     { id: "wfh", label: "WFH" },
@@ -26,10 +29,15 @@ function App() {
     { id: "policy", label: "Policy" },
     { id: "employee", label: "Employee" },
     { id: "department", label: "Department" },
-    { id: "user", label: "User" }
+    { id: "user", label: "User" },
+    { id: "tasks", label: "Tasks" },
+    { id: "reports", label: "Reports" }
   ];
 
   const renderPage = () => {
+    if (showAllAttendance) {
+      return <AllAttendancePage employeeId={employeeId} onBack={() => setShowAllAttendance(false)} />;
+    }
     switch (currentPage) {
       case "wfh":
         return <WFHPage employeeId={employeeId} />;
@@ -43,8 +51,12 @@ function App() {
         return <DepartmentPage />;
       case "user":
         return <UserPage />;
+      case "tasks":
+        return <TaskPage />;
+      case "reports":
+        return <ReportsPage />;
       default:
-        return <AttendancePage employeeId={employeeId} />;
+        return <AttendancePage employeeId={employeeId} onShowAll={() => setShowAllAttendance(true)} />;
     }
   };
 
