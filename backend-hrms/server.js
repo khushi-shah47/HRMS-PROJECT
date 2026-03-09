@@ -14,9 +14,11 @@ import userRoutes from "./routes/userRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import { connectDB } from "./config/sequelize.js";
+
 
 dotenv.config();
-
+connectDB();
 const app = express();
 
 app.use(cors());
