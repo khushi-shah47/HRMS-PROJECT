@@ -4,3 +4,4 @@ frontend-hrms/package-lock.json
 backend-hrms/package-lock.json
 frontend-hrms/.env
 backend-hrms/.env
+hrms_database_run_1.sql
