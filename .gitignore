@@ -2,3 +2,5 @@ frontend-hrms/node_modules/
 backend-hrms/node_modules/
 frontend-hrms/package-lock.json
 backend-hrms/package-lock.json
+frontend-hrms/.env
+backend-hrms/.env

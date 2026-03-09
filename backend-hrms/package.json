@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "accepts": "^2.0.0",
+    "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
     "bson": "^7.2.0",
     "bytes": "^3.1.2",
@@ -41,6 +42,7 @@
     "inherits": "^2.0.4",
     "ipaddr.js": "^1.9.1",
     "is-promise": "^4.0.0",
+    "jsonwebtoken": "^9.0.3",
     "kareem": "^3.2.0",
     "math-intrinsics": "^1.1.0",
     "media-typer": "^1.1.0",
@@ -98,5 +100,5 @@
   "type": "module",
   "devDependencies": {
     "nodemon": "^3.1.14"
-  } 
+  }
 }
