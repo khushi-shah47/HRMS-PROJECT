@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Container,
   Box,
   TextField,
   Button,
@@ -10,52 +9,62 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const roles = ["Admin", "Manager", "HR", "Developer"];
 
-const SignupPage = ({ setRole, goToLogin }) => {
+const SignupPage = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
 
   const handleSignup = async () => {
-  if (!name || !email || !password || !selectedRole) {
-    alert("Please fill all fields!");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        role: selectedRole,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert("Signup failed");
+    if (!name || !email || !password || !selectedRole) {
+      alert("Please fill all fields!");
       return;
     }
 
-    alert("Signup successful!");
-    goToLogin();
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          role: selectedRole,
+        }),
+      });
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      const Data = await res.json();
+
+      if (!res.ok) {
+        alert("Signup failed");
+        return;
+      }
+
+      alert("Signup successful!");
+      navigate("/login");
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
-    <Container maxWidth="sm">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#F8FAFC",
+      }}
+    >
       <Box
         sx={{
           backgroundColor: "white",
@@ -63,14 +72,17 @@ const SignupPage = ({ setRole, goToLogin }) => {
           borderRadius: 3,
           boxShadow: 5,
           textAlign: "center",
+          width: "100%",
+          maxWidth: "400px",
+          mx: 2,
         }}
       >
-        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold" }}>
+        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold", mb: 1 }}>
           Create Your Account 
         </Typography>
 
         <Typography sx={{ color: "#3B82F6", mb: 3 }}>
-          
+          Sign up for HRMS Dashboard
         </Typography>
 
         <TextField
@@ -129,15 +141,16 @@ const SignupPage = ({ setRole, goToLogin }) => {
         <Typography sx={{ mt: 3 }}>
           Already have an account?
           <Button
-            onClick={goToLogin}
+            onClick={() => navigate("/login")}
             sx={{ color: "#3B82F6", fontWeight: "bold" }}
           >
             Login Here
           </Button>
         </Typography>
       </Box>
-    </Container>
+    </Box>
   );
 };
 
 export default SignupPage;
+

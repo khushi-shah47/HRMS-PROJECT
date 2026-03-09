@@ -160,6 +160,8 @@ import ReportsPage from "./pages/ReportsPage";
 import UserPage from "./pages/UserPage";
 import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import ForgetPassword from "./pages/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 function App() {
   return (
@@ -167,6 +169,8 @@ function App() {
 
       <Routes>
         <Route path="/login" element={<LoginPage/>}/>
+        <Route path="/signup" element={<SignupPage/>}/>
+        <Route path="/forgot-password" element={<ForgetPassword/>}/>
 
         <Route path="/"
           element={

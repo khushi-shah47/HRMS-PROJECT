@@ -1,73 +1,71 @@
 import React, { useState } from "react";
 import {
-  Container,
   Box,
   TextField,
   Button,
   Typography,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
   IconButton, 
   InputAdornment
 } from "@mui/material";
-
+import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-const roles = ["Admin", "Manager", "Developer"];
-
-const LoginPage = ({ setRole, goToSignup, goToForgot }) => {
+const LoginPage = ({ setRole }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
-  if (!email || !password) {
-    alert("Please fill all fields!");
-    return;
-  }
-
-  if(email === "admin@company.com" && password === "123456"){
-
-    localStorage.setItem("token","loggedin");
-
-    window.location.href="/";
-
-    }else{
-
-    alert("Invalid credentials");
-
-  }
-  try {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.message);
+    if (!email || !password) {
+      alert("Please fill all fields!");
       return;
     }
 
-    localStorage.setItem("user", JSON.stringify(data.user));
-    setRole(data.user.role);
+    if(email === "admin@company.com" && password === "123456"){
+      localStorage.setItem("token","loggedin");
+      window.location.href="/";
+    } else {
+      alert("Invalid credentials");
+    }
+    
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
+        return;
+      }
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setRole(data.user.role);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
-    <Container maxWidth="sm">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#F8FAFC",
+      }}
+    >
       <Box
         sx={{
           backgroundColor: "white",
@@ -75,14 +73,17 @@ const LoginPage = ({ setRole, goToSignup, goToForgot }) => {
           borderRadius: 3,
           boxShadow: 5,
           textAlign: "center",
+          width: "100%",
+          maxWidth: "400px",
+          mx: 2,
         }}
       >
-        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold" }}>
+        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold", mb: 1 }}>
           Welcome Back 👋
         </Typography>
 
         <Typography sx={{ color: "#3B82F6", mb: 3 }}>
-         login to your HRMS dashboard
+          Login to your HRMS dashboard
         </Typography>
 
         <TextField
@@ -114,21 +115,6 @@ const LoginPage = ({ setRole, goToSignup, goToForgot }) => {
           }}
         />
 
-        {/* <FormControl fullWidth margin="normal">
-          <InputLabel>Role</InputLabel>
-          <Select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            label="Role"
-          >
-            {roles.map((role) => (
-              <MenuItem key={role} value={role}>
-                {role}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
-
         <Button
           variant="contained"
           fullWidth
@@ -148,8 +134,9 @@ const LoginPage = ({ setRole, goToSignup, goToForgot }) => {
             cursor: "pointer",
             color: "#1E3A8A",
             textDecoration: "underline",
+            "&:hover": { color: "#3B82F6" },
           }}
-          onClick={goToForgot}
+          onClick={() => navigate("/forgot-password")}
         >
           Forgot Password?
         </Typography>
@@ -157,15 +144,16 @@ const LoginPage = ({ setRole, goToSignup, goToForgot }) => {
         <Typography sx={{ mt: 3 }}>
           Don't have an account?
           <Button
-            onClick={goToSignup}
+            onClick={() => navigate("/signup")}
             sx={{ color: "#3B82F6", fontWeight: "bold" }}
           >
             Create a New Account
           </Button>
         </Typography>
       </Box>
-    </Container>
+    </Box>
   );
 };
 
 export default LoginPage;
+

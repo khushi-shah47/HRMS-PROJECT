@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Container, Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-const ForgetPassword = ({ goToLogin }) => {
+const ForgetPassword = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
   const handleSubmit = () => {
@@ -13,7 +15,15 @@ const ForgetPassword = ({ goToLogin }) => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#F8FAFC",
+      }}
+    >
       <Box
         sx={{
           backgroundColor: "white",
@@ -21,9 +31,12 @@ const ForgetPassword = ({ goToLogin }) => {
           borderRadius: 3,
           boxShadow: 5,
           textAlign: "center",
+          width: "100%",
+          maxWidth: "400px",
+          mx: 2,
         }}
       >
-        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold" }}>
+        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold", mb: 1 }}>
           Reset Your Password 🔐
         </Typography>
 
@@ -52,12 +65,16 @@ const ForgetPassword = ({ goToLogin }) => {
           Send Reset Link
         </Button>
 
-        <Button onClick={goToLogin} sx={{ mt: 2, color: "#3B82F6" }}>
+        <Button 
+          onClick={() => navigate("/login")} 
+          sx={{ mt: 2, color: "#3B82F6" }}
+        >
           Back to Login
         </Button>
       </Box>
-    </Container>
+    </Box>
   );
 };
 
 export default ForgetPassword;
+
