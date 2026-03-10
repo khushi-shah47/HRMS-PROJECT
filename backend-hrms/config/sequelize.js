@@ -1,36 +1,29 @@
+// config/sequelize.js
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import config from "./config.js";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".env") });
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+const env = process.env.NODE_ENV || "development";
+
+export const sequelize = new Sequelize(
+  process.env.DB_NAME || config[env].database,
+  process.env.DB_USER || config[env].username,
+  process.env.DB_PASS || config[env].password,
   {
-    host: process.env.DB_HOST,
-    dialect: "mysql",
-    logging: false, // disable SQL logs in console
-
-    pool: {
-      max: 10,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
+    host: process.env.DB_HOST || config[env].host,
+    dialect: config[env].dialect
   }
 );
 
-// Test DB connection
 export const connectDB = async () => {
-  console.log("DB_NAME:", process.env.DB_NAME);
-  console.log("DB_HOST:", process.env.DB_HOST);
   try {
     await sequelize.authenticate();
-    console.log("Sequelize connected to MySQL ✅");
-  } catch (error) {
-    console.error("Sequelize connection error ❌:", error);
+    console.log("Sequelize Connected ✅");
+  } catch (err) {
+    console.error("Sequelize connection failed:", err);
   }
 };
-
-export default sequelize;

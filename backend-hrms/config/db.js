@@ -1,9 +1,13 @@
 import mysql from "mysql2";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
-const db = mysql.createConnection({
+// Use pool to prevent connection closed errors
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -13,11 +17,12 @@ const db = mysql.createConnection({
   queueLimit: 0
 });
 
-db.connect((err) => {
+db.getConnection((err, connection) => {
   if (err) {
     console.error("Database connection failed:", err);
   } else {
     console.log("MySQL Connected ✅");
+    if (connection) connection.release();
   }
 });
 
