@@ -8,7 +8,8 @@ import {
   InputAdornment,
   Alert,
   Card,
-  CardContent
+  CardContent,
+  Divider
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -222,7 +223,7 @@ const LoginPage = () => {
           Forgot Password?
         </Typography>
 
-        <Divider sx={{ my: 2 }}>
+        {/* <Divider sx={{ my: 2 }}>
           <Typography variant="body2" color="textSecondary">OR</Typography>
         </Divider>
 
@@ -300,7 +301,7 @@ const LoginPage = () => {
           >
             Intern Dashboard
           </Button>
-        </Box>
+        </Box> */}
 
         <Typography sx={{ mt: 3 }}>
           Don't have an account?

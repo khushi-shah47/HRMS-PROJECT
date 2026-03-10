@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Stepper, Step, StepLabel, StepContent, Chip, Avatar, LinearProgress, LinearProgressProps, BoxProps } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Stepper, Step, StepLabel, StepContent, Chip, Avatar, LinearProgress } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SchoolIcon from "@mui/icons-material/School";

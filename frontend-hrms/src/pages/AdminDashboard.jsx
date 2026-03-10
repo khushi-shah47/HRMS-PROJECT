@@ -119,7 +119,7 @@ export default function AdminDashboard() {
   return (
     <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)", color: "white" }}>
+      {/* <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)", color: "white" }}> */}
         <Grid container alignItems="center" spacing={2}>
           <Grid item xs={12} md={8}>
             <Typography variant="h3" fontWeight="bold">

@@ -38,163 +38,165 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<LoginPage/>}/>
-        <Route path="/signup" element={<SignupPage/>}/>
-        <Route path="/forgot-password" element={<ForgetPassword/>}/>
+          <Route element={<ProtectedRoute><Layout/></ProtectedRoute>}>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage/>}/>
+            <Route path="/signup" element={<SignupPage/>}/>
+            <Route path="/forgot-password" element={<ForgetPassword/>}/>
 
-        {/* Role-specific Dashboard Routes */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Layout><AdminDashboard /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/manager" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <Layout><ManagerDashboard /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/hr" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "hr"]}>
-              <Layout><HRDashboard /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/developer" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "developer"]}>
-              <Layout><DeveloperDashboard /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/intern" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "intern"]}>
-              <Layout><InternDashboard /></Layout>
-            </ProtectedRoute>
-          } 
-        />
+            {/* Role-specific Dashboard Routes */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/manager" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                  <ManagerDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/hr" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                  <HRDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/developer" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "developer"]}>
+                  <DeveloperDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/intern" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "intern"]}>
+                  <InternDashboard />
+                </ProtectedRoute>
+              } 
+            />
 
-        {/* Default Dashboard (redirects based on role) */}
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <Layout><DashboardPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
+            {/* Default Dashboard (redirects based on role) */}
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
 
-        {/* Protected Routes */}
-        <Route 
-          path="/employees" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
-              <Layout><EmployeePage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/attendance" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-              <Layout><AttendancePage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/all-attendance" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
-              <Layout><AllAttendancePage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/tasks" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-              <Layout><TaskPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/reports" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
-              <Layout><ReportsPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/users" 
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Layout><UserPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/leave" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-              <Layout><LeavePage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/salary" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "hr"]}>
-              <Layout><SalaryPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/policies" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-              <Layout><PolicyPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/wfh" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-              <Layout><WFHPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/holidays" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-              <Layout><HolidayPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/departments" 
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
-              <Layout><DepartmentPage /></Layout>
-            </ProtectedRoute>
-          } 
-        />
+            {/* Protected Routes */}
+            <Route 
+              path="/employees" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
+                  <EmployeePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/attendance" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <AttendancePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/all-attendance" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
+                  <AllAttendancePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/tasks" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <TaskPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/reports" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
+                  <ReportsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/users" 
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <UserPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/leave" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <LeavePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/salary" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                  <SalaryPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/policies" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <PolicyPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/wfh" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <WFHPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/holidays" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <HolidayPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/departments" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
+                  <DepartmentPage />
+                </ProtectedRoute>
+              } 
+            />
 
-        {/* Catch all - redirect to login */}
-        <Route path="*" element={<Navigate to="/login" />} />
+            {/* Catch all - redirect to login */}
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Route>
       </Routes>
     </Router>
   );
