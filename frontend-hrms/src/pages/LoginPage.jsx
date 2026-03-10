@@ -31,29 +31,29 @@ const getDashboardRoute = (role) => {
   return routes[role] || "/";
 };
 
-// Get icon based on role
-const getRoleIcon = (role) => {
-  const icons = {
-    admin: <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#1E3A8A" }} />,
-    manager: <SupervisedUserCircleIcon sx={{ fontSize: 40, color: "#7C3AED" }} />,
-    hr: <WorkIcon sx={{ fontSize: 40, color: "#059669" }} />,
-    developer: <CodeIcon sx={{ fontSize: 40, color: "#DC2626" }} />,
-    intern: <SchoolIcon sx={{ fontSize: 40, color: "#D97706" }} />
-  };
-  return icons[role] || icons.developer;
-};
+// // Get icon based on role
+// const getRoleIcon = (role) => {
+//   const icons = {
+//     admin: <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#1E3A8A" }} />,
+//     manager: <SupervisedUserCircleIcon sx={{ fontSize: 40, color: "#7C3AED" }} />,
+//     hr: <WorkIcon sx={{ fontSize: 40, color: "#059669" }} />,
+//     developer: <CodeIcon sx={{ fontSize: 40, color: "#DC2626" }} />,
+//     intern: <SchoolIcon sx={{ fontSize: 40, color: "#D97706" }} />
+//   };
+//   return icons[role] || icons.developer;
+// };
 
-// Get color based on role
-const getRoleColor = (role) => {
-  const colors = {
-    admin: "#1E3A8A",
-    manager: "#7C3AED",
-    hr: "#059669",
-    developer: "#DC2626",
-    intern: "#D97706"
-  };
-  return colors[role] || colors.developer;
-};
+// // Get color based on role
+// const getRoleColor = (role) => {
+//   const colors = {
+//     admin: "#1E3A8A",
+//     manager: "#7C3AED",
+//     hr: "#059669",
+//     developer: "#DC2626",
+//     intern: "#D97706"
+//   };
+//   return colors[role] || colors.developer;
+// };
 
 const LoginPage = () => {
   const navigate = useNavigate();

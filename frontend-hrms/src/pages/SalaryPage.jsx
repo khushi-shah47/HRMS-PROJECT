@@ -15,7 +15,9 @@ import {
   TablePagination
 } from "@mui/material";
 
-const SalaryPage = ({ employeeId }) => {
+const SalaryPage = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const employeeId = user?.employee_id || user?.id;
   const [basicSalary, setBasicSalary] = useState("");
   const [workingDays, setWorkingDays] = useState("");
   const [presentDays, setPresentDays] = useState("");
@@ -48,13 +50,10 @@ const SalaryPage = ({ employeeId }) => {
       body: JSON.stringify({
         employee_id: employeeId,
         month,
-        year,
-        basic_salary: Number(basicSalary),
-        working_days: Number(workingDays),
-        present_days: Number(presentDays),
-        leave_days: Number(leaveDays)
+        year
       })
     });
+
     fetchHistory();
   };
 
@@ -102,7 +101,7 @@ const SalaryPage = ({ employeeId }) => {
 
       <Stack spacing={2} sx={{ mb: 3 }}>
         <TextField 
-          label="Month" 
+          label="Month (1-12)" 
           value={month} 
           onChange={e => setMonth(e.target.value)}
           sx={{ backgroundColor: "#ffffff" }}
@@ -111,30 +110,6 @@ const SalaryPage = ({ employeeId }) => {
           label="Year" 
           value={year} 
           onChange={e => setYear(e.target.value)}
-          sx={{ backgroundColor: "#ffffff" }}
-        />
-        <TextField 
-          label="Basic Salary" 
-          value={basicSalary} 
-          onChange={e => setBasicSalary(e.target.value)}
-          sx={{ backgroundColor: "#ffffff" }}
-        />
-        <TextField 
-          label="Working Days" 
-          value={workingDays} 
-          onChange={e => setWorkingDays(e.target.value)}
-          sx={{ backgroundColor: "#ffffff" }}
-        />
-        <TextField 
-          label="Present Days" 
-          value={presentDays} 
-          onChange={e => setPresentDays(e.target.value)}
-          sx={{ backgroundColor: "#ffffff" }}
-        />
-        <TextField 
-          label="Leave Days" 
-          value={leaveDays} 
-          onChange={e => setLeaveDays(e.target.value)}
           sx={{ backgroundColor: "#ffffff" }}
         />
 

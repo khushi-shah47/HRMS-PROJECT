@@ -68,7 +68,7 @@ export const checkOut = (req, res) => {
 
 /* Today's Attendance */
 export const getTodayAttendance = (req,res) => {
-    const employeeId = req.params.user_id;
+    const employeeId = req.params.employee_id;
     const today = new Date().toISOString().slice(0,10);
     db.query("SELECT * FROM attendance WHERE employee_id=? AND date=?", [employeeId,today], (err,result)=>{
         if(err) return res.status(500).json(err);
@@ -78,7 +78,7 @@ export const getTodayAttendance = (req,res) => {
 
 /* Attendance History */
 export const getAttendanceHistory = (req,res) => {
-    const employeeId = req.params.user_id;
+    const employeeId = req.params.employee_id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const offset = (page-1) * limit;

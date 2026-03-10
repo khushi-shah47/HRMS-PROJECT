@@ -124,7 +124,7 @@ function LeavePage({ user }) {
                 const id = e.target.value;
                 setEmployeeId(id);
                 const emp = employees.find(emp => emp.id == id);
-                setLeaveBalance(emp?.leave_balance || 0);
+                setLeaveBalance(emp?.leave_balance);
             }}>
             <option value="">Select Employee</option>
             {employees.map(emp => (

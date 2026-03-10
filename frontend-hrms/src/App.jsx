@@ -38,12 +38,11 @@ function App() {
   return (
     <Router>
       <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/signup" element={<SignupPage/>}/>
+          <Route path="/forgot-password" element={<ForgetPassword/>}/>
           <Route element={<ProtectedRoute><Layout/></ProtectedRoute>}>
-            {/* Public Routes */}
-            <Route path="/login" element={<LoginPage/>}/>
-            <Route path="/signup" element={<SignupPage/>}/>
-            <Route path="/forgot-password" element={<ForgetPassword/>}/>
-
             {/* Role-specific Dashboard Routes */}
             <Route 
               path="/admin" 
