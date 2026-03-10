@@ -14,11 +14,13 @@ import {
   Chip,
   Stack,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const AllAttendancePage = ({ employeeId, onBack }) => {
+const AllAttendancePage = ({ employeeId = 1 }) => {
+  const navigate = useNavigate();
   const [attendanceData, setAttendanceData] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -69,7 +71,7 @@ const AllAttendancePage = ({ employeeId, onBack }) => {
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
-            onClick={onBack}
+            onClick={() => navigate("/attendance")}
           >
             Back
           </Button>

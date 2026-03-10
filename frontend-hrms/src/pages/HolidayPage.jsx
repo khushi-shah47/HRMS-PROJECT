@@ -16,7 +16,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  TablePagination
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -28,6 +29,10 @@ const HolidayPage = () => {
   const [holidays, setHolidays] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   
   // Edit dialog state
   const [editOpen, setEditOpen] = useState(false);
@@ -227,7 +232,7 @@ const HolidayPage = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              holidays.map((h) => (
+              holidays.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((h) => (
                 <TableRow key={h.id} hover>
                   <TableCell>{h.title}</TableCell>
                   <TableCell>{h.holiday_date}</TableCell>
@@ -253,6 +258,19 @@ const HolidayPage = () => {
             )}
           </TableBody>
         </Table>
+        
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={holidays.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+        />
       </Paper>
 
       {/* Edit Dialog */}

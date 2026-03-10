@@ -1,205 +1,3 @@
-// import { useEffect, useState } from "react";
-
-// function LeavePage() {
-//   const [leaves, setLeaves] = useState([]);
-//   const [employees, setEmployees] = useState([]);
-//   const [employeeId, setEmployeeId] = useState("");
-//   const [startDate, setStartDate] = useState("");
-//   const [endDate, setEndDate] = useState("");
-//   const [reason, setReason] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("");
-//   const [page, setPage] = useState(1);
-//   const [totalPages, setTotalPages] = useState(1);
-
-//   const perPage = 5;
-
-//   // Load employees for dropdown
-//   useEffect(() => {
-//     fetch("/api/employees?page=1&limit=100")
-//       .then(res => res.json())
-//       .then(data => setEmployees(data.data))
-//       .catch(err => console.error(err));
-//   }, []);
-
-//   // Load leaves
-// const fetchLeaves = () => {
-//   const query = new URLSearchParams({
-//     page,
-//     limit: perPage,
-//     status: statusFilter
-//   });
-
-//   fetch(`/api/leaves?${query.toString()}`)
-//     .then(res => res.json())
-//     .then(data => {
-//       setLeaves(data.data);
-//       setTotalPages(data.totalPages);
-//     })
-//     .catch(err => console.error(err));
-// };
-
-// useEffect(() => {
-//       fetchLeaves();
-// }, [page, statusFilter]);
-
-//   // Apply Leave
-//   const handleApply = async () => {
-//     if (!employeeId || !startDate || !endDate) {
-//       alert("Please fill required fields");
-//       return;
-//     }
-
-//     await fetch("/api/leaves", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         employee_id: employeeId,
-//         start_date: startDate,
-//         end_date: endDate,
-//         reason
-//       })
-//     });
-
-//     alert("Leave applied!");
-//     setEmployeeId("");
-//     setStartDate("");
-//     setEndDate("");
-//     setReason("");
-//     setPage(1);
-//   };
-
-//   // Update Leave Status
-//   const updateStatus = async (id, newStatus) => {
-//     await fetch(`/api/leaves/${id}`, {
-//       method: "PUT",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ status: newStatus })
-//     });
-
-//     fetchleaves();
-//   };
-
-//   return (
-//     <div>
-//       <h2>Leave Management</h2>
-
-//       {/* Apply Leave Form */}
-//       <div style={{ marginBottom: "20px", border: "1px solid #ccc", padding: "10px" }}>
-//         <h4>Apply Leave</h4>
-
-//         <select
-//           value={employeeId}
-//           onChange={e => setEmployeeId(e.target.value)}
-//         >
-//           <option value="">Select Employee</option>
-//           {employees.map(emp => (
-//             <option key={emp.id} value={emp.id}>
-//               {emp.name}
-//             </option>
-//           ))}
-//         </select>
-
-//         <input
-//           type="date"
-//           value={startDate}
-//           onChange={e => setStartDate(e.target.value)}
-//         />
-
-//         <input
-//           type="date"
-//           value={endDate}
-//           onChange={e => setEndDate(e.target.value)}
-//         />
-
-//         <input
-//           placeholder="Reason"
-//           value={reason}
-//           onChange={e => setReason(e.target.value)}
-//         />
-
-//         <button onClick={handleApply}>Apply</button>
-//       </div>
-
-//       {/* Status Filter */}
-//       <div style={{ marginBottom: "10px" }}>
-//         <select
-//           value={statusFilter}
-//           onChange={e => setStatusFilter(e.target.value)}
-//         >
-//           <option value="">All Status</option>
-//           <option value="Pending">Pending</option>
-//           <option value="Approved">Approved</option>
-//           <option value="Rejected">Rejected</option>
-//         </select>
-//       </div>
-
-//       {/* Leave Table */}
-//       <table border="1" width="100%">
-//         <thead>
-//           <tr>
-//             <th>ID</th>
-//             <th>Name</th>
-//             <th>Department</th>
-//             <th>Start</th>
-//             <th>End</th>
-//             <th>Reason</th>
-//             <th>Status</th>
-//             <th>Action</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {leaves.length > 0 ? (
-//             leaves.map(leave => (
-//               <tr key={leave.id}>
-//                 <td>{leave.id}</td>
-//                 <td>{leave.name}</td>
-//                 <td>{leave.department}</td>
-//                 <td>{leave.start_date}</td>
-//                 <td>{leave.end_date}</td>
-//                 <td>{leave.reason}</td>
-//                 <td>{leave.status}</td>
-//                 <td>
-//                   {leave.status === "Pending" && (
-//                     <>
-//                       <button onClick={() => updateStatus(leave.id, "Approved")}>
-//                         Approve
-//                       </button>
-//                       <button onClick={() => updateStatus(leave.id, "Rejected")}>
-//                         Reject
-//                       </button>
-//                     </>
-//                   )}
-//                 </td>
-//               </tr>
-//             ))
-//           ) : (
-//             <tr>
-//               <td colSpan="8" style={{ textAlign: "center" }}>
-//                 No leave records
-//               </td>
-//             </tr>
-//           )}
-//         </tbody>
-//       </table>
-
-//       {/* Pagination */}
-//       <div style={{ marginTop: "10px" }}>
-//         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-//           Previous
-//         </button>
-//         <span style={{ margin: "0 10px" }}>
-//           Page {page} of {totalPages}
-//         </span>
-//         <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-//           Next
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default LeavePage;
-
 import React, { useEffect, useState } from "react";
 import {
   Container,
@@ -212,6 +10,7 @@ import {
   TableRow,
   Paper,
   Stack,
+  TablePagination
 } from "@mui/material";
 
 function LeavePage({ user }) {
@@ -222,40 +21,39 @@ function LeavePage({ user }) {
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [leaveBalance,setLeaveBalance] = useState(null);
-
-  const perPage = 5;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [leaveBalance, setLeaveBalance] = useState(null);
 
   // Load employees for dropdown
   useEffect(() => {
     fetch("/api/employees?page=1&limit=100")
       .then(res => res.json())
-      .then(data => setEmployees(data.data))
+      .then(data => setEmployees(data.data || data.employees || []))
       .catch(err => console.error(err));
   }, []);
 
   // Load leaves
   const fetchLeaves = () => {
     const query = new URLSearchParams({
-      page,
-      limit: perPage,
+      page: page + 1,
+      limit: rowsPerPage,
       status: statusFilter
     });
 
     fetch(`/api/leaves?${query.toString()}`)
       .then(res => res.json())
       .then(data => {
-        setLeaves(data.data);
-        setTotalPages(data.totalPages);
+        setLeaves(data.data || []);
+        setTotalCount(data.total || 0);
       })
       .catch(err => console.error(err));
   };
 
   useEffect(() => {
     fetchLeaves();
-  }, [page, statusFilter]);
+  }, [page, rowsPerPage, statusFilter]);
 
   // Apply Leave
   const handleApply = async () => {
@@ -284,7 +82,7 @@ function LeavePage({ user }) {
     setStartDate("");
     setEndDate("");
     setReason("");
-    setPage(1);
+    setPage(0);
     fetchLeaves();
   };
 
@@ -297,6 +95,15 @@ function LeavePage({ user }) {
     });
 
     fetchLeaves();
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -358,21 +165,21 @@ function LeavePage({ user }) {
       <Paper>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Department</TableCell>
-              <TableCell>Start</TableCell>
-              <TableCell>End</TableCell>
-              <TableCell>Reason</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Action</TableCell>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Reason</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {leaves.length > 0 ? (
               leaves.map(leave => (
-                <TableRow key={leave.id}>
+                <TableRow key={leave.id} hover>
                   <TableCell>{leave.id}</TableCell>
                   <TableCell>{leave.name}</TableCell>
                   <TableCell>{leave.department}</TableCell>
@@ -413,22 +220,20 @@ function LeavePage({ user }) {
             )}
           </TableBody>
         </Table>
-      </Paper>
 
-      {/* Pagination */}
-      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-        <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Previous
-        </Button>
-        <Typography sx={{ mt: 1 }}>
-          Page {page} of {totalPages}
-        </Typography>
-        <Button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-          Next
-        </Button>
-      </Stack>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={totalCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
     </Container>
   );
 }
 
 export default LeavePage;
+

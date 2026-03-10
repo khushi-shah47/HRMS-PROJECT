@@ -16,13 +16,15 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 
-const AttendancePage = ({ employeeId, onShowAll }) => {
+const AttendancePage = ({ employeeId = 1 }) => {
+  const navigate = useNavigate();
   const [today, setToday] = useState({});
   const [attendanceData, setAttendanceData] = useState([]);
   const [workType, setWorkType] = useState("");
@@ -178,7 +180,7 @@ const AttendancePage = ({ employeeId, onShowAll }) => {
         <Button
           variant="outlined"
           startIcon={<ListAltIcon />}
-          onClick={onShowAll}
+          onClick={() => navigate("/all-attendance")}
           fullWidth
           size="large"
         >

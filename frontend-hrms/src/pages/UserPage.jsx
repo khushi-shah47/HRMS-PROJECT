@@ -216,6 +216,8 @@ const UserPage = () => {
             <MenuItem value="admin">Admin</MenuItem>
             <MenuItem value="manager">Manager</MenuItem>
             <MenuItem value="employee">Employee</MenuItem>
+            <MenuItem value="hr">HR</MenuItem>
+            <MenuItem value="intern">Intern</MenuItem>
           </TextField>
           <TextField
             select
@@ -266,7 +268,12 @@ const UserPage = () => {
                         px: 1,
                         py: 0.5,
                         borderRadius: 1,
-                        backgroundColor: user.role === "admin" ? "#dc2626" : user.role === "manager" ? "#2563eb" : "#16a34a",
+                        backgroundColor: 
+                          user.role === "admin" ? "#dc2626" : 
+                          user.role === "manager" ? "#2563eb" : 
+                          user.role === "hr" ? "#7c3aed" :
+                          user.role === "intern" ? "#059669" :
+                          "#16a34a",
                         color: "white",
                         textTransform: "capitalize"
                       }}
@@ -306,6 +313,8 @@ const UserPage = () => {
               <MenuItem value="admin">Admin</MenuItem>
               <MenuItem value="manager">Manager</MenuItem>
               <MenuItem value="employee">Employee</MenuItem>
+              <MenuItem value="hr">HR</MenuItem>
+              <MenuItem value="intern">Intern</MenuItem>
             </TextField>
             <TextField
               select

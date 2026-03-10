@@ -10,12 +10,20 @@ import {
   TableCell,
   TableBody,
   Paper,
-  Stack
+  Stack,
+  MenuItem,
+  Chip,
+  TablePagination
 } from "@mui/material";
 
 const TaskPage = () => {
 
   const [tasks, setTasks] = useState([]);
+  const [employees, setEmployees] = useState([]);
+
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -24,14 +32,39 @@ const TaskPage = () => {
   const [priority, setPriority] = useState("medium");
   const [dueDate, setDueDate] = useState("");
 
+  // Priority options
+  const priorityOptions = [
+    { value: "high", label: "High" },
+    { value: "medium", label: "Medium" },
+    { value: "low", label: "Low" }
+  ];
+
   const fetchTasks = async () => {
     const res = await fetch("http://localhost:5000/api/tasks");
     const data = await res.json();
     setTasks(data);
   };
 
+  const fetchEmployees = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/employees");
+      const data = await res.json();
+      // Handle both array and pagination response
+      let employeesArray = [];
+      if (Array.isArray(data)) {
+        employeesArray = data;
+      } else if (data.employees) {
+        employeesArray = data.employees;
+      }
+      setEmployees(employeesArray);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
+    fetchEmployees();
   }, []);
 
   const createTask = async () => {
@@ -55,6 +88,7 @@ const TaskPage = () => {
     setDescription("");
     setAssignedTo("");
     setAssignedBy("");
+    setPriority("medium");
     setDueDate("");
 
     fetchTasks();
@@ -80,6 +114,41 @@ const TaskPage = () => {
     fetchTasks();
   };
 
+  // Helper function to get employee name by ID
+  const getEmployeeName = (id) => {
+    if (!id) return "-";
+    const emp = employees.find(e => e.id === parseInt(id) || e.id === id);
+    return emp ? emp.name : `ID: ${id}`;
+  };
+
+  // Get priority color
+  const getPriorityColor = (priority) => {
+    switch (priority?.toLowerCase()) {
+      case "high":
+        return "error";
+      case "medium":
+        return "warning";
+      case "low":
+        return "success";
+      default:
+        return "default";
+    }
+  };
+
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "completed":
+        return "success";
+      case "in_progress":
+        return "primary";
+      case "pending":
+        return "warning";
+      default:
+        return "default";
+    }
+  };
+
   return (
     <Container sx={{ mt: 5 }}>
 
@@ -102,25 +171,44 @@ const TaskPage = () => {
             label="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            multiline
+            rows={2}
           />
 
           <TextField
-            label="Assigned To (Employee ID)"
+            select
+            label="Assigned To (Employee)"
             value={assignedTo}
             onChange={(e) => setAssignedTo(e.target.value)}
-          />
+          >
+            <MenuItem value="">Select Employee</MenuItem>
+            {employees.map((emp) => (
+              <MenuItem key={emp.id} value={emp.id}>{emp.name}</MenuItem>
+            ))}
+          </TextField>
 
           <TextField
-            label="Assigned By (Manager ID)"
+            select
+            label="Assigned By (Manager)"
             value={assignedBy}
             onChange={(e) => setAssignedBy(e.target.value)}
-          />
+          >
+            <MenuItem value="">Select Manager</MenuItem>
+            {employees.map((emp) => (
+              <MenuItem key={emp.id} value={emp.id}>{emp.name}</MenuItem>
+            ))}
+          </TextField>
 
           <TextField
+            select
             label="Priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-          />
+          >
+            {priorityOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+            ))}
+          </TextField>
 
           <TextField
             type="date"
@@ -147,22 +235,40 @@ const TaskPage = () => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Title</TableCell>
+              <TableCell>Assigned To</TableCell>
+              <TableCell>Assigned By</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Priority</TableCell>
+              <TableCell>Due Date</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
 
-            {tasks.map(task => (
+            {tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(task => (
 
               <TableRow key={task.id}>
 
                 <TableCell>{task.id}</TableCell>
                 <TableCell>{task.title}</TableCell>
-                <TableCell>{task.status}</TableCell>
-                <TableCell>{task.priority}</TableCell>
+                <TableCell>{getEmployeeName(task.assigned_to)}</TableCell>
+                <TableCell>{getEmployeeName(task.assigned_by)}</TableCell>
+                <TableCell>
+                  <Chip 
+                    label={task.status || "Pending"} 
+                    color={getStatusColor(task.status)} 
+                    size="small" 
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={task.priority || "Medium"} 
+                    color={getPriorityColor(task.priority)} 
+                    size="small" 
+                  />
+                </TableCell>
+                <TableCell>{task.due_date || "-"}</TableCell>
 
                 <TableCell>
 
@@ -170,6 +276,8 @@ const TaskPage = () => {
 
                     <Button
                       size="small"
+                      variant="contained"
+                      color="primary"
                       onClick={() => updateStatus(task.id, "in_progress")}
                     >
                       Start
@@ -177,6 +285,17 @@ const TaskPage = () => {
 
                     <Button
                       size="small"
+                      variant="outlined"
+                      color="warning"
+                      onClick={() => updateStatus(task.id, "pending")}
+                    >
+                      Pending
+                    </Button>
+
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="success"
                       onClick={() => updateStatus(task.id, "completed")}
                     >
                       Complete
@@ -202,6 +321,19 @@ const TaskPage = () => {
 
         </Table>
 
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={tasks.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+        />
+
       </Paper>
 
     </Container>
@@ -209,3 +341,4 @@ const TaskPage = () => {
 };
 
 export default TaskPage;
+

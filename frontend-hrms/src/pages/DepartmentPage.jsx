@@ -16,7 +16,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  TablePagination
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -28,6 +29,10 @@ const DepartmentPage = () => {
   const [description, setDescription] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   
   // Edit dialog state
   const [editOpen, setEditOpen] = useState(false);
@@ -184,7 +189,7 @@ const DepartmentPage = () => {
                 <TableCell colSpan={4} align="center">No departments found</TableCell>
               </TableRow>
             ) : (
-              departments.map((dept) => (
+              departments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((dept) => (
                 <TableRow key={dept.id} hover>
                   <TableCell>{dept.id}</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>{dept.name}</TableCell>
@@ -202,6 +207,19 @@ const DepartmentPage = () => {
             )}
           </TableBody>
         </Table>
+        
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={departments.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+        />
       </Paper>
 
       <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>

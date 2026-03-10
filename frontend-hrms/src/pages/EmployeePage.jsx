@@ -17,7 +17,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  MenuItem
+  MenuItem,
+  TablePagination
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -26,6 +27,26 @@ import AddIcon from "@mui/icons-material/Add";
 const EmployeePage = () => {
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
+  
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+  // Predefined departments
+  const departmentOptions = [
+    { id: 1, name: "HR" },
+    { id: 2, name: "Software Developer" },
+    { id: 3, name: "DevOps" },
+    { id: 4, name: "QA" }
+  ];
+
+  // Predefined positions
+  const positionOptions = [
+    "Junior Developer",
+    "Senior Developer",
+    "Intern",
+    "Project Manager"
+  ];
   
   // Form state
   const [name, setName] = useState("");
@@ -53,12 +74,17 @@ const EmployeePage = () => {
       const res = await fetch("http://localhost:5000/api/employees");
       if (!res.ok) throw new Error("Failed to fetch employees");
       const data = await res.json();
-      const formatted = Array.isArray(data)
-        ? data.map(emp => ({
-          ...emp,
-          join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
-        }))
-      : [];;
+      // Handle both array response and pagination object response
+      let employeesArray = [];
+      if (Array.isArray(data)) {
+        employeesArray = data;
+      } else if (data.employees) {
+        employeesArray = data.employees;
+      }
+      const formatted = employeesArray.map(emp => ({
+        ...emp,
+        join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
+      }));
       setEmployees(formatted);
     } catch (error) {
       console.error("Error:", error);
@@ -67,13 +93,8 @@ const EmployeePage = () => {
   };
 
   const fetchDepartments = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/departments/all");
-      if (!res.ok) throw new Error("Failed to fetch departments");
-      setDepartments(await res.json());
-    } catch (error) {
-      console.error("Error:", error);
-    }
+    // Use predefined departments along with any from API
+    setDepartments(departmentOptions);
   };
 
   const addEmployee = async () => {
@@ -214,11 +235,17 @@ const EmployeePage = () => {
             fullWidth
           />
           <TextField
+            select
             label="Position *"
             value={position}
             onChange={(e) => setPosition(e.target.value)}
             fullWidth
-          />
+          >
+            <MenuItem value="">Select Position</MenuItem>
+            {positionOptions.map((pos) => (
+              <MenuItem key={pos} value={pos}>{pos}</MenuItem>
+            ))}
+          </TextField>
           <TextField
             select
             label="Department"
@@ -265,7 +292,7 @@ const EmployeePage = () => {
                 <TableCell colSpan={8} align="center">No employees found</TableCell>
               </TableRow>
             ) : (
-              employees.map((emp) => (
+              employees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((emp) => (
                 <TableRow key={emp.id} hover>
                   <TableCell>{emp.id}</TableCell>
                   <TableCell>{emp.name}</TableCell>
@@ -287,6 +314,19 @@ const EmployeePage = () => {
             )}
           </TableBody>
         </Table>
+        
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={employees.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(event, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(event) => {
+            setRowsPerPage(parseInt(event.target.value, 10));
+            setPage(0);
+          }}
+        />
       </Paper>
 
       <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
@@ -296,7 +336,18 @@ const EmployeePage = () => {
             <TextField label="Name *" value={editName} onChange={(e) => setEditName(e.target.value)} fullWidth />
             <TextField label="Email *" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} fullWidth />
             <TextField label="Phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} fullWidth />
-            <TextField label="Position *" value={editPosition} onChange={(e) => setEditPosition(e.target.value)} fullWidth />
+            <TextField
+              select
+              label="Position *"
+              value={editPosition}
+              onChange={(e) => setEditPosition(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value="">Select Position</MenuItem>
+              {positionOptions.map((pos) => (
+                <MenuItem key={pos} value={pos}>{pos}</MenuItem>
+              ))}
+            </TextField>
             <TextField
               select
               label="Department"

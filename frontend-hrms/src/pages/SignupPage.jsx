@@ -8,10 +8,11 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Alert
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const roles = ["Admin", "Manager", "HR", "Developer"];
+const roles = ["admin", "manager", "hr", "developer", "intern"];
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -19,15 +20,20 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async () => {
     if (!name || !email || !password || !selectedRole) {
-      alert("Please fill all fields!");
+      setError("Please fill in all fields!");
       return;
     }
 
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,18 +46,27 @@ const SignupPage = () => {
         }),
       });
 
-      const Data = await res.json();
+      const data = await res.json();
 
       if (!res.ok) {
-        alert("Signup failed");
+        setError(data.message || "Signup failed");
         return;
       }
 
-      alert("Signup successful!");
+      alert("Signup successful! Please login.");
       navigate("/login");
 
     } catch (error) {
       console.error(error);
+      setError("Connection error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSignup();
     }
   };
 
@@ -85,12 +100,19 @@ const SignupPage = () => {
           Sign up for HRMS Dashboard
         </Typography>
 
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError("")}>
+            {error}
+          </Alert>
+        )}
+
         <TextField
           label="Name"
           fullWidth
           margin="normal"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
 
         <TextField
@@ -99,6 +121,7 @@ const SignupPage = () => {
           margin="normal"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
 
         <TextField
@@ -108,6 +131,7 @@ const SignupPage = () => {
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
 
         <FormControl fullWidth margin="normal">
@@ -119,7 +143,7 @@ const SignupPage = () => {
           >
             {roles.map((role) => (
               <MenuItem key={role} value={role}>
-                {role}
+                {role.charAt(0).toUpperCase() + role.slice(1)}
               </MenuItem>
             ))}
           </Select>
@@ -134,8 +158,9 @@ const SignupPage = () => {
             "&:hover": { backgroundColor: "#3B82F6" },
           }}
           onClick={handleSignup}
+          disabled={loading}
         >
-          Sign Up
+          {loading ? "Signing up..." : "Sign Up"}
         </Button>
 
         <Typography sx={{ mt: 3 }}>

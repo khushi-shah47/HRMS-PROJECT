@@ -11,7 +11,8 @@ import {
   TableBody,
   Paper,
   Stack,
-  Box
+  Box,
+  TablePagination
 } from "@mui/material";
 
 const SalaryPage = ({ employeeId }) => {
@@ -26,6 +27,14 @@ const SalaryPage = ({ employeeId }) => {
 
   const [showHistory, setShowHistory] = useState(false);
   const [showReport, setShowReport] = useState(false);
+
+  // Pagination state for history
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyRowsPerPage, setHistoryRowsPerPage] = useState(10);
+
+  // Pagination state for report
+  const [reportPage, setReportPage] = useState(0);
+  const [reportRowsPerPage, setReportRowsPerPage] = useState(10);
 
   const fetchHistory = async () => {
     const res = await fetch(`http://localhost:5000/api/salary/history/${employeeId}`);
@@ -178,7 +187,7 @@ const SalaryPage = ({ employeeId }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {history.map(rec => (
+                {history.slice(historyPage * historyRowsPerPage, historyPage * historyRowsPerPage + historyRowsPerPage).map(rec => (
                   <TableRow key={rec.id}>
                     <TableCell>{rec.month}</TableCell>
                     <TableCell>{rec.year}</TableCell>
@@ -193,6 +202,19 @@ const SalaryPage = ({ employeeId }) => {
                 ))}
               </TableBody>
             </Table>
+            
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              component="div"
+              count={history.length}
+              rowsPerPage={historyRowsPerPage}
+              page={historyPage}
+              onPageChange={(event, newPage) => setHistoryPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setHistoryRowsPerPage(parseInt(event.target.value, 10));
+                setHistoryPage(0);
+              }}
+            />
           </Paper>
         </Box>
       )}
@@ -217,7 +239,7 @@ const SalaryPage = ({ employeeId }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {report.map(rec => (
+                {report.slice(reportPage * reportRowsPerPage, reportPage * reportRowsPerPage + reportRowsPerPage).map(rec => (
                   <TableRow key={rec.id}>
                     <TableCell>{rec.name}</TableCell>
                     <TableCell>{rec.department}</TableCell>
@@ -228,6 +250,19 @@ const SalaryPage = ({ employeeId }) => {
                 ))}
               </TableBody>
             </Table>
+            
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              component="div"
+              count={report.length}
+              rowsPerPage={reportRowsPerPage}
+              page={reportPage}
+              onPageChange={(event, newPage) => setReportPage(newPage)}
+              onRowsPerPageChange={(event) => {
+                setReportRowsPerPage(parseInt(event.target.value, 10));
+                setReportPage(0);
+              }}
+            />
           </Paper>
         </Box>
       )}

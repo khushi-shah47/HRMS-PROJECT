@@ -5,14 +5,15 @@ Toolbar,
 Typography,
 Avatar,
 Box,
-Button
+IconButton
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useLocation, useNavigate } from "react-router-dom";
 
-
-export default function Topbar(){
+export default function Topbar({ onMenuClick }){
 
     const location = useLocation(); 
+    const navigate = useNavigate();
     
     const titles = {
         "/": "Dashboard",
@@ -20,42 +21,47 @@ export default function Topbar(){
         "/attendance": "Attendance",
         "/tasks": "Task Management",
         "/reports": "Reports",
-        "/users": "User Management"
+        "/users": "User Management",
+        "/leave": "Leave Management",
+        "/salary": "Salary Management",
+        "/policies": "Policies",
+        "/wfh": "Work From Home",
+        "/holidays": "Holidays",
+        "/departments": "Department Management"
     };
     const pageTitle = titles[location.pathname] || "HRMS Dashboard";
 
-    const user = {
-        name: "Admin"
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-    };
+    // Get user from localStorage
+    const userData = localStorage.getItem("user");
+    const user = userData ? JSON.parse(userData) : { name: "Admin" };
 
     return(
         <AppBar position="static" sx={{ background:"#FFFFFF", color:"#000", boxShadow:1 }}>
             <Toolbar>
+                <IconButton
+                    edge="start"
+                    color="inherit"
+                    onClick={onMenuClick}
+                    sx={{ mr: 2, display: { md: "none" } }}
+                >
+                    <MenuIcon />
+                </IconButton>
                 <Typography
-                    variant="h6" sx={{ flexGrow:1, color:"#1E3A8A", fontWeight: "bold" }}>{pageTitle}
+                    variant="h6" 
+                    sx={{ flexGrow:1, color:"#1E3A8A", fontWeight: "bold" }}
+                >
+                    {pageTitle}
                 </Typography>
                 <Box sx={{ display:"flex", alignItems:"center", gap:2 }}>
-                    <Typography>
-                        {user.name}
+                    <Typography sx={{ fontWeight: 500 }}>
+                        {user.name || user.username || "User"}
                     </Typography>
-                    <Avatar>
-                        {user.name.charAt(0)}
+                    <Avatar sx={{ bgcolor: "#1E3A8A" }}>
+                        {(user.name || user.username || "U").charAt(0).toUpperCase()}
                     </Avatar>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        size="small"
-                        onClick={handleLogout}
-                    >
-                    Logout
-                    </Button>
                 </Box>
             </Toolbar>
         </AppBar>
     );
 }
+
