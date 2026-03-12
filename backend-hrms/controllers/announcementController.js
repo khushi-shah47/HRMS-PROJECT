@@ -9,34 +9,64 @@ export const getAnnouncements = (req, res) => {
   `;
 
   db.query(sql, (err, result) => {
-    if (err) return res.status(500).json({ message: "Database error", error: err.message });
+    if (err) {
+      console.error("GET Announcements Error:", err);
+      return res.status(500).json({ message: "Database error", error: err.message });
+    }
     res.json(result);
   });
 };
 
+/* Create Announcement */
 export const createAnnouncement = (req, res) => {
   const { title, content } = req.body;
   const createdBy = req.user.id;
 
-  if (!title) {
-    return res.status(400).json({ message: "Title is required" });
+  if (!title || title.trim() === "") {
+    return res.status(400).json({ message: "Announcement title is required" });
+  }
+
+  if (!createdBy) {
+    return res.status(401).json({ message: "Unauthorized: User information missing" });
   }
 
   const sql = "INSERT INTO announcements (title, content, created_by) VALUES (?, ?, ?)";
 
-  db.query(sql, [title, content, createdBy], (err, result) => {
-    if (err) return res.status(500).json({ message: "Database error", error: err.message });
-    res.status(201).json({ message: "Announcement created successfully", id: result.insertId });
+  db.query(sql, [title.trim(), content ? content.trim() : null, createdBy], (err, result) => {
+    if (err) {
+      console.error("Error creating announcement:", err);
+      return res.status(500).json({ 
+        message: "Failed to create announcement", 
+        error: err.message,
+        code: err.code 
+      });
+    }
+    res.status(201).json({ 
+      message: "Announcement posted successfully", 
+      id: result ? result.insertId : null 
+    });
   });
 };
 
+/* Delete Announcement */
 export const deleteAnnouncement = (req, res) => {
   const { id } = req.params;
 
+  if (!id) {
+    return res.status(400).json({ message: "Announcement ID is required" });
+  }
+
   db.query("DELETE FROM announcements WHERE id = ?", [id], (err, result) => {
-    if (err) return res.status(500).json({ message: "Database error", error: err.message });
+    if (err) {
+      console.error("Error deleting announcement:", err);
+      return res.status(500).json({ 
+        message: "Failed to delete announcement", 
+        error: err.message,
+        code: err.code 
+      });
+    }
     
-    if (result.affectedRows === 0) {
+    if (result && result.affectedRows === 0) {
       return res.status(404).json({ message: "Announcement not found" });
     }
     

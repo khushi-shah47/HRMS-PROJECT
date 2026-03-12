@@ -106,7 +106,7 @@ const AllAttendancePage = () => {
                   <TableCell>{rec.name}</TableCell>
                   <TableCell>{rec.time_in ? new Date(rec.time_in).toLocaleTimeString() : "-"}</TableCell>
                   <TableCell>{rec.time_out ? new Date(rec.time_out).toLocaleTimeString() : "-"}</TableCell>
-                  <TableCell>{rec.total_hours ? rec.total_hours.toFixed(2) : "-"}</TableCell>
+                  <TableCell>{rec.total_hours ? Number(rec.total_hours).toFixed(2) : "-"}</TableCell>
                   <TableCell>{getStatusChip(rec.work_type)}</TableCell>
                 </TableRow>
               ))

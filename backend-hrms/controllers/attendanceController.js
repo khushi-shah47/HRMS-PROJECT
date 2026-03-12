@@ -2,7 +2,6 @@ import db from "../config/db.js";
 
 /* Check-in */
 export const checkIn = (req, res) => {
-
   const { employee_id, work_type } = req.body;
 
   if (!employee_id) {
@@ -16,21 +15,37 @@ export const checkIn = (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const now = new Date();
 
+  // Check if a record already exists for today
   db.query(
-    `INSERT INTO attendance (employee_id, date, work_type, time_in)
-    VALUES (?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE time_in=?`,
-    [employee_id, today, work_type, now, now],
+    "SELECT * FROM attendance WHERE employee_id=? AND date=?",
+    [employee_id, today],
     (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json(err);
+      if (err) return res.status(500).json(err);
+
+      if (result.length > 0) {
+        return res.status(400).json({ 
+          message: "You have already recorded attendance for today.",
+          attendance: result[0]
+        });
       }
 
-      res.json({
-        message: "Checked in",
-        time_in: now
-      });
+      // Create new record
+      db.query(
+        `INSERT INTO attendance (employee_id, date, work_type, time_in) VALUES (?, ?, ?, ?)`,
+        [employee_id, today, work_type, now],
+        (err2, result2) => {
+          if (err2) {
+            console.error(err2);
+            return res.status(500).json(err2);
+          }
+
+          res.json({
+            message: "Checked in successfully",
+            time_in: now,
+            work_type: work_type
+          });
+        }
+      );
     }
   );
 };
@@ -52,11 +67,11 @@ export const checkOut = (req, res) => {
       if (err) return res.status(500).json(err);
 
       if (!result.length || !result[0].time_in) {
-        return res.status(400).json({ message: "Check-in first" });
+        return res.status(400).json({ message: "No active check-in found for today." });
       }
 
       if (result[0].time_out) {
-        return res.status(400).json({ message: "Already checked out" });
+        return res.status(400).json({ message: "You have already checked out for today." });
       }
 
       const now = new Date();
@@ -70,9 +85,9 @@ export const checkOut = (req, res) => {
           if (err2) return res.status(500).json(err2);
 
           res.json({
-            message: "Checked out",
+            message: "Checked out successfully",
             time_out: now,
-            total_hours: hours,
+            total_hours: hours.toFixed(2),
           });
         }
       );
@@ -99,14 +114,21 @@ export const getAttendanceHistory = (req,res) => {
     db.query(
         "SELECT * FROM attendance WHERE employee_id=? ORDER BY date DESC LIMIT ? OFFSET ?",
         [employeeId, limit, offset],
-        (err,result)=>{
-            if(err) return res.status(500).json(err);
+        (err, result) => {
+            if (err) {
+                console.error("Attendance History Error 1:", err);
+                return res.status(500).json({ message: "Database error", error: err.message });
+            }
             db.query(
                 "SELECT COUNT(*) as total FROM attendance WHERE employee_id=?",
                 [employeeId],
-                (err2,countResult)=>{
-                    const total = countResult[0].total;
-                    const totalPages = Math.ceil(total/limit);
+                (err2, countResult) => {
+                    if (err2) {
+                        console.error("Attendance History Error 2:", err2);
+                        return res.status(500).json({ message: "Database error", error: err2.message });
+                    }
+                    const total = (countResult && countResult.length > 0) ? countResult[0].total : 0;
+                    const totalPages = Math.ceil(total / limit);
                     res.json({
                         data: result,
                         totalPages
