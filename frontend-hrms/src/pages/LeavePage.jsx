@@ -39,9 +39,12 @@ function LeavePage({ user }) {
   const fetchLeaves = () => {
     const query = new URLSearchParams({
       page: page + 1,
-      limit: rowsPerPage,
-      status: statusFilter
+      limit: rowsPerPage
     });
+
+    if (statusFilter) {
+      query.append("status", statusFilter);
+    }
 
     api.get(`/leaves?${query.toString()}`)
       .then(res => res.data)
@@ -53,7 +56,7 @@ function LeavePage({ user }) {
   };
 
   useEffect(() => {
-    fetchLeaves();
+    fetchLeaves(page, rowsPerPage);
   }, [page, rowsPerPage, statusFilter]);
 
   // Apply Leave
@@ -87,7 +90,7 @@ function LeavePage({ user }) {
       setEndDate("");
       setReason("");
       setPage(0);
-      fetchLeaves();
+      fetchLeaves(0, rowsPerPage);
     } catch (err) {
       console.error(err);
     }

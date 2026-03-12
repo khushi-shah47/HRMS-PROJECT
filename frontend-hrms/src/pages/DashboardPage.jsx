@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Avatar, LinearProgress, Divider } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
@@ -431,4 +430,3 @@ export default function DashboardPage() {
     </Box>
   );
 }
-

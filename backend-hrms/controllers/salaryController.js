@@ -1,93 +1,111 @@
-import db from "../config/db.js";
+import { sequelize } from "../config/sequelize.js";
+import { QueryTypes } from "sequelize";
 
-/* Calculate Salary */
-export const calculateSalary = (req, res) => {
+/* Calculate Salary for specific employee */
+export const calculateSalary = async (req, res) => {
+  const { employee_id, month, year, monthly_salary, working_days, leave_days } = req.body;
 
-  const { month, year } = req.body;
-
-  const employeeQuery = "SELECT id, basic_salary FROM employees";
-
-  db.query(employeeQuery, (err, employees) => {
-
-    if (err) return res.status(500).json(err);
-
-    employees.forEach(emp => {
-
-      const attendanceQuery = `
-      SELECT COUNT(*) as presentDays
-      FROM attendance
-      WHERE employee_id = ?
-      AND MONTH(date) = ?
-      AND YEAR(date) = ?
-      AND work_type = 'present'
-      `;
-
-      db.query(attendanceQuery,[emp.id, month, year],(err,att)=>{
-
-        const presentDays = att[0].presentDays;
-
-        const workingDays = 22;
-
-        const leaveDays = workingDays - presentDays;
-
-        const perDaySalary = emp.basic_salary / workingDays;
-
-        const deduction = leaveDays * perDaySalary;
-
-        const finalSalary = emp.basic_salary - deduction;
-
-        const insertQuery = `
-        INSERT INTO salaries
-        (employee_id, month, year, basic_salary, working_days, present_days, leave_days, per_day_salary, deduction, final_salary)
-        VALUES (?,?,?,?,?,?,?,?,?,?)
-        `;
-
-        db.query(insertQuery,[
-          emp.id,
-          month,
-          year,
-          emp.basic_salary,
-          workingDays,
-          presentDays,
-          leaveDays,
-          perDaySalary,
-          deduction,
-          finalSalary
-        ]);
-
-      });
-
+  if (!employee_id || !month || !year || !monthly_salary || !working_days || leave_days === undefined) {
+    return res.status(400).json({
+      message: "Missing required fields: employee_id, month, year, monthly_salary, working_days, leave_days"
     });
+  }
 
-    res.json({ message: "Payroll generated successfully" });
+  try {
+    const present_days = working_days - leave_days;
+    const per_day_salary = parseFloat(monthly_salary) / working_days;
+    const deduction = leave_days * per_day_salary;
+    const final_salary = parseFloat(monthly_salary) - deduction;
 
-  });
+    await sequelize.query(
+      `INSERT INTO salaries (employee_id, month, year, basic_salary, working_days, present_days, leave_days, per_day_salary, deduction, final_salary)
+       VALUES (:employee_id, :month, :year, :monthly_salary, :working_days, :present_days, :leave_days, :per_day_salary, :deduction, :final_salary)`,
+      {
+        replacements: { employee_id, month, year, monthly_salary, working_days, present_days, leave_days, per_day_salary, deduction, final_salary },
+        type: QueryTypes.INSERT
+      }
+    );
 
+    res.status(201).json({
+      message: "Salary calculated and saved successfully",
+      salary_details: {
+        present_days,
+        per_day_salary: per_day_salary.toFixed(2),
+        deduction: deduction.toFixed(2),
+        final_salary: final_salary.toFixed(2)
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error during salary calculation" });
+  }
 };
 
 /* Salary History */
-export const getSalaryHistory = (req, res) => {
-  const employeeId = req.params.employeeId;
-  db.query(
-    "SELECT s.*, e.name FROM salaries s JOIN employees e ON s.employee_id=e.id WHERE s.employee_id=? ORDER BY s.created_at DESC",
-    [employeeId],
-    (err, result) => {
-      if (err) return res.status(500).json(err);
-      res.json(result);
-    }
-  );
+export const getSalaryHistory = async (req, res) => {
+  const employeeId = req.params.employee_id;
+
+  try {
+    const results = await sequelize.query(
+      `SELECT s.*, e.name 
+       FROM salaries s 
+       JOIN employees e ON s.employee_id = e.id 
+       WHERE s.employee_id = :employee_id 
+       ORDER BY s.created_at DESC`,
+      {
+        replacements: { employee_id: employeeId },
+        type: QueryTypes.SELECT
+      }
+    );
+
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error" });
+  }
 };
 
 /* Monthly Salary Report */
-export const getSalaryReport = (req, res) => {
+export const getSalaryReport = async (req, res) => {
   const { month, year } = req.query;
-  let sql = "SELECT s.*, e.name, e.department FROM salaries s JOIN employees e ON s.employee_id=e.id WHERE 1=1";
-  const params = [];
-  if(month){ sql += " AND s.month=?"; params.push(month);}
-  if(year){ sql += " AND s.year=?"; params.push(year);}
-  sql += " ORDER BY s.employee_id ASC";
-  db.query(sql, params, (err, result) => {
-    if(err) return res.status(500).json(err);
-    res.json(result);
-  });
+
+  let baseQuery = `
+    FROM salaries s 
+    JOIN employees e ON s.employee_id = e.id 
+    LEFT JOIN departments d ON e.department_id = d.id
+  `;
+
+  let replacements = {};
+  let whereClauses = [];
+
+  if (month) {
+    whereClauses.push("s.month = :month");
+    replacements.month = month;
+  }
+  if (year) {
+    whereClauses.push("s.year = :year");
+    replacements.year = year;
+  }
+
+  if (whereClauses.length > 0) {
+    baseQuery += " WHERE " + whereClauses.join(" AND ");
+  }
+
+  try {
+    const results = await sequelize.query(
+      `SELECT s.*, e.name, COALESCE(d.name, 'No Department') AS department
+       ${baseQuery}
+       ORDER BY e.name ASC`,
+      {
+        replacements,
+        type: QueryTypes.SELECT
+      }
+    );
+
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Database error" });
+  }
 };
+
