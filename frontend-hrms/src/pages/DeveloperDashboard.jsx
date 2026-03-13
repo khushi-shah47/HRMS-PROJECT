@@ -11,14 +11,7 @@ import EventNoteIcon from "@mui/icons-material/EventNote";
 import { useNavigate } from "react-router-dom";
 
 // Developer-specific stats
-const developerStats = [
-  { title: "My Tasks", value: 8, icon: <AssignmentIcon />, color: "#DC2626", bg: "#FEF2F2" },
-  { title: "Completed", value: 5, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-  { title: "In Progress", value: 3, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-  { title: "Leave Balance", value: 15, icon: <BeachAccessIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
-  { title: "WFH Balance", value: 4, icon: <HomeWorkIcon />, color: "#06B6D4", bg: "#ECFEFF" },
-  { title: "Hours This Week", value: 38, icon: <TimerIcon />, color: "#3B82F6", bg: "#EBF5FF" }
-];
+const developerStats = [];
 
 const myTasks = [
   { task: "Fix login bug", status: "In Progress", deadline: "2024-01-20", priority: "High", progress: 60, assignedBy: "John Manager" },

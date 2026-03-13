@@ -299,7 +299,6 @@ const SalaryPage = ({ user }) => {
             <TableHead>
               <TableRow>
                 <TableCell>Employee</TableCell>
-                <TableCell>Department</TableCell>
                 <TableCell>Month</TableCell>
                 <TableCell>Year</TableCell>
                 <TableCell>Final Salary</TableCell>
@@ -309,7 +308,6 @@ const SalaryPage = ({ user }) => {
               {report.slice(reportPage * reportRowsPerPage, reportPage * reportRowsPerPage + reportRowsPerPage).map((rec) => (
                 <TableRow key={rec.id}>
                   <TableCell>{rec.name}</TableCell>
-                  <TableCell>{rec.department}</TableCell>
                   <TableCell>{new Date(0, rec.month - 1).toLocaleString('default', { month: 'long' })}</TableCell>
                   <TableCell>{rec.year}</TableCell>
                   <TableCell style={{ fontWeight: 'bold', color: 'green' }}>

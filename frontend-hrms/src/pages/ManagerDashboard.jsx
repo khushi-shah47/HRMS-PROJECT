@@ -12,41 +12,15 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useNavigate } from "react-router-dom";
 
 // Manager-specific stats
-const managerStats = [
-  { title: "Team Members", value: 15, icon: <PeopleIcon />, color: "#7C3AED", bg: "#F5F3FF" },
-  { title: "Present Today", value: 12, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-  { title: "Pending Leaves", value: 4, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-  { title: "Active Tasks", value: 18, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
-  { title: "WFH Requests", value: 3, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
-  { title: "Completed Tasks", value: 25, icon: <CheckCircleOutlineIcon />, color: "#06B6D4", bg: "#ECFEFF" }
-];
+const managerStats = [];
 
-const teamMembers = [
-  { name: "John Doe", position: "Senior Developer", status: "Present", avatar: "JD", tasks: 5, completed: 3 },
-  { name: "Jane Smith", position: "Designer", status: "Present", avatar: "JS", tasks: 4, completed: 2 },
-  { name: "Mike Johnson", position: "Backend Dev", status: "WFH", avatar: "MJ", tasks: 3, completed: 1 },
-  { name: "Sarah Wilson", position: "QA Engineer", status: "Leave", avatar: "SW", tasks: 2, completed: 2 }
-];
+const teamMembers = [];
 
-const teamAttendance = [
-  { name: "John Doe", status: "Present", time: "09:00 AM", location: "Office" },
-  { name: "Jane Smith", status: "Present", time: "09:15 AM", location: "Office" },
-  { name: "Mike Johnson", status: "WFH", time: "-", location: "Home" },
-  { name: "Sarah Wilson", status: "Leave", time: "-", location: "-" },
-  { name: "Tom Brown", status: "Present", time: "09:30 AM", location: "Office" }
-];
+const teamAttendance = [];
 
-const pendingTasks = [
-  { task: "Client presentation", assignedTo: "John Doe", priority: "High", deadline: "2024-01-20", progress: 80 },
-  { task: "Code review", assignedTo: "Jane Smith", priority: "Medium", deadline: "2024-01-22", progress: 60 },
-  { task: "API integration", assignedTo: "Mike Johnson", priority: "High", deadline: "2024-01-21", progress: 45 },
-  { task: "Testing", assignedTo: "Sarah Wilson", priority: "Medium", deadline: "2024-01-23", progress: 30 }
-];
+const pendingTasks = [];
 
-const leaveRequests = [
-  { employee: "Tom Brown", type: "Casual Leave", days: 1, status: "Pending", reason: "Personal work" },
-  { employee: "Emily Davis", type: "Sick Leave", days: 2, status: "Pending", reason: "Medical appointment" }
-];
+const leaveRequests = [];
 
 function StatCard({ title, value, icon, color, bg }) {
   return (

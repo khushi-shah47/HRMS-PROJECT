@@ -10,19 +10,9 @@ import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import { useNavigate } from "react-router-dom";
 
 // Intern-specific stats
-const internStats = [
-  { title: "Assigned Tasks", value: 4, icon: <AssignmentIcon />, color: "#D97706", bg: "#FFFBEB" },
-  { title: "Completed", value: 2, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-  { title: "In Progress", value: 2, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-  { title: "Training Progress", value: "65%", icon: <SchoolIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
-];
+const internStats = [];
 
-const myTasks = [
-  { task: "Learn codebase", status: "In Progress", deadline: "2024-01-20", progress: 40, mentor: "John Doe" },
-  { task: "Complete training", status: "Completed", deadline: "2024-01-15", progress: 100, mentor: "Jane Smith" },
-  { task: "Setup environment", status: "Completed", deadline: "2024-01-14", progress: 100, mentor: "Mike Johnson" },
-  { task: "First assignment", status: "Pending", deadline: "2024-01-25", progress: 0, mentor: "Sarah Wilson" }
-];
+const myTasks = [];
 
 const trainingModules = [
   { title: "Company Orientation", status: "Completed", completedDate: "2024-01-10" },

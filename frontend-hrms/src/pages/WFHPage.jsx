@@ -15,6 +15,7 @@ import {
   Chip,
   Alert
 } from "@mui/material";
+import api from "../services/api";
 
 const WFHPage = ({ employeeId }) => {
   const [startDate, setStartDate] = useState("");
@@ -27,12 +28,8 @@ const WFHPage = ({ employeeId }) => {
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/wfh/all`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch");
-      }
-      const data = await res.json();
-      setHistory(data);
+      const res = await api.get("/wfh/all");
+      setHistory(res.data);
     } catch (error) {
       console.error("Error fetching WFH data:", error);
       setMessage({ type: "error", text: "Failed to load WFH requests" });
@@ -46,21 +43,13 @@ const WFHPage = ({ employeeId }) => {
     }
     
     try {
-      const res = await fetch("http://localhost:5000/api/wfh/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          employee_id: employeeId,
-          start_date: startDate,
-          end_date: endDate,
-          reason: reason
-        })
+      const res = await api.post("/wfh/apply", {
+        employee_id: employeeId,
+        start_date: startDate,
+        end_date: endDate,
+        reason: reason
       });
       
-      if (!res.ok) {
-        throw new Error("Failed to apply");
-      }
-
       setStartDate("");
       setEndDate("");
       setReason("");
@@ -68,22 +57,13 @@ const WFHPage = ({ employeeId }) => {
       fetchHistory();
     } catch (error) {
       console.error("Error applying WFH:", error);
-      setMessage({ type: "error", text: "Failed to submit WFH request" });
+      setMessage({ type: "error", text: "Failed to submit WFH request: " + error.response?.data?.message });
     }
   };
 
   const handleApprove = async (id) => {
     try {
-      const res = await fetch("http://localhost:5000/api/wfh/approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      
-      if (!res.ok) {
-        throw new Error("Failed to approve");
-      }
-
+      await api.post("/wfh/approve", { id });
       setMessage({ type: "success", text: "WFH request approved" });
       fetchHistory();
     } catch (error) {
@@ -94,16 +74,7 @@ const WFHPage = ({ employeeId }) => {
 
   const handleReject = async (id) => {
     try {
-      const res = await fetch("http://localhost:5000/api/wfh/reject", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-      
-      if (!res.ok) {
-        throw new Error("Failed to reject");
-      }
-
+      await api.post("/wfh/reject", { id });
       setMessage({ type: "success", text: "WFH request rejected" });
       fetchHistory();
     } catch (error) {

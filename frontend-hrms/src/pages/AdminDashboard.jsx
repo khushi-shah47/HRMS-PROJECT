@@ -15,42 +15,15 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 
 // Admin-specific stats
-const adminStats = [
-  { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF", trend: "+5%" },
-  { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5", trend: "+2%" },
-  { title: "On Leave", value: 5, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB", trend: "-1" },
-  { title: "WFH", value: 7, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF", trend: "+3" },
-  { title: "Pending Tasks", value: 23, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2", trend: "+8" },
-  { title: "New Hires", value: 8, icon: <PersonAddIcon />, color: "#06B6D4", bg: "#ECFEFF", trend: "+3" }
-];
+const adminStats = [];
 
-const recentEmployees = [
-  { name: "John Doe", position: "Developer", department: "IT", date: "2024-01-15", avatar: "JD" },
-  { name: "Jane Smith", position: "Designer", department: "Design", date: "2024-01-14", avatar: "JS" },
-  { name: "Mike Johnson", position: "Manager", department: "Sales", date: "2024-01-13", avatar: "MJ" },
-  { name: "Sarah Wilson", position: "HR", department: "HR", date: "2024-01-12", avatar: "SW" }
-];
+const recentEmployees = [];
 
-const pendingTasks = [
-  { task: "Update login page", assignedTo: "John Doe", priority: "High", deadline: "2024-01-20", progress: 75 },
-  { task: "Fix navigation bug", assignedTo: "Jane Smith", priority: "Medium", deadline: "2024-01-22", progress: 45 },
-  { task: "Design dashboard", assignedTo: "Mike Johnson", priority: "High", deadline: "2024-01-21", progress: 90 },
-  { task: "Database migration", assignedTo: "Sarah Wilson", priority: "Critical", deadline: "2024-01-25", progress: 30 }
-];
+const pendingTasks = [];
 
-const leaveRequests = [
-  { employee: "Tom Brown", type: "Sick Leave", days: 2, status: "Pending", department: "IT" },
-  { employee: "Emily Davis", type: "Casual Leave", days: 1, status: "Pending", department: "Sales" },
-  { employee: "Michael Lee", type: "Annual Leave", days: 5, status: "Approved", department: "Marketing" }
-];
+const leaveRequests = [];
 
-const departmentStats = [
-  { name: "IT", employees: 15, present: 12, leave: 2, wfh: 1 },
-  { name: "Sales", employees: 10, present: 8, leave: 1, wfh: 1 },
-  { name: "Marketing", employees: 8, present: 6, leave: 1, wfh: 1 },
-  { name: "HR", employees: 5, present: 4, leave: 0, wfh: 1 },
-  { name: "Design", employees: 7, present: 6, leave: 1, wfh: 0 }
-];
+const departmentStats = [];
 
 function StatCard({ title, value, icon, color, bg, trend }) {
   return (

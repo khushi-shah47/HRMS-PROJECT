@@ -54,23 +54,28 @@ const AttendancePage = () => {
       return;
     }
     try {
+      console.log('Checkin with type:', workType);
       const res = await api.post("/attendance/checkin", { employee_id: employeeId, work_type: workType });
-      const data = res.data;
+      console.log('Checkin response:', res.data);
       setWorkType(""); // reset type selection
+      setErrorMsg("");
       fetchToday();
     } catch (err) {
-      console.error(err);
+      console.error('Checkin error:', err);
+      setErrorMsg("Checkin failed: " + (err.response?.data?.message || err.message));
     }
   };
 
   const handleCheckOut = async () => {
     try {
       const res = await api.post("/attendance/checkout", { employee_id: employeeId });
-      const data = res.data;
+      console.log('Checkout response:', res.data);
       setWorkType("");
+      setErrorMsg("");
       fetchToday();
     } catch (err) {
-      console.error(err);
+      console.error('Checkout error:', err);
+      setErrorMsg("Checkout failed");
     }
   };
 

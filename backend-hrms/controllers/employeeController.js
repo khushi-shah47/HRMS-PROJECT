@@ -40,7 +40,7 @@ export const getEmployees = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Database error" });
+    res.status(500).json({ message: "Failed Try Again" });
   }
 };
 
@@ -59,14 +59,14 @@ export const getEmployeeById = async (req, res) => {
     res.json(employee[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Database error" });
+    res.status(500).json({ message: "Failed Try Again" });
   }
 };
 
 /* ADD EMPLOYEE */
 export const addEmployee = async (req, res) => {
   const { name, email, phone, position, department_id, join_date } = req.body;
-  if (!name || !email) return res.status(400).json({ message: "Name and Email are required" });
+  if (!name || !email || !phone || !position || !department_id || !join_date) return res.status(400).json({ message: "All fields Are Required" });
 
   try {
     const result = await sequelize.query(
@@ -75,10 +75,10 @@ export const addEmployee = async (req, res) => {
       { replacements: { name, email, phone, position, department_id, join_date }, type: QueryTypes.INSERT }
     );
 
-    res.status(201).json({ message: "Employee created successfully", employeeId: result[0] });
+    res.status(201).json({ message: "Employee Added successfully", employeeId: result[0] });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Database error" });
+    res.status(500).json({ message: "Failed Try Again" });
   }
 };
 
@@ -95,7 +95,7 @@ export const updateEmployee = async (req, res) => {
     res.json({ message: "Employee updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Database error" });
+    res.status(500).json({ message: "Failed Try Again" });
   }
 };
 
@@ -107,6 +107,6 @@ export const deleteEmployee = async (req, res) => {
     res.json({ message: "Employee deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Database error" });
+    res.status(500).json({ message: "Failed Try Again" });
   }
 };

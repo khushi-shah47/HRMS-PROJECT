@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from "../services/api";
 import {
   Container,
   Typography,
@@ -17,7 +18,6 @@ import {
 } from "@mui/material";
 
 const TaskPage = () => {
-
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
 
@@ -40,21 +40,22 @@ const TaskPage = () => {
   ];
 
   const fetchTasks = async () => {
-    const res = await fetch("http://localhost:5000/api/tasks");
-    const data = await res.json();
-    setTasks(data);
+    try {
+      const res = await api.get("/tasks");
+      setTasks(res.data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
   };
 
   const fetchEmployees = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/employees");
-      const data = await res.json();
-      // Handle both array and pagination response
+      const res = await api.get("/employees");
       let employeesArray = [];
-      if (Array.isArray(data)) {
-        employeesArray = data;
-      } else if (data.employees) {
-        employeesArray = data.employees;
+      if (Array.isArray(res.data)) {
+        employeesArray = res.data;
+      } else if (res.data.employees) {
+        employeesArray = res.data.employees;
       }
       setEmployees(employeesArray);
     } catch (error) {
@@ -68,50 +69,45 @@ const TaskPage = () => {
   }, []);
 
   const createTask = async () => {
-
-    await fetch("http://localhost:5000/api/tasks", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
+    try {
+      await api.post("/tasks", {
         title,
         description,
         assigned_to: assignedTo,
         assigned_by: assignedBy,
         priority,
         due_date: dueDate
-      })
-    });
+      });
 
-    setTitle("");
-    setDescription("");
-    setAssignedTo("");
-    setAssignedBy("");
-    setPriority("medium");
-    setDueDate("");
+      setTitle("");
+      setDescription("");
+      setAssignedTo("");
+      setAssignedBy("");
+      setPriority("medium");
+      setDueDate("");
 
-    fetchTasks();
+      fetchTasks();
+    } catch (error) {
+      console.error("Error creating task:", error);
+    }
   };
 
   const updateStatus = async (id, status) => {
-
-    await fetch(`http://localhost:5000/api/tasks/${id}/status`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
-    });
-
-    fetchTasks();
+    try {
+      await api.put(`/tasks/${id}/status`, { status });
+      fetchTasks();
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
 
   const deleteTask = async (id) => {
-
-    await fetch(`http://localhost:5000/api/tasks/${id}`, {
-      method: "DELETE"
-    });
-
-    fetchTasks();
+    try {
+      await api.delete(`/tasks/${id}`);
+      fetchTasks();
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
   // Helper function to get employee name by ID
@@ -149,18 +145,17 @@ const TaskPage = () => {
     }
   };
 
+  const isTaskCompleted = (task) => task.status?.toLowerCase() === "completed";
+
   return (
     <Container sx={{ mt: 5 }}>
-
       <Typography variant="h5" sx={{ mb: 3 }}>
         Task Management
       </Typography>
 
       {/* Create Task */}
-
       <Paper sx={{ p: 3, mb: 4 }}>
         <Stack spacing={2}>
-
           <TextField
             label="Title"
             value={title}
@@ -221,16 +216,12 @@ const TaskPage = () => {
           <Button variant="contained" onClick={createTask}>
             Create Task
           </Button>
-
         </Stack>
       </Paper>
 
       {/* Task Table */}
-
       <Paper>
-
         <Table>
-
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -245,11 +236,8 @@ const TaskPage = () => {
           </TableHead>
 
           <TableBody>
-
             {tasks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(task => (
-
               <TableRow key={task.id}>
-
                 <TableCell>{task.id}</TableCell>
                 <TableCell>{task.title}</TableCell>
                 <TableCell>{getEmployeeName(task.assigned_to)}</TableCell>
@@ -271,14 +259,13 @@ const TaskPage = () => {
                 <TableCell>{task.due_date || "-"}</TableCell>
 
                 <TableCell>
-
                   <Stack direction="row" spacing={1}>
-
                     <Button
                       size="small"
                       variant="contained"
                       color="primary"
                       onClick={() => updateStatus(task.id, "in_progress")}
+                      disabled={isTaskCompleted(task)}
                     >
                       Start
                     </Button>
@@ -288,6 +275,7 @@ const TaskPage = () => {
                       variant="outlined"
                       color="warning"
                       onClick={() => updateStatus(task.id, "pending")}
+                      disabled={isTaskCompleted(task)}
                     >
                       Pending
                     </Button>
@@ -297,6 +285,7 @@ const TaskPage = () => {
                       variant="contained"
                       color="success"
                       onClick={() => updateStatus(task.id, "completed")}
+                      disabled={isTaskCompleted(task)}
                     >
                       Complete
                     </Button>
@@ -308,17 +297,11 @@ const TaskPage = () => {
                     >
                       Delete
                     </Button>
-
                   </Stack>
-
                 </TableCell>
-
               </TableRow>
-
             ))}
-
           </TableBody>
-
         </Table>
 
         <TablePagination
@@ -333,12 +316,9 @@ const TaskPage = () => {
             setPage(0);
           }}
         />
-
       </Paper>
-
     </Container>
   );
 };
 
 export default TaskPage;
-

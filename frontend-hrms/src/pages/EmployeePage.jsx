@@ -27,6 +27,7 @@ import api from "../services/api"
 const EmployeePage = () => {
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   
   // Pagination state
   const [page, setPage] = useState(0);
@@ -69,25 +70,19 @@ const EmployeePage = () => {
   const [editDepartmentId, setEditDepartmentId] = useState("");
   const [editJoinDate, setEditJoinDate] = useState("");
 
-  const fetchEmployees = async () => {
+  const fetchEmployees = async (currentPage = page + 1, limit = rowsPerPage) => {
     try {
-      const res = await api.get("/employees");
+      console.log('Fetching employees page:', currentPage, 'limit:', limit);
+      const res = await api.get(`/employees?page=${currentPage}&limit=${limit}`);
       const data = res.data;
-      // Handle both array response and pagination object response
-      let employeesArray = [];
-      if (Array.isArray(data)) {
-        employeesArray = data;
-      } else if (data.employees) {
-        employeesArray = data.employees;
-      }
-      const formatted = employeesArray.map(emp => ({
-        ...emp,
-        join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
-      }));
-      setEmployees(formatted);
+      console.log('Employees response:', data);
+      setEmployees(data.employees || []);
+      setTotalCount(data.pagination?.totalEmployees || data.totalCount || 0);
     } catch (error) {
-      console.error("Error:", error);
-      setErrorMsg("Failed to load employees");
+      console.error("Employee API Error:", error.response?.data || error.message);
+      setErrorMsg("Failed to load employees: " + (error.response?.data?.message || error.message));
+      setEmployees([]);
+      setTotalCount(0);
     }
   };
 
@@ -103,7 +98,9 @@ const EmployeePage = () => {
     }
 
     try {
+      console.log('Adding employee:', { name, email, phone, position, department_id: departmentId || null, join_date: joinDate });
       const res = await api.post("/employees/add", { name, email, phone, position, department_id: departmentId || null, join_date: joinDate });
+      console.log('Add employee response:', res.data);
 
       setName("");
       setEmail("");
@@ -113,9 +110,11 @@ const EmployeePage = () => {
       setJoinDate("");
       setSuccessMsg("Employee added successfully");
       setErrorMsg("");
+      setPage(0);
       fetchEmployees();
     } catch (error) {
-      setErrorMsg("Failed to add employee");
+      console.error('Add employee error:', error.response?.data || error.message);
+      setErrorMsg("Failed to add employee: " + (error.response?.data?.message || error.message));
       setSuccessMsg("");
     }
   };
@@ -151,6 +150,7 @@ const EmployeePage = () => {
       setEditOpen(false);
       setSuccessMsg("Employee updated successfully");
       setErrorMsg("");
+      setPage(0);
       fetchEmployees();
     } catch (error) {
       setErrorMsg("Failed to update employee");
@@ -166,6 +166,7 @@ const EmployeePage = () => {
 
       setSuccessMsg("Employee deleted successfully");
       setErrorMsg("");
+      setPage(0);
       fetchEmployees();
     } catch (error) {
       setErrorMsg("Failed to delete employee");
@@ -174,9 +175,9 @@ const EmployeePage = () => {
   };
 
   useEffect(() => {
-    fetchEmployees();
     fetchDepartments();
-  }, []);
+    fetchEmployees();
+  }, [page, rowsPerPage]);
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -231,17 +232,21 @@ const EmployeePage = () => {
             ))}
           </TextField>
           <TextField
-            select
-            label="Department"
-            value={departmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="">Select Department</MenuItem>
-            {departments.map((dept) => (
-              <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
-            ))}
-          </TextField>
+                     select
+                     label="Department"
+                     value={departmentId}
+                     onChange={(e) => setDepartmentId(e.target.value)}
+                     fullWidth
+                   >
+                     <MenuItem value="">Select department</MenuItem>
+                     <MenuItem value="hr">HR</MenuItem>
+                     <MenuItem value="software developer">Software Developer</MenuItem>
+                     <MenuItem value="devops">DevOps</MenuItem>
+                     <MenuItem value="qa">QA</MenuItem>
+                     {departments.map((dept) => (
+                       <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                     ))}
+                   </TextField>
           <TextField
             type="date"
             label="Join Date"
@@ -276,7 +281,7 @@ const EmployeePage = () => {
                 <TableCell colSpan={8} align="center">No employees found</TableCell>
               </TableRow>
             ) : (
-              employees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((emp) => (
+              employees.map((emp) => (
                 <TableRow key={emp.id} hover>
                   <TableCell>{emp.id}</TableCell>
                   <TableCell>{emp.name}</TableCell>
@@ -302,7 +307,7 @@ const EmployeePage = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={employees.length}
+          count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(event, newPage) => setPage(newPage)}

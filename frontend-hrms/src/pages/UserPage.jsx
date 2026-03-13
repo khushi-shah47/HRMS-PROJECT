@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from "../services/api";
 import {
   Container,
   Typography,
@@ -47,9 +48,8 @@ const UserPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/users/all");
-      if (!res.ok) throw new Error("Failed to fetch users");
-      setUsers(await res.json());
+      const res = await api.get("/users/all");
+      setUsers(res.data);
     } catch (error) {
       console.error("Error:", error);
       setErrorMsg("Failed to load users");
@@ -58,9 +58,8 @@ const UserPage = () => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/departments/all");
-      if (!res.ok) throw new Error("Failed to fetch departments");
-      setDepartments(await res.json());
+      const res = await api.get("/departments/all");
+      setDepartments(res.data);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -73,19 +72,13 @@ const UserPage = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          username, 
-          email, 
-          password, 
-          role, 
-          department_id: departmentId || null 
-        })
+      await api.post("/users/add", { 
+        username, 
+        email, 
+        password, 
+        role, 
+        department_id: departmentId || null 
       });
-
-      if (!res.ok) throw new Error("Failed to add user");
 
       setUsername("");
       setEmail("");
@@ -96,7 +89,8 @@ const UserPage = () => {
       setErrorMsg("");
       fetchUsers();
     } catch (error) {
-      setErrorMsg("Failed to add user");
+      console.error("Add user error:", error);
+      setErrorMsg("Failed to add user: " + (error.response?.data?.message || error.message));
       setSuccessMsg("");
     }
   };
@@ -117,25 +111,20 @@ const UserPage = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:5000/api/users/update/${editId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: editUsername,
-          email: editEmail,
-          role: editRole,
-          department_id: editDepartmentId || null
-        })
+      await api.put(`/users/update/${editId}`, {
+        username: editUsername,
+        email: editEmail,
+        role: editRole,
+        department_id: editDepartmentId || null
       });
-
-      if (!res.ok) throw new Error("Failed to update user");
 
       setEditOpen(false);
       setSuccessMsg("User updated successfully");
       setErrorMsg("");
       fetchUsers();
     } catch (error) {
-      setErrorMsg("Failed to update user");
+      console.error("Update user error:", error);
+      setErrorMsg("Failed to update user: " + (error.response?.data?.message || error.message));
       setSuccessMsg("");
     }
   };
@@ -144,17 +133,14 @@ const UserPage = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/users/delete/${id}`, {
-        method: "DELETE"
-      });
-
-      if (!res.ok) throw new Error("Failed to delete user");
+      await api.delete(`/users/delete/${id}`);
 
       setSuccessMsg("User deleted successfully");
       setErrorMsg("");
       fetchUsers();
     } catch (error) {
-      setErrorMsg("Failed to delete user");
+      console.error("Delete user error:", error);
+      setErrorMsg("Failed to delete user: " + (error.response?.data?.message || error.message));
       setSuccessMsg("");
     }
   };
@@ -260,6 +246,7 @@ const UserPage = () => {
                   <TableCell>{user.id}</TableCell>
                   <TableCell sx={{ fontWeight: "bold" }}>{user.username}</TableCell>
                   <TableCell>{user.email}</TableCell>
+                  
                   <TableCell>
                     <Typography
                       variant="body2"
@@ -281,7 +268,7 @@ const UserPage = () => {
                       {user.role}
                     </Typography>
                   </TableCell>
-                  <TableCell>{user.department_name || "Not Assigned"}</TableCell>
+                <TableCell>{user.department_name || "Not Assigned"}</TableCell>
                   <TableCell>
                     <IconButton color="primary" onClick={() => handleEditClick(user)} size="small">
                       <EditIcon />
@@ -312,22 +299,22 @@ const UserPage = () => {
             >
               <MenuItem value="admin">Admin</MenuItem>
               <MenuItem value="manager">Manager</MenuItem>
-              <MenuItem value="employee">Employee</MenuItem>
+              <MenuItem value="developer">Developer</MenuItem>
               <MenuItem value="hr">HR</MenuItem>
               <MenuItem value="intern">Intern</MenuItem>
             </TextField>
+
             <TextField
-              select
-              label="Department"
-              value={editDepartmentId}
-              onChange={(e) => setEditDepartmentId(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="">Select Department</MenuItem>
-              {departments.map((dept) => (
-                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
-              ))}
-            </TextField>
+            select
+            label="Department"
+            value={editDepartmentId}
+            onChange={(e) => setEditDepartmentId(e.target.value)}
+            fullWidth
+          >
+            {departments.map((dept) => (
+              <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+            ))}
+          </TextField>
           </Stack>
         </DialogContent>
         <DialogActions>
