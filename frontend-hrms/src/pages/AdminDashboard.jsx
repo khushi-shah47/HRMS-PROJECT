@@ -12,10 +12,9 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import StatsCards from "../components/StatsCards.jsx";
 import { useNavigate } from "react-router-dom";
 
-// Admin-specific stats
-const adminStats = [];
 
 const recentEmployees = [];
 
@@ -115,12 +114,11 @@ export default function AdminDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {adminStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
+
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+
+        <StatsCards />
+
       </Grid>
 
       {/* Main Content */}

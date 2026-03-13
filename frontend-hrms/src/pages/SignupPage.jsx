@@ -107,31 +107,37 @@ const SignupPage = () => {
         )}
 
         <TextField
-          label="Name"
+          label="Name *"
           fullWidth
           margin="normal"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyPress={handleKeyPress}
+          required
+          inputProps={{ pattern: "[A-Za-z\\s]+" }}
         />
 
         <TextField
-          label="Email"
+          label="Email *"
           fullWidth
           margin="normal"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyPress={handleKeyPress}
+          required
         />
 
         <TextField
-          label="Password"
+          label="Password *"
           type="password"
           fullWidth
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
+          required
+          inputProps={{ minLength: 6 }}
         />
 
         <FormControl fullWidth margin="normal">
@@ -139,7 +145,8 @@ const SignupPage = () => {
           <Select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            label="Role"
+            label="Role *"
+            required
           >
             {roles.map((role) => (
               <MenuItem key={role} value={role}>

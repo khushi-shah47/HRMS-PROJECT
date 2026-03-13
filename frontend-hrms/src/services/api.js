@@ -15,4 +15,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Dashboard API functions
+export const getRoleStats = () => api.get('/dashboard/role-stats');
+export const getDashboardStats = () => api.get('/dashboard/stats');
+
 export default api;

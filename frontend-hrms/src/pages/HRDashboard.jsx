@@ -10,15 +10,8 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import WorkIcon from "@mui/icons-material/Work";
 import { useNavigate } from "react-router-dom";
 
-// HR-specific stats
-const hrStats = [
-  { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "#059669", bg: "#ECFDF5" },
-  { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-  { title: "Leave Requests", value: 8, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-  { title: "Departments", value: 6, icon: <BusinessIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
-  { title: "Pending Hires", value: 12, icon: <PersonAddIcon />, color: "#06B6D4", bg: "#ECFEFF" },
-  { title: "Active Tasks", value: 5, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" }
-];
+// StatsCards component now fetches real role-specific data
+import StatsCards from "../components/StatsCards.jsx";
 
 const recentHires = [
   { name: "John Doe", position: "Developer", department: "IT", date: "2024-01-15", status: "Active", avatar: "JD" },
@@ -120,13 +113,14 @@ export default function HRDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {hrStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
+
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+
+        <StatsCards />
+
       </Grid>
+
+      <Box sx={{ height: 20 }} />
 
       {/* Main Content */}
       <Grid container spacing={3}>

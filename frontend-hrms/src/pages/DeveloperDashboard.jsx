@@ -10,29 +10,28 @@ import TimerIcon from "@mui/icons-material/Timer";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import { useNavigate } from "react-router-dom";
 
-// Developer-specific stats
-const developerStats = [];
+import StatsCards from "../components/StatsCards.jsx";
 
 const myTasks = [
-  { task: "Fix login bug", status: "In Progress", deadline: "2024-01-20", priority: "High", progress: 60, assignedBy: "John Manager" },
-  { task: "Update API documentation", status: "Pending", deadline: "2024-01-22", priority: "Medium", progress: 0, assignedBy: "Jane Smith" },
-  { task: "Write unit tests", status: "Completed", deadline: "2024-01-18", priority: "High", progress: 100, assignedBy: "Mike Johnson" },
-  { task: "Code review for PR #45", status: "In Progress", deadline: "2024-01-19", priority: "Medium", progress: 45, assignedBy: "Sarah Wilson" },
-  { task: "Database optimization", status: "Pending", deadline: "2024-01-25", priority: "Low", progress: 0, assignedBy: "Tom Brown" }
+  // { task: "Fix login bug", status: "In Progress", deadline: "2024-01-20", priority: "High", progress: 60, assignedBy: "John Manager" },
+  // { task: "Update API documentation", status: "Pending", deadline: "2024-01-22", priority: "Medium", progress: 0, assignedBy: "Jane Smith" },
+  // { task: "Write unit tests", status: "Completed", deadline: "2024-01-18", priority: "High", progress: 100, assignedBy: "Mike Johnson" },
+  // { task: "Code review for PR #45", status: "In Progress", deadline: "2024-01-19", priority: "Medium", progress: 45, assignedBy: "Sarah Wilson" },
+  // { task: "Database optimization", status: "Pending", deadline: "2024-01-25", priority: "Low", progress: 0, assignedBy: "Tom Brown" }
 ];
 
 const attendanceHistory = [
-  { date: "2024-01-15", status: "Present", checkIn: "09:00 AM", checkOut: "06:00 PM", hours: 9 },
-  { date: "2024-01-16", status: "Present", checkIn: "09:15 AM", checkOut: "06:30 PM", hours: 9.25 },
-  { date: "2024-01-17", status: "WFH", checkIn: "09:00 AM", checkOut: "05:30 PM", hours: 8.5 },
-  { date: "2024-01-18", status: "Present", checkIn: "09:00 AM", checkOut: "06:00 PM", hours: 9 },
-  { date: "2024-01-19", status: "Leave", checkIn: "-", checkOut: "-", hours: 0 }
+  // { date: "2024-01-15", status: "Present", checkIn: "09:00 AM", checkOut: "06:00 PM", hours: 9 },
+  // { date: "2024-01-16", status: "Present", checkIn: "09:15 AM", checkOut: "06:30 PM", hours: 9.25 },
+  // { date: "2024-01-17", status: "WFH", checkIn: "09:00 AM", checkOut: "05:30 PM", hours: 8.5 },
+  // { date: "2024-01-18", status: "Present", checkIn: "09:00 AM", checkOut: "06:00 PM", hours: 9 },
+  // { date: "2024-01-19", status: "Leave", checkIn: "-", checkOut: "-", hours: 0 }
 ];
 
 const upcomingDeadlines = [
-  { task: "Fix login bug", deadline: "2024-01-20", daysLeft: 1 },
-  { task: "Code review for PR #45", deadline: "2024-01-19", daysLeft: 0 },
-  { task: "Update API documentation", deadline: "2024-01-22", daysLeft: 3 }
+  // { task: "Fix login bug", deadline: "2024-01-20", daysLeft: 1 },
+  // { task: "Code review for PR #45", deadline: "2024-01-19", daysLeft: 0 },
+  // { task: "Update API documentation", deadline: "2024-01-22", daysLeft: 3 }
 ];
 
 function StatCard({ title, value, icon, color, bg }) {
@@ -139,12 +138,11 @@ export default function DeveloperDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {developerStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
+
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+
+        <StatsCards />
+
       </Grid>
 
       {/* Main Content */}

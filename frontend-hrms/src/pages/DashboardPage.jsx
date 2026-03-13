@@ -11,14 +11,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-// Role-based stats configuration
-const roleStats = {
-  admin: [],
-  manager: [],
-  hr: [],
-  developer: [],
-  intern: []
-};
+import StatsCards from "../components/StatsCards.jsx";
 
 // Sample data for different roles
 const sampleData = {
@@ -135,13 +128,7 @@ export default function DashboardPage() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
-      </Grid>
+      <StatsCards />
 
       {/* Role-specific Content */}
       <Grid container spacing={3}>

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 const SECRET = "hrms_secret_key";
 
-export const verifyToken = (req,res,next)=>{
+export const verifyToken = (req, res, next) => {
 
     const authHeader = req.headers.authorization;
 
@@ -14,8 +14,8 @@ export const verifyToken = (req,res,next)=>{
     const token = authHeader.split(" ")[1];
     if (!token) return res.status(401).json({ message:"Access denied" });
     try {
-        const verified = jwt.verify(token.split,SECRET);
-        req.user = verified;
+        const verified = jwt.verify(token, SECRET);  // Fixed: removed .split
+        req.user = verified;  // {id, role, employee_id}
         next();
     } catch (err) {
         res.status(401).json({message:"Invalid token"});

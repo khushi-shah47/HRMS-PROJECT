@@ -9,8 +9,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import { useNavigate } from "react-router-dom";
 
-// Intern-specific stats
-const internStats = [];
+import StatsCards from "../components/StatsCards.jsx";
 
 const myTasks = [];
 
@@ -130,12 +129,11 @@ export default function InternDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {internStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
+
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+
+        <StatsCards />
+
       </Grid>
 
       {/* Main Content */}

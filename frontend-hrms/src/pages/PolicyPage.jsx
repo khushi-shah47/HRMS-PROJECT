@@ -118,18 +118,21 @@ const PolicyPage = () => {
         </Typography>
         <Stack spacing={2}>
           <TextField
-            label="Policy Title"
+            label="Policy Title *"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
+            required
           />
           <TextField
-            label="Description"
+            label="Description *"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             multiline
             rows={3}
             fullWidth
+            required
+            inputProps={{ minLength: 10 }}
           />
           <Button 
             variant="contained" 

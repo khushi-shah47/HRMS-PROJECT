@@ -137,8 +137,9 @@ function LeavePage({ user }) {
               const emp = employees.find(emp => emp.id == id);
               setLeaveBalance(emp?.leave_balance ?? null);
             }}
+            required
           >
-            <option value="">Select Employee</option>
+            <option value="">Select Employee *</option>
             {employees.map(emp => (
               <option key={emp.id} value={emp.id}>
                 {emp.name}
@@ -156,18 +157,22 @@ function LeavePage({ user }) {
             type="date"
             value={startDate}
             onChange={e => setStartDate(e.target.value)}
+            required
           />
 
           <input
             type="date"
             value={endDate}
             onChange={e => setEndDate(e.target.value)}
+            required
           />
 
           <input
             placeholder="Reason"
             value={reason}
             onChange={e => setReason(e.target.value)}
+            minLength="2"
+            required
           />
 
           <Button
@@ -224,33 +229,7 @@ function LeavePage({ user }) {
                   <TableCell>{leave.status}</TableCell>
 
                   <TableCell>
-                    {leave.status === "Pending" && (
-                      <Stack direction="row" spacing={1}>
-
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          onClick={() =>
-                            updateStatus(leave.id, "Approved")
-                          }
-                        >
-                          Approve
-                        </Button>
-
-                        <Button
-                          variant="contained"
-                          color="error"
-                          size="small"
-                          onClick={() =>
-                            updateStatus(leave.id, "Rejected")
-                          }
-                        >
-                          Reject
-                        </Button>
-
-                      </Stack>
-                    )}
+{(['Admin', 'HR', 'Manager'].includes(user?.role) && leave.status === "Pending") && (<Stack direction="row" spacing={1}><Button variant="contained" color="success" size="small" onClick={() => updateStatus(leave.id, "Approved") }>Approve</Button><Button variant="contained" color="error" size="small" onClick={() => updateStatus(leave.id, "Rejected")}>Reject</Button></Stack>)}
                   </TableCell>
 
                 </TableRow>

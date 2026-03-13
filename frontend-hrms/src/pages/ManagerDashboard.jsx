@@ -11,8 +11,7 @@ import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useNavigate } from "react-router-dom";
 
-// Manager-specific stats
-const managerStats = [];
+import StatsCards from "../components/StatsCards.jsx";
 
 const teamMembers = [];
 
@@ -103,12 +102,11 @@ export default function ManagerDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {managerStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <StatCard {...stat} />
-          </Grid>
-        ))}
+
+      <Grid container spacing={3} sx={{ mb: 5 }}>
+
+        <StatsCards />
+
       </Grid>
 
       {/* Main Content */}

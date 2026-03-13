@@ -158,6 +158,8 @@ const DepartmentPage = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
+            inputProps={{ pattern: "[A-Za-z\\s]+" }}
+            required
           />
           <TextField
             label="Description"
@@ -231,6 +233,8 @@ const DepartmentPage = () => {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               fullWidth
+              inputProps={{ pattern: "[A-Za-z\\s]+" }}
+              required
             />
             <TextField
               label="Description"

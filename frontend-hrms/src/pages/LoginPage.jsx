@@ -162,22 +162,25 @@ const LoginPage = () => {
         )}
 
         <TextField
-          label="Email"
+          label="Email *"
           fullWidth
           margin="normal"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyPress={handleKeyPress}
+          required
         />
 
         <TextField
-          label="Password"
+          label="Password *"
           type={showPassword ? "text" : "password"}
           fullWidth
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
+          required
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">

@@ -176,6 +176,8 @@ const UserPage = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             fullWidth
+            inputProps={{ pattern: "[A-Za-z\\s]+" }}
+            required
           />
           <TextField
             label="Email *"
@@ -183,6 +185,7 @@ const UserPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
+            required
           />
           <TextField
             label="Password *"
@@ -190,6 +193,8 @@ const UserPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
+            inputProps={{ minLength: 6 }}
+            required
           />
           <TextField
             select
@@ -197,6 +202,7 @@ const UserPage = () => {
             value={role}
             onChange={(e) => setRole(e.target.value)}
             fullWidth
+            required
           >
             <MenuItem value="">Select Role</MenuItem>
             <MenuItem value="admin">Admin</MenuItem>
@@ -288,7 +294,7 @@ const UserPage = () => {
         <DialogTitle>Edit User</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Username *" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} fullWidth />
+            <TextField label="Username *" value={editUsername} onChange={(e) => setEditUsername(e.target.value)} fullWidth inputProps={{ pattern: "[A-Za-z\\s]+" }} required />
             <TextField label="Email *" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} fullWidth />
             <TextField
               select

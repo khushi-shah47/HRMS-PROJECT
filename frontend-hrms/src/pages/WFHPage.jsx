@@ -15,21 +15,33 @@ import {
   Chip,
   Alert
 } from "@mui/material";
-import api from "../services/api";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 const WFHPage = ({ employeeId }) => {
+  // Get user from localStorage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const empId = user?.employee_id || user?.id || employeeId;
+  
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
   const [history, setHistory] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const fetchHistory = async () => {
     try {
-      const res = await api.get("/wfh/all");
-      setHistory(res.data);
+      const res = await fetch(`${API_BASE_URL}/wfh/all`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch");
+      }
+      const data = await res.json();
+      const records = Array.isArray(data) ? data : [];
+      setHistory(records);
+      setTotalCount(records.length);
     } catch (error) {
       console.error("Error fetching WFH data:", error);
       setMessage({ type: "error", text: "Failed to load WFH requests" });
@@ -43,13 +55,21 @@ const WFHPage = ({ employeeId }) => {
     }
     
     try {
-      const res = await api.post("/wfh/apply", {
-        employee_id: employeeId,
-        start_date: startDate,
-        end_date: endDate,
-        reason: reason
+      const res = await fetch("http://localhost:5000/api/wfh/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          employee_id: empId,
+          start_date: startDate,
+          end_date: endDate,
+          reason: reason
+        })
       });
       
+      if (!res.ok) {
+        throw new Error("Failed to apply");
+      }
+
       setStartDate("");
       setEndDate("");
       setReason("");
@@ -57,13 +77,22 @@ const WFHPage = ({ employeeId }) => {
       fetchHistory();
     } catch (error) {
       console.error("Error applying WFH:", error);
-      setMessage({ type: "error", text: "Failed to submit WFH request: " + error.response?.data?.message });
+      setMessage({ type: "error", text: "Failed to submit WFH request" });
     }
   };
 
   const handleApprove = async (id) => {
     try {
-      await api.post("/wfh/approve", { id });
+      const res = await fetch("http://localhost:5000/api/wfh/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to approve");
+      }
+
       setMessage({ type: "success", text: "WFH request approved" });
       fetchHistory();
     } catch (error) {
@@ -74,7 +103,16 @@ const WFHPage = ({ employeeId }) => {
 
   const handleReject = async (id) => {
     try {
-      await api.post("/wfh/reject", { id });
+      const res = await fetch("http://localhost:5000/api/wfh/reject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to reject");
+      }
+
       setMessage({ type: "success", text: "WFH request rejected" });
       fetchHistory();
     } catch (error) {
@@ -132,25 +170,27 @@ const WFHPage = ({ employeeId }) => {
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <TextField
             type="date"
-            label="Start Date"
+            label="Start Date *"
             fullWidth
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
+            required
           />
 
           <TextField
             type="date"
-            label="End Date"
+            label="End Date *"
             fullWidth
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
+            required
           />
         </Stack>
 
         <TextField
-          label="Reason"
+          label="Reason *"
           multiline
           rows={2}
           fullWidth
@@ -158,6 +198,8 @@ const WFHPage = ({ employeeId }) => {
           onChange={(e) => setReason(e.target.value)}
           sx={{ mt: 2 }}
           placeholder="Enter reason for WFH"
+          required
+          inputProps={{ minLength: 2 }}
         />
 
         <Button
@@ -202,27 +244,7 @@ const WFHPage = ({ employeeId }) => {
                   <TableCell>
                     {getStatusChip(rec.status)}
                   </TableCell>
-                  <TableCell>
-                    {rec.status === "pending" && (
-                      <Stack direction="row" spacing={1}>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          onClick={() => handleApprove(rec.id)}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          size="small"
-                          onClick={() => handleReject(rec.id)}
-                        >
-                          Reject
-                        </Button>
-                      </Stack>
-                    )}
+                  <TableCell>{(['Admin', 'HR', 'Manager'].includes(user?.role) && rec.status === "pending") && ( <Stack direction="row" spacing={1}><Button variant="contained" color="success" size="small" onClick={() => handleApprove(rec.id)}>Approve</Button><Button variant="contained" color="error" size="small" onClick={() => handleReject(rec.id)}>Reject</Button></Stack>)}
                   </TableCell>
                 </TableRow>
               ))

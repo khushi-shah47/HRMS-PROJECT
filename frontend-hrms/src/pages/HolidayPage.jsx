@@ -183,19 +183,21 @@ const HolidayPage = () => {
         </Typography>
         <Stack spacing={2}>
           <TextField
-            label="Holiday Name"
+            label="Holiday Name *"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
+            required
           />
 
           <TextField
             type="date"
-            label="Date"
+            label="Date *"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
             fullWidth
+            required
           />
 
           <TextField
@@ -279,18 +281,20 @@ const HolidayPage = () => {
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="Holiday Name"
+              label="Holiday Name *"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
               fullWidth
+              required
             />
             <TextField
               type="date"
-              label="Date"
+              label="Date *"
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               fullWidth
+              required
             />
             <TextField
               label="Description"

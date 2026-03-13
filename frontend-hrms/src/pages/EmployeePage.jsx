@@ -87,8 +87,12 @@ const EmployeePage = () => {
   };
 
   const fetchDepartments = async () => {
-    // Use predefined departments along with any from API
-    setDepartments(departmentOptions);
+    try {
+      const res = await api.get("/departments/all");
+      setDepartments(res.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const addEmployee = async () => {
@@ -205,6 +209,8 @@ const EmployeePage = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
+            inputProps={{ pattern: "[A-Za-z\\s]+" }}
+            required
           />
           <TextField
             label="Email *"
@@ -212,6 +218,7 @@ const EmployeePage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
+            required
           />
           <TextField
             label="Phone"
@@ -225,6 +232,7 @@ const EmployeePage = () => {
             value={position}
             onChange={(e) => setPosition(e.target.value)}
             fullWidth
+            required
           >
             <MenuItem value="">Select Position</MenuItem>
             {positionOptions.map((pos) => (
@@ -322,8 +330,8 @@ const EmployeePage = () => {
         <DialogTitle>Edit Employee</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Name *" value={editName} onChange={(e) => setEditName(e.target.value)} fullWidth />
-            <TextField label="Email *" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} fullWidth />
+            <TextField label="Name *" value={editName} onChange={(e) => setEditName(e.target.value)} fullWidth inputProps={{ pattern: "[A-Za-z\\s]+" }} required />
+            <TextField label="Email *" type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} fullWidth required />
             <TextField label="Phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} fullWidth />
             <TextField
               select
@@ -331,6 +339,7 @@ const EmployeePage = () => {
               value={editPosition}
               onChange={(e) => setEditPosition(e.target.value)}
               fullWidth
+              required
             >
               <MenuItem value="">Select Position</MenuItem>
               {positionOptions.map((pos) => (
