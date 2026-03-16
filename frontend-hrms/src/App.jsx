@@ -26,13 +26,13 @@ import ForgetPassword from "./pages/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Role-based route access configuration
-const roleRoutes = {
-  admin: ["/admin", "/employees", "/attendance", "/all-attendance", "/tasks", "/reports", "/users", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments"],
-  manager: ["/manager", "/employees", "/attendance", "/tasks", "/reports", "/leave", "/wfh", "/departments"],
-  hr: ["/hr", "/employees", "/attendance", "/leave", "/holidays", "/departments"],
-  developer: ["/developer", "/attendance", "/leave", "/tasks", "/wfh"],
-  intern: ["/intern", "/attendance", "/tasks"]
-};
+// const roleRoutes = {
+//   admin: ["/admin", "/employees", "/attendance", "/all-attendance", "/tasks", "/reports", "/users", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments"],
+//   manager: ["/manager", "/employees", "/attendance", "/tasks", "/reports", "/leave", "/wfh", "/departments"],
+//   hr: ["/hr", "/employees", "/attendance", "/leave", "/holidays", "/departments"],
+//   developer: ["/developer", "/attendance", "/leave", "/tasks", "/wfh"],
+//   intern: ["/intern", "/attendance", "/tasks"]
+// };
 
 function App() {
   return (
@@ -86,14 +86,14 @@ function App() {
             />
 
             {/* Default Dashboard (redirects based on role) */}
-            <Route 
+            {/* <Route 
               path="/" 
               element={
                 <ProtectedRoute>
                   <DashboardPage />
                 </ProtectedRoute>
               } 
-            />
+            /> */}
 
             {/* Protected Routes */}
             <Route 
@@ -115,7 +115,7 @@ function App() {
             <Route 
               path="/all-attendance" 
               element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
                   <AllAttendancePage />
                 </ProtectedRoute>
               } 

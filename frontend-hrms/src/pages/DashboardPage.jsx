@@ -11,25 +11,109 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-import StatsCards from "../components/StatsCards.jsx";
+// Role-based stats configuration
+const roleStats = {
+  admin: [
+    // { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
+    // { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
+    // { title: "On Leave", value: 5, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
+    // { title: "WFH", value: 7, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
+    // { title: "Pending Tasks", value: 23, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
+    // { title: "New Hires", value: 8, icon: <PersonAddIcon />, color: "#06B6D4", bg: "#ECFEFF" }
+  ],
+  manager: [
+    // { title: "Team Members", value: 15, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
+    // { title: "Present Today", value: 12, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
+    // { title: "Pending Leaves", value: 4, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
+    // { title: "Active Tasks", value: 18, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
+    // { title: "WFH Requests", value: 3, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
+  ],
+  hr: [
+    // { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
+    // { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
+    // { title: "Leave Requests", value: 8, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
+    // { title: "Departments", value: 6, icon: <TrendingUpIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
+  ],
+  developer: [
+    // { title: "My Tasks", value: 8, icon: <AssignmentIcon />, color: "#3B82F6", bg: "#EBF5FF" },
+    // { title: "Completed", value: 5, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
+    // { title: "In Progress", value: 3, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" },
+    // { title: "Leave Balance", value: 15, icon: <BeachAccessIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
+  ],
+  intern: [
+    // { title: "Assigned Tasks", value: 4, icon: <AssignmentIcon />, color: "#3B82F6", bg: "#EBF5FF" },
+    // { title: "Completed", value: 2, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
+    // { title: "In Progress", value: 2, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" }
+  ]
+};
 
 // Sample data for different roles
 const sampleData = {
-  admin: { recentEmployees: [], pendingTasks: [], leaveRequests: [] },
-  manager: { teamAttendance: [], pendingTasks: [], leaveRequests: [] },
-  hr: { recentHires: [], leaveRequests: [] },
-  developer: { myTasks: [] },
-  intern: { myTasks: [] }
+  admin: {
+    recentEmployees: [
+      // { name: "John Doe", position: "Developer", department: "IT", date: "2024-01-15" },
+      // { name: "Jane Smith", position: "Designer", department: "Design", date: "2024-01-14" },
+      // { name: "Mike Johnson", position: "Manager", department: "Sales", date: "2024-01-13" }
+    ],
+    pendingTasks: [
+      // { task: "Update login page", assignedTo: "John Doe", priority: "High", deadline: "2024-01-20" },
+      // { task: "Fix navigation bug", assignedTo: "Jane Smith", priority: "Medium", deadline: "2024-01-22" },
+      // { task: "Design dashboard", assignedTo: "Mike Johnson", priority: "High", deadline: "2024-01-21" }
+    ],
+    leaveRequests: [
+      // { employee: "Sarah Wilson", type: "Sick Leave", days: 2, status: "Pending" },
+      // { employee: "Tom Brown", type: "Casual Leave", days: 1, status: "Pending" }
+    ]
+  },
+  manager: {
+    teamAttendance: [
+      // { name: "John Doe", status: "Present", time: "09:00 AM" },
+      // { name: "Jane Smith", status: "Present", time: "09:15 AM" },
+      // { name: "Mike Johnson", status: "WFH", time: "-" },
+      // { name: "Sarah Wilson", status: "Leave", time: "-" }
+    ],
+    pendingTasks: [
+      // { task: "Client presentation", assignedTo: "John Doe", priority: "High", deadline: "2024-01-20" },
+      // { task: "Code review", assignedTo: "Jane Smith", priority: "Medium", deadline: "2024-01-22" }
+    ],
+    leaveRequests: [
+    //   { employee: "Tom Brown", type: "Casual Leave", days: 1, status: "Pending" }
+    ]
+  },
+  hr: {
+    recentHires: [
+      // { name: "John Doe", position: "Developer", department: "IT", date: "2024-01-15" },
+      // { name: "Jane Smith", position: "Designer", department: "Design", date: "2024-01-14" }
+    ],
+    leaveRequests: [
+      // { employee: "Sarah Wilson", type: "Sick Leave", days: 2, status: "Pending" },
+      // { employee: "Tom Brown", type: "Casual Leave", days: 1, status: "Approved" }
+    ]
+  },
+  developer: {
+    myTasks: [
+      // { task: "Fix login bug", status: "In Progress", deadline: "2024-01-20", progress: 60 },
+      // { task: "Update API documentation", status: "Pending", deadline: "2024-01-22", progress: 0 },
+      // { task: "Write unit tests", status: "Completed", deadline: "2024-01-18", progress: 100 }
+    ]
+  },
+  intern: {
+    myTasks: [
+      // { task: "Learn codebase", status: "In Progress", deadline: "2024-01-20", progress: 40 },
+      // { task: "Complete training", status: "Completed", deadline: "2024-01-15", progress: 100 },
+      // { task: "Setup environment", status: "Completed", deadline: "2024-01-14", progress: 100 }
+    ]
+  }
 };
 
 // Get role display info
 const getRoleInfo = (role) => {
   const roles = {
-    admin: { title: "Admin Dashboard", subtitle: "Full System Overview", color: "#1E3A8A", bg: "#EEF2FF" },
-    manager: { title: "Manager Dashboard", subtitle: "Team Overview", color: "#7C3AED", bg: "#F5F3FF" },
-    hr: { title: "HR Dashboard", subtitle: "Employee Management", color: "#059669", bg: "#ECFDF5" },
-    developer: { title: "Developer Dashboard", subtitle: "My Tasks & Attendance", color: "#DC2626", bg: "#FEF2F2" },
-    intern: { title: "Intern Dashboard", subtitle: "Learning Progress", color: "#D97706", bg: "#FFFBEB" }
+    // admin: { title: "Admin Dashboard", subtitle: "Full System Overview", color: "#1E3A8A", bg: "#EEF2FF" },
+    // manager: { title: "Manager Dashboard", subtitle: "Team Overview", color: "#7C3AED", bg: "#F5F3FF" },
+    // hr: { title: "HR Dashboard", subtitle: "Employee Management", color: "#059669", bg: "#ECFDF5" },
+    // developer: { title: "Developer Dashboard", subtitle: "My Tasks & Attendance", color: "#DC2626", bg: "#FEF2F2" },
+    // intern: { title: "Intern Dashboard", subtitle: "Learning Progress", color: "#D97706", bg: "#FFFBEB" }
   };
   return roles[role] || roles.developer;
 };
@@ -128,7 +212,13 @@ export default function DashboardPage() {
       </Box>
 
       {/* Stats Cards */}
-      <StatsCards />
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {stats.map((stat, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <StatCard {...stat} />
+          </Grid>
+        ))}
+      </Grid>
 
       {/* Role-specific Content */}
       <Grid container spacing={3}>

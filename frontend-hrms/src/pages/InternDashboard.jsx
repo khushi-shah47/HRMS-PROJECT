@@ -14,23 +14,23 @@ import StatsCards from "../components/StatsCards.jsx";
 const myTasks = [];
 
 const trainingModules = [
-  { title: "Company Orientation", status: "Completed", completedDate: "2024-01-10" },
-  { title: "Development Tools", status: "Completed", completedDate: "2024-01-12" },
-  { title: "Code Review Process", status: "In Progress", completedDate: "-" },
-  { title: "Security Guidelines", status: "Pending", completedDate: "-" },
-  { title: "Project Workflow", status: "Pending", completedDate: "-" }
+  // { title: "Company Orientation", status: "Completed", completedDate: "2024-01-10" },
+  // { title: "Development Tools", status: "Completed", completedDate: "2024-01-12" },
+  // { title: "Code Review Process", status: "In Progress", completedDate: "-" },
+  // { title: "Security Guidelines", status: "Pending", completedDate: "-" },
+  // { title: "Project Workflow", status: "Pending", completedDate: "-" }
 ];
 
 const learningGoals = [
-  { goal: "Complete React basics", deadline: "2024-01-20", status: "In Progress" },
-  { goal: "Learn company coding standards", deadline: "2024-01-22", status: "In Progress" },
-  { goal: "Submit first code review", deadline: "2024-01-25", status: "Pending" },
-  { goal: "Complete database training", deadline: "2024-01-30", status: "Pending" }
+  // { goal: "Complete React basics", deadline: "2024-01-20", status: "In Progress" },
+  // { goal: "Learn company coding standards", deadline: "2024-01-22", status: "In Progress" },
+  // { goal: "Submit first code review", deadline: "2024-01-25", status: "Pending" },
+  // { goal: "Complete database training", deadline: "2024-01-30", status: "Pending" }
 ];
 
 const mentorFeedback = [
-  { date: "2024-01-15", mentor: "John Doe", feedback: "Great progress on understanding the codebase. Keep it up!", rating: 4 },
-  { date: "2024-01-10", mentor: "Jane Smith", feedback: "Excellent orientation completion. You're adapting well.", rating: 5 }
+  // { date: "2024-01-15", mentor: "John Doe", feedback: "Great progress on understanding the codebase. Keep it up!", rating: 4 },
+  // { date: "2024-01-10", mentor: "Jane Smith", feedback: "Excellent orientation completion. You're adapting well.", rating: 5 }
 ];
 
 function StatCard({ title, value, icon, color, bg }) {

@@ -15,21 +15,25 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+
 const AttendancePage = () => {
   const navigate = useNavigate();
   const [today, setToday] = useState({});
-  const [workType, setWorkType] = useState(""); // Present or WFH
+  const [workType, setWorkType] = useState(""); 
   const [errorMsg, setErrorMsg] = useState("");
+
   const hasSelectedType = workType !== "";
   const hasCheckedIn = !!today?.time_in;
   const hasCheckedOut = !!today?.time_out;
+
   const user = JSON.parse(localStorage.getItem("user"));
   const employeeId = user?.employee_id || user?.id;
+
   // Fetch today's attendance
   const fetchToday = async () => {
     try {
       const res = await api.get(`/attendance/today/${employeeId}`);
-      const data = await res.data;
+      const data = res.data;
       setToday(data);
     } catch (err) {
       console.error(err);
@@ -53,32 +57,34 @@ const AttendancePage = () => {
       setErrorMsg("Please select type first (Present or WFH).");
       return;
     }
+
     try {
-      console.log('Checkin with type:', workType);
-      const res = await api.post("/attendance/checkin", { employee_id: employeeId, work_type: workType });
-      console.log('Checkin response:', res.data);
-      setWorkType(""); // reset type selection
+      await api.post("/attendance/checkin", {
+        employee_id: employeeId,
+        work_type: workType
+      });
+      setWorkType("");
       setErrorMsg("");
       fetchToday();
     } catch (err) {
-      console.error('Checkin error:', err);
+      console.error(err);
       setErrorMsg("Checkin failed: " + (err.response?.data?.message || err.message));
     }
   };
 
   const handleCheckOut = async () => {
     try {
-      const res = await api.post("/attendance/checkout", { employee_id: employeeId });
-      console.log('Checkout response:', res.data);
+      await api.post("/attendance/checkout", {
+        employee_id: employeeId
+      });
       setWorkType("");
       setErrorMsg("");
       fetchToday();
     } catch (err) {
-      console.error('Checkout error:', err);
+      console.error(err);
       setErrorMsg("Checkout failed");
     }
   };
-
 
   const getStatusText = () => {
     if (today.work_type === "wfh") return "WFH";
@@ -109,18 +115,14 @@ const AttendancePage = () => {
             exclusive
             onChange={handleWorkTypeChange}
             fullWidth
-            disabled={hasCheckedIn && !hasCheckedOut} // disable after checkin
+            disabled={hasCheckedIn && !hasCheckedOut}
           >
             <ToggleButton
               value="present"
               sx={{
                 py: 1.5,
                 color: "#2e7d32",
-                "&.Mui-selected": {
-                  bgcolor: "#4caf50",
-                  color: "white",
-                  "&:hover": { bgcolor: "#388e3c" },
-                },
+                "&.Mui-selected": { bgcolor: "#4caf50", color: "white", "&:hover": { bgcolor: "#388e3c" } },
               }}
             >
               <CheckCircleIcon sx={{ mr: 1 }} /> Present
@@ -131,11 +133,7 @@ const AttendancePage = () => {
               sx={{
                 py: 1.5,
                 color: "#0288d1",
-                "&.Mui-selected": {
-                  bgcolor: "#03a9f4",
-                  color: "white",
-                  "&:hover": { bgcolor: "#0288d1" },
-                },
+                "&.Mui-selected": { bgcolor: "#03a9f4", color: "white", "&:hover": { bgcolor: "#0288d1" } },
               }}
             >
               <HomeIcon sx={{ mr: 1 }} /> WFH

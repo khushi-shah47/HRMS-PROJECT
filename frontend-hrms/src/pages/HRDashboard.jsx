@@ -14,25 +14,25 @@ import { useNavigate } from "react-router-dom";
 import StatsCards from "../components/StatsCards.jsx";
 
 const recentHires = [
-  { name: "John Doe", position: "Developer", department: "IT", date: "2024-01-15", status: "Active", avatar: "JD" },
-  { name: "Jane Smith", position: "Designer", department: "Design", date: "2024-01-14", status: "Active", avatar: "JS" },
-  { name: "Mike Johnson", position: "Manager", department: "Sales", date: "2024-01-13", status: "Probation", avatar: "MJ" },
-  { name: "Sarah Wilson", position: "HR Executive", department: "HR", date: "2024-01-12", status: "Active", avatar: "SW" }
+  // { name: "John Doe", position: "Developer", department: "IT", date: "2024-01-15", status: "Active", avatar: "JD" },
+  // { name: "Jane Smith", position: "Designer", department: "Design", date: "2024-01-14", status: "Active", avatar: "JS" },
+  // { name: "Mike Johnson", position: "Manager", department: "Sales", date: "2024-01-13", status: "Probation", avatar: "MJ" },
+  // { name: "Sarah Wilson", position: "HR Executive", department: "HR", date: "2024-01-12", status: "Active", avatar: "SW" }
 ];
 
 const leaveRequests = [
-  { employee: "Tom Brown", type: "Sick Leave", days: 2, status: "Pending", department: "IT", reason: "Medical checkup" },
-  { employee: "Emily Davis", type: "Casual Leave", days: 1, status: "Approved", department: "Sales", reason: "Personal work" },
-  { employee: "Michael Lee", type: "Annual Leave", days: 5, status: "Pending", department: "Marketing", reason: "Family vacation" },
-  { employee: "Lisa Anderson", type: "Sick Leave", days: 3, status: "Approved", department: "IT", reason: "Surgery" }
+  // { employee: "Tom Brown", type: "Sick Leave", days: 2, status: "Pending", department: "IT", reason: "Medical checkup" },
+  // { employee: "Emily Davis", type: "Casual Leave", days: 1, status: "Approved", department: "Sales", reason: "Personal work" },
+  // { employee: "Michael Lee", type: "Annual Leave", days: 5, status: "Pending", department: "Marketing", reason: "Family vacation" },
+  // { employee: "Lisa Anderson", type: "Sick Leave", days: 3, status: "Approved", department: "IT", reason: "Surgery" }
 ];
 
 const departments = [
-  { name: "IT", head: "John Doe", employees: 15, vacancies: 3 },
-  { name: "Sales", head: "Mike Johnson", employees: 10, vacancies: 2 },
-  { name: "Marketing", head: "Sarah Wilson", employees: 8, vacancies: 1 },
-  { name: "HR", head: "Lisa Anderson", employees: 5, vacancies: 1 },
-  { name: "Design", head: "Jane Smith", employees: 7, vacancies: 2 }
+  // { name: "IT", head: "John Doe", employees: 15, vacancies: 3 },
+  // { name: "Sales", head: "Mike Johnson", employees: 10, vacancies: 2 },
+  // { name: "Marketing", head: "Sarah Wilson", employees: 8, vacancies: 1 },
+  // { name: "HR", head: "Lisa Anderson", employees: 5, vacancies: 1 },
+  // { name: "Design", head: "Jane Smith", employees: 7, vacancies: 2 }
 ];
 
 function StatCard({ title, value, icon, color, bg }) {

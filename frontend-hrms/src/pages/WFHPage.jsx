@@ -244,8 +244,35 @@ const WFHPage = ({ employeeId }) => {
                   <TableCell>
                     {getStatusChip(rec.status)}
                   </TableCell>
-                  <TableCell>{(['Admin', 'HR', 'Manager'].includes(user?.role) && rec.status === "pending") && ( <Stack direction="row" spacing={1}><Button variant="contained" color="success" size="small" onClick={() => handleApprove(rec.id)}>Approve</Button><Button variant="contained" color="error" size="small" onClick={() => handleReject(rec.id)}>Reject</Button></Stack>)}
-                  </TableCell>
+                    <TableCell>
+                        {['Admin', 'HR', 'Manager'].includes(user?.role) ? (
+                          rec.status === "pending" ? (
+                            <Stack direction="row" spacing={1}>
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                onClick={() => handleApprove(rec.id)}
+                              >
+                                Approve
+                              </Button>
+
+                              <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                onClick={() => handleReject(rec.id)}
+                              >
+                                Reject
+                              </Button>
+                            </Stack>
+                          ) : (
+                            getStatusChip(rec.status)
+                          )
+                        ) : (
+                          getStatusChip(rec.status)
+                        )}
+                      </TableCell>
                 </TableRow>
               ))
             )}

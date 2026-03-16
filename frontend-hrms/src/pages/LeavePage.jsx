@@ -228,8 +228,34 @@ function LeavePage({ user }) {
                   <TableCell>{leave.reason}</TableCell>
                   <TableCell>{leave.status}</TableCell>
 
-                  <TableCell>
-{(['Admin', 'HR', 'Manager'].includes(user?.role) && leave.status === "Pending") && (<Stack direction="row" spacing={1}><Button variant="contained" color="success" size="small" onClick={() => updateStatus(leave.id, "Approved") }>Approve</Button><Button variant="contained" color="error" size="small" onClick={() => updateStatus(leave.id, "Rejected")}>Reject</Button></Stack>)}
+                 <TableCell>
+                    {['Admin', 'HR', 'Manager'].includes(user?.role) ? (
+                      leave.status === "Pending" ? (
+                        <Stack direction="row" spacing={1}>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => updateStatus(leave.id, "Approved")}
+                          >
+                            Approve
+                          </Button>
+
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() => updateStatus(leave.id, "Rejected")}
+                          >
+                            Reject
+                          </Button>
+                        </Stack>
+                      ) : (
+                        leave.status
+                      )
+                    ) : (
+                      <Typography>{leave.status}</Typography>
+                    )}
                   </TableCell>
 
                 </TableRow>

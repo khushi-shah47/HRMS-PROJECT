@@ -102,11 +102,47 @@ export const updateEmployee = async (req, res) => {
 /* DELETE EMPLOYEE */
 export const deleteEmployee = async (req, res) => {
   const { id } = req.params;
+  
+  // Only admin/hr can delete
+  if (!['admin', 'hr'].includes(req.user.role)) {
+    return res.status(403).json({ message: "Only Admin/HR can delete employees" });
+  }
+  
+  const t = await sequelize.transaction();
   try {
-    await sequelize.query(`DELETE FROM employees WHERE id=:id`, { replacements: { id }, type: QueryTypes.DELETE });
-    res.json({ message: "Employee deleted successfully" });
+    // 1. Delete salaries
+    await sequelize.query(`DELETE FROM salaries WHERE employee_id = :id`, { 
+      replacements: { id }, 
+      type: QueryTypes.DELETE,
+      transaction: t
+    });
+    
+    // 2. Update tasks (nullify assigned_to/assigned_by)
+    await sequelize.query(`UPDATE tasks SET assigned_to = NULL, assigned_by = NULL WHERE assigned_to = :id OR assigned_by = :id`, {
+      replacements: { id },
+      type: QueryTypes.UPDATE,
+      transaction: t
+    });
+    
+    // 3. Delete users linked to this employee
+    await sequelize.query(`DELETE FROM users WHERE employee_id = :id`, {
+      replacements: { id },
+      type: QueryTypes.DELETE,
+      transaction: t
+    });
+    
+    // 4. Delete employee (cascades to attendance, leaves, wfh, tasks comments)
+    await sequelize.query(`DELETE FROM employees WHERE id = :id`, { 
+      replacements: { id }, 
+      type: QueryTypes.DELETE,
+      transaction: t 
+    });
+    
+    await t.commit();
+    res.json({ message: "Employee and related records deleted successfully" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed Try Again" });
+    await t.rollback();
+    console.error('Delete employee error:', err);
+    res.status(500).json({ message: "Failed to delete employee: " + err.message });
   }
 };

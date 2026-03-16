@@ -5,8 +5,12 @@ Toolbar,
 Typography,
 Avatar,
 Box,
-IconButton
+IconButton,
+InputBase
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import Tooltip from "@mui/material/Tooltip";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -38,6 +42,13 @@ export default function Topbar({ onMenuClick }){
     return(
         <AppBar position="static" sx={{ background:"#FFFFFF", color:"#000", boxShadow:1 }}>
             <Toolbar>
+                <Typography
+                    variant="h6" 
+                    sx={{ color:"#1E3A8A", fontWeight: "bold" }}
+                >
+                    HRMS Dashboard
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
                 <IconButton
                     edge="start"
                     color="inherit"
@@ -46,13 +57,31 @@ export default function Topbar({ onMenuClick }){
                 >
                     <MenuIcon />
                 </IconButton>
-                <Typography
-                    variant="h6" 
-                    sx={{ flexGrow:1, color:"#1E3A8A", fontWeight: "bold" }}
-                >
-                    {pageTitle}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: 250 }}>
+                  <InputBase
+                    placeholder="Search…"
+                    sx={{
+                      border: '1px solid #E5E7EB',
+                      borderRadius: 2,
+                      px: 2,
+                      py: 0.5,
+                      bgcolor: 'white',
+                      minWidth: 200,
+                      '&:hover': { borderColor: '#D1D5DB' }
+                    }}
+                    endAdornment={
+                      <SearchIcon sx={{ color: '#9CA3AF', mr: 1 }} />
+                    }
+                    onChange={(e) => console.log('Search:', e.target.value)}
+                  />
+                </Box>
+
                 <Box sx={{ display:"flex", alignItems:"center", gap:2 }}>
+                    <Tooltip title="Notifications">
+                      <IconButton sx={{ color: '#6B7280' }}>
+                        <NotificationsIcon />
+                      </IconButton>
+                    </Tooltip>
                     <Typography sx={{ fontWeight: 500 }}>
                         {user.name || user.username || "User"}
                     </Typography>
