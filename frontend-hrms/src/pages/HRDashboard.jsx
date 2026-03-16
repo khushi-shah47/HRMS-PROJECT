@@ -37,7 +37,7 @@ const departments = [
 
 function StatCard({ title, value, icon, color, bg }) {
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
+    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)", height: "100%" }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <Box>

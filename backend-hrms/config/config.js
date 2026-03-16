@@ -1,7 +1,7 @@
 export default {
   development: {
     username: "root",
-    password: "Shyam@2003",
+    password: "mysql",
     database: "hrms_db",
     host: "localhost",
     dialect: "mysql"

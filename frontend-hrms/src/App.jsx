@@ -24,6 +24,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ForgetPassword from "./pages/ForgetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 
 // Role-based route access configuration
 // const roleRoutes = {
@@ -43,6 +45,8 @@ function App() {
           <Route path="/signup" element={<SignupPage/>}/>
           <Route path="/forgot-password" element={<ForgetPassword/>}/>
           <Route element={<ProtectedRoute><Layout/></ProtectedRoute>}>
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
             {/* Role-specific Dashboard Routes */}
             <Route 
               path="/admin" 
