@@ -2,7 +2,6 @@ import db from "../config/db.js";
 
 /* Check-in */
 export const checkIn = (req, res) => {
-
   const { employee_id, work_type } = req.body;
 
   if (!employee_id) {
@@ -14,26 +13,44 @@ export const checkIn = (req, res) => {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const now = new Date();
 
+  // Check if already checked out today
   db.query(
-    `INSERT INTO attendance (employee_id, date, work_type, time_in)
-    VALUES (?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE time_in=?`,
-    [employee_id, today, work_type, now, now],
+    "SELECT time_out FROM attendance WHERE employee_id=? AND date=?",
+    [employee_id, today],
     (err, result) => {
       if (err) {
         console.error(err);
         return res.status(500).json(err);
       }
 
-      res.json({
-        message: "Checked in",
-        time_in: now
-      });
+      if (result.length && result[0].time_out) {
+        return res.status(400).json({ message: "Already checked out for today" });
+      }
+
+      const now = new Date();
+      db.query(
+        `INSERT INTO attendance (employee_id, date, work_type, time_in)
+        VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE time_in=?, work_type=?`,
+        [employee_id, today, work_type, now, now, work_type],
+        (err2, result2) => {
+          if (err2) {
+            console.error(err2);
+            return res.status(500).json(err2);
+          }
+
+          res.json({
+            message: "Checked in",
+            time_in: now
+          });
+        }
+      );
     }
   );
 };
+
+/* Today's Attendance */
 
 /* Check-out */
 export const checkOut = (req, res) => {

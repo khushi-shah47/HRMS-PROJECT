@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const roles = ["admin", "manager", "hr", "developer", "intern"];
+const roles = ["Admin", "Manager", "HR", "Developer", "Intern"];
 
 const SignupPage = () => {
   const navigate = useNavigate();
