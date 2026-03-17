@@ -24,6 +24,7 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import announcementRoutes from "./routes/announcementRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js"
 import { connectDB } from "./config/sequelize.js";
 
 connectDB();
@@ -56,6 +57,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/profile", profileRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

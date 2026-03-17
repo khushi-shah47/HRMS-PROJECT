@@ -102,9 +102,9 @@ export const signup = async (req, res) => {
 
     // 1️⃣ Create employee first
     const insertEmployeeSql =
-      "INSERT INTO employees (name) VALUES (?)";
+      "INSERT INTO employees (name,email) VALUES (?,?)";
 
-    db.query(insertEmployeeSql, [name], (err, employeeResult) => {
+    db.query(insertEmployeeSql, [name,email], (err, employeeResult) => {
 
       if (err) {
         console.error("Employee creation error:", err);

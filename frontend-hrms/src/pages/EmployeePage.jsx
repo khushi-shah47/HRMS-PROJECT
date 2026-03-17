@@ -144,9 +144,47 @@ const EmployeePage = () => {
     resetAddForm();
   };
 
+  const validateEmployee = ({ name, email, phone, position, salary, joinDate }) => {
+    if (!name || name.trim().length < 3) {
+      return "Name must be at least 3 characters";
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Invalid email format";
+    }
+
+    if (phone && !/^\d{10}$/.test(phone)) {
+      return "Phone must be 10 digits";
+    }
+
+    if (!position) {
+      return "Position is required";
+    }
+
+    if (!salary || isNaN(salary) || Number(salary) <= 0) {
+      return "Salary must be a positive number";
+    }
+
+    if (joinDate && new Date(joinDate) > new Date()) {
+      return "Join date cannot be in the future";
+    }
+
+    return null; // valid
+  };
+
   const addEmployee = async () => {
-    if (!name || !email || !position || !salary ) {
-      showSnackbar("Please fill in required fields (Name, Email, Position)", "error");
+    const error = validateEmployee({
+      name,
+      email,
+      phone,
+      position,
+      salary,
+      joinDate
+    });
+
+    if (error) {
+      showSnackbar(error, "error");
       return;
     }
 
@@ -190,8 +228,17 @@ const EmployeePage = () => {
   };
 
   const handleEditSave = async () => {
-    if (!editName || !editEmail || !editPosition || !editSalary) {
-      showSnackbar("Please fill in required fields", "error");
+    const error = validateEmployee({
+      name: editName,
+      email: editEmail,
+      phone: editPhone,
+      position: editPosition,
+      salary: editSalary,
+      joinDate: editJoinDate
+    });
+
+    if (error) {
+      showSnackbar(error, "error");
       return;
     }
 
@@ -410,7 +457,8 @@ const EmployeePage = () => {
               onChange={(e) => setName(e.target.value)}
               fullWidth
               required
-              error={!name && addDialogOpen}
+              error={!name && addDialogOpen && name.length < 3}
+              helperText={name.length > 0 && name.length < 3 ? "Minimum 3 characters" : ""}
             />
             <TextField
               label="Email"
@@ -419,12 +467,16 @@ const EmployeePage = () => {
               onChange={(e) => setEmail(e.target.value)}
               fullWidth
               required
+              error={email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
+              helperText={email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "Invalid email" : ""}
             />
             <TextField
               label="Phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               fullWidth
+              error={phone && !/^\d{10}$/.test(phone)}
+              helperText={phone && !/^\d{10}$/.test(phone) ? "Enter 10 digit number" : ""}
             />
             <TextField
               select
@@ -471,6 +523,8 @@ const EmployeePage = () => {
               InputProps={{
                 startAdornment: <InputAdornment position="start">₹</InputAdornment>
               }}
+              error={salary && Number(salary) <= 0}
+              helperText={salary && Number(salary) <= 0 ? "Must be positive" : ""}
             />
           </Stack>
         </DialogContent>
@@ -521,8 +575,8 @@ const EmployeePage = () => {
             <TextField
               select
               label="Position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
+              value={editPosition}
+              onChange={(e) => setEditPosition(e.target.value)}
               fullWidth
               required
             >
