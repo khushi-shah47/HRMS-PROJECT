@@ -51,8 +51,10 @@ export default function Topbar({ onMenuClick }){
     const pageTitle = titles[location.pathname] || "HRMS Dashboard";
 
     // Get user from localStorage
-    const userData = localStorage.getItem("user");
-    const user = userData ? JSON.parse(userData) : { name: "Admin" };
+    const [user, setUser] = useState(() => {
+        const userData = localStorage.getItem("user");
+        return userData ? JSON.parse(userData) : { name: "Admin" };
+    });
 
     // Notification State
     const [notifications, setNotifications] = useState([]);
@@ -69,6 +71,7 @@ export default function Topbar({ onMenuClick }){
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const openProfileMenu = Boolean(profileAnchorEl);
 
+    
     // Handlers
     const handleProfileClick = (event) => {
         setProfileAnchorEl(event.currentTarget);
@@ -95,6 +98,17 @@ export default function Topbar({ onMenuClick }){
         // Poll every 30 seconds for new notifications
         const interval = setInterval(fetchNotifications, 30000);
         return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        const updateUser = () => {
+            const userData = localStorage.getItem("user");
+            setUser(userData ? JSON.parse(userData) : { name: "Admin" });
+        };
+
+        window.addEventListener("profileUpdated", updateUser);
+
+        return () => window.removeEventListener("profileUpdated", updateUser);
     }, []);
 
     const fetchNotifications = async () => {
@@ -249,8 +263,15 @@ export default function Topbar({ onMenuClick }){
                         <Typography sx={{ fontWeight: 500, display: { xs: "none", sm: "block" } }}>
                             {user.name || user.username || "User"}
                         </Typography>
-                        <Avatar sx={{ bgcolor: "#1E3A8A", width: 35, height: 35 }}>
-                            {(user.name || user.username || "U").charAt(0).toUpperCase()}
+                        <Avatar
+                            src={
+                                user?.profile_image
+                                    ? `http://localhost:5000/${user.profile_image}?t=${new Date().getTime()}`
+                                    : ""
+                            }
+                            sx={{ bgcolor: "#1E3A8A", width: 35, height: 35 }}
+                        >
+                            {!user?.profile_image && (user.name || user.username || "U").charAt(0).toUpperCase()}
                         </Avatar>
                     </Box>
                 </Box>

@@ -13,6 +13,9 @@ import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
+import PieChartBox from "../components/dashboard/PieChartBox";
+import LineChartBox from "../components/dashboard/LineChartBox";
+import BarChartBox from "../components/dashboard/BarChartBox";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
@@ -69,6 +72,13 @@ export default function AdminDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
 
+  const [chartData, setChartData] = useState({
+    departmentData: [],
+    statusData: [],
+    growthData: [],
+    attendanceData: []
+  });
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -87,7 +97,8 @@ export default function AdminDashboard() {
         fetchLeaves(),
         fetchDepartments(),
         fetchAnnouncements(),
-        fetchHolidays()
+        fetchHolidays(),
+        fetchChartData()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -215,6 +226,126 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchChartData = async () => {
+    try {
+      // 🔹 Employees
+      const empRes = await api.get("/employees");
+      console.log("EMP API:", empRes.data);
+      const employees = Array.isArray(empRes.data)
+        ? empRes.data
+        : empRes.data?.employees || [];
+
+      if (!Array.isArray(employees)) {
+        console.error("Employees is not an array", employees);
+        return;
+      }
+      // 🔹 Departments
+      const deptRes = await api.get("/departments/all");
+      console.log("DEPT API:", deptRes.data);
+      const departments = deptRes.data || [];
+
+      // 🔹 Attendance
+      const attendanceRes = await api.get("/attendance/all");
+      const attendance = Array.isArray(attendanceRes.data)
+        ? attendanceRes.data
+        : attendanceRes.data?.data || [];
+
+      // =========================
+      // 📊 1. Department Pie
+      // =========================
+      const deptMap = {};
+
+      employees.forEach(emp => {
+        const dept = emp.department_name || "Unknown";
+        deptMap[dept] = (deptMap[dept] || 0) + 1;
+      });
+
+      const departmentData = Object.keys(deptMap).map(key => ({
+        name: key,
+        value: deptMap[key]
+      }));
+
+      // =========================
+      // 📊 2. Employee Status Pie
+      // =========================
+      const statusMap = {
+        Active: 0,
+        Leave: 0,
+        Resigned: 0,
+        Probation: 0
+      };
+
+      employees.forEach(emp => {
+        const status = emp.status || "Active";
+        if (statusMap[status] !== undefined) {
+          statusMap[status]++;
+        }
+      });
+
+      const statusData = Object.keys(statusMap).map(key => ({
+        name: key,
+        value: statusMap[key]
+      }));
+
+      // =========================
+      // 📈 3. Employee Growth (Month-wise)
+      // =========================
+      const growthMap = {};
+
+      employees.forEach(emp => {
+        const date = new Date(emp.join_date || emp.created_at);
+        const month = date.toLocaleString("default", { month: "short" });
+
+        growthMap[month] = (growthMap[month] || 0) + 1;
+      });
+
+      const growthData = Object.keys(growthMap).map(month => ({
+        month,
+        value: growthMap[month]
+      }));
+
+      // =========================
+      // 📊 4. Attendance % (Month-wise)
+      // =========================
+      const attendanceMap = {};
+
+      attendance.forEach(att => {
+        const date = new Date(att.date);
+        const month = date.toLocaleString("default", { month: "short" });
+
+        if (!attendanceMap[month]) {
+          attendanceMap[month] = { present: 0, total: 0 };
+        }
+
+        if (att.status === "Present") {
+          attendanceMap[month].present++;
+        }
+
+        attendanceMap[month].total++;
+      });
+
+      const attendanceData = Object.keys(attendanceMap).map(month => ({
+        month,
+        value: Math.round(
+          (attendanceMap[month].present / attendanceMap[month].total) * 100
+        )
+      }));
+
+      // =========================
+      // ✅ SET DATA
+      // =========================
+      setChartData({
+        departmentData,
+        statusData,
+        growthData,
+        attendanceData
+      });
+
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    }
+  };
+
   const adminStats = [
     { title: "Total Employees", value: stats.totalEmployees, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
     { title: "Present Today", value: stats.presentToday, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
@@ -223,6 +354,7 @@ export default function AdminDashboard() {
     { title: "Pending Tasks", value: stats.pendingTasks, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
     { title: "Departments", value: stats.totalDepartments, icon: <BusinessIcon />, color: "#06B6D4", bg: "#ECFEFF" }
   ];
+
 
   return (
     <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
@@ -251,6 +383,58 @@ export default function AdminDashboard() {
           </Grid>
         ))}
       </Grid>
+
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+  
+      {/* Pie 1 */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Employees by Department
+            </Typography>
+            <PieChartBox data={chartData.departmentData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Pie 2 */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Employee Status
+            </Typography>
+            <PieChartBox data={chartData.statusData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Line Chart */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Employee Growth
+            </Typography>
+            <LineChartBox data={chartData.growthData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Bar Chart */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Monthly Attendance
+            </Typography>
+            <BarChartBox data={chartData.attendanceData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+    </Grid>
 
       {/* Main Content */}
       <Grid container spacing={3}>

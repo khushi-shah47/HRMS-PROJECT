@@ -13,117 +13,138 @@ import {
   CircularProgress
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import api from "../services/api";
 
 export default function ProfilePage() {
   const [employee, setEmployee] = useState(null);
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     join_date: ""
   });
-
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  // Image upload states
-  const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
-
   const [notification, setNotification] = useState({
     open: false,
     message: "",
     severity: "success"
   });
 
+  // Fetch employee
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user?.employee_id) return;
-
         const res = await api.get(`/profile/${user.employee_id}`);
         const emp = res.data;
-
         setEmployee(emp);
-
         setFormData({
           name: emp.name || "",
           email: emp.email || "",
           phone: emp.phone || "",
-          join_date: emp.join_date
-            ? emp.join_date.split("T")[0]
-            : ""
+          join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
         });
-
       } catch (err) {
         console.error(err);
-        setNotification({
-          open: true,
-          message: "Failed to load profile",
-          severity: "error"
-        });
+        setNotification({ open: true, message: "Failed to load profile", severity: "error" });
       } finally {
         setLoading(false);
       }
     };
-
     fetchEmployee();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const saveProfile = async () => {
     setSaving(true);
-
     try {
       await api.put(`/profile/${employee.id}`, formData);
-
-      setEmployee((prev) => ({
-        ...prev,
-        ...formData
-      }));
-
-      setNotification({
-        open: true,
-        message: "Profile updated successfully",
-        severity: "success"
-      });
-
+      setEmployee((prev) => ({ ...prev, ...formData }));
+      setNotification({ open: true, message: "Profile updated successfully", severity: "success" });
       setEditing(false);
-
     } catch (err) {
       console.error(err);
-      setNotification({
-        open: true,
-        message: "Failed to update profile",
-        severity: "error"
-      });
+      setNotification({ open: true, message: "Failed to update profile", severity: "error" });
     } finally {
       setSaving(false);
     }
   };
 
-  // Handle file select
+  // // Upload image
+  // const handleFileChange = async (e) => {
+  //   const file = e.target.files[0];
+  //   if (!file || !file.type.startsWith("image/")) return;
+  //   setPreview(URL.createObjectURL(file));
+
+  //   const formDataUpload = new FormData();
+  //   // formDataUpload.append("profile", file);
+  //   formDataUpload.append("profile", file); 
+
+  //   try {
+  //     const res = await api.post(`/employees/upload-profile/${employee.id}`, formDataUpload, {
+  //       headers: { "Content-Type": "multipart/form-data" }
+  //     });
+
+  //     // Update employee and localStorage for navbar
+  //     setEmployee((prev) => {
+  //       const updated = { ...prev, profile_image: res.data.path };
+  //       const user = JSON.parse(localStorage.getItem("user"));
+  //       if (user) {
+  //         user.profile_image = res.data.path;
+  //         localStorage.setItem("user", JSON.stringify(user));
+  //       }
+  //       return updated;
+  //     });
+
+  //     setNotification({ open: true, message: "Profile image updated", severity: "success" });
+  //     setPreview(null);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setNotification({ open: true, message: "Upload failed. Check backend!", severity: "error" });
+  //   }
+  // };
+
+  // const uploadProfileImage = async () => {
+  //   if (!selectedFile) return;
+
+  //   const formDataUpload = new FormData();
+  //   formDataUpload.append("profile", selectedFile);
+
+  //   try {
+  //     const res = await api.post(
+  //       `/employees/upload-profile/${employee.id}`,
+  //       formDataUpload,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data"
+  //         }
+  //       }
+  //     );
+
+  //     console.log("UPLOAD SUCCESS:", res.data);
+
+  //   } catch (err) {
+  //     console.error("UPLOAD ERROR:", err.response?.data || err.message);
+  //   }
+  // };
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file || !file.type.startsWith("image/")) return;
 
     setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
   };
 
-  // Upload profile image
   const uploadProfileImage = async () => {
     if (!selectedFile) return;
 
@@ -133,16 +154,32 @@ export default function ProfilePage() {
     try {
       const res = await api.post(
         `/employees/upload-profile/${employee.id}`,
-        formDataUpload
+        formDataUpload,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }
       );
 
-      setEmployee((prev) => ({
-        ...prev,
-        profile_image: res.data.path
-      }));
+      // ✅ Update local state
+      setEmployee((prev) => {
+        const updated = { ...prev, profile_image: res.data.path };
 
-      setPreview(null);
-      setSelectedFile(null);
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user) {
+          user.profile_image = res.data.path;
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+
+        return updated;
+      });
+
+      // ✅ FORCE PROFILE REFRESH
+      await fetchEmployee();
+
+      // ✅ Notify Topbar
+      window.dispatchEvent(new Event("profileUpdated"));
 
       setNotification({
         open: true,
@@ -150,21 +187,20 @@ export default function ProfilePage() {
         severity: "success"
       });
 
+      setPreview(null);
+      setSelectedFile(null);
+
     } catch (err) {
-      console.error(err);
+      console.error("UPLOAD ERROR:", err.response?.data || err.message);
+
       setNotification({
         open: true,
-        message: "Upload failed",
+        message: err.response?.data?.message || "Upload failed",
         severity: "error"
       });
     }
   };
-
-  if (loading) {
-    return (
-      <CircularProgress sx={{ display: "block", m: "auto", mt: 4 }} />
-    );
-  }
+  if (loading) return <CircularProgress sx={{ display: "block", m: "auto", mt: 4 }} />;
 
   return (
     <Box sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
@@ -173,32 +209,29 @@ export default function ProfilePage() {
       </Typography>
 
       <Paper sx={{ p: 4, borderRadius: 2 }}>
-
-        {/* Header */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-
-          {/* ✅ YOUR AVATAR CODE */}
-          <Box sx={{ position: "relative" }}>
-
+          <Box sx={{ position: "relative", display: "inline-block", mr: 2 }}>
             <Avatar
+              // src={
+              //   preview
+              //     ? preview
+              //     : employee?.profile_image
+              //       ? http://localhost:5000/${employee.profile_image}?t=${new Date().getTime()}
+              //       : ""
+              // }
               src={
                 preview
                   ? preview
                   : employee?.profile_image
-                  ? `http://localhost:5000/${employee.profile_image}`
-                  : ""
+                    ? `http://localhost:5000/${employee.profile_image}?t=${new Date().getTime()}`
+                    : ""
               }
-              sx={{
-                bgcolor: "#3b82f6",
-                width: 64,
-                height: 64,
-                mr: 2,
-                cursor: "pointer"
-              }}
+              sx={{ bgcolor: "#3b82f6", width: 48, height: 48 }}
             >
-              {!employee?.profile_image && <PersonIcon fontSize="large" />}
+              {!employee?.profile_image && <PersonIcon fontSize="medium" />}
             </Avatar>
 
+            
             <input
               type="file"
               accept="image/*"
@@ -211,120 +244,72 @@ export default function ProfilePage() {
               <Box
                 sx={{
                   position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: 64,
-                  height: 64,
+                  bottom: 0,
+                  right: 0,
+                  width: 24,
+                  height: 24,
                   borderRadius: "50%",
-                  cursor: "pointer"
+                  bgcolor: "white",
+                  border: "1px solid #ccc",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "#f0f0f0" }
                 }}
-              />
+              >
+                <CameraAltIcon sx={{ fontSize: 16, color: "#555" }} />
+              </Box>
             </label>
-
           </Box>
 
+          {selectedFile && (
+              <Button
+                variant="contained"
+                size="small"
+                sx={{ mt: 1 }}
+                onClick={uploadProfileImage}
+              >
+                Upload Image
+              </Button>
+          )}
+          
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h5" fontWeight="bold">
-              {formData.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {employee?.position || employee?.role}
-            </Typography>
+            <Typography variant="h6" fontWeight="bold">{formData.name}</Typography>
+            <Typography variant="body2" color="text.secondary">{employee?.position || employee?.role}</Typography>
           </Box>
         </Box>
 
-        {/* Upload button */}
-        {selectedFile && (
-          <Button size="small" variant="contained" sx={{ mb: 2 }} onClick={uploadProfileImage}>
-            Upload Image
-          </Button>
-        )}
-
         <Divider sx={{ mb: 3 }} />
 
-        {/* Form */}
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              disabled={!editing}
-            />
+            <TextField label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth size="small" disabled={!editing} />
           </Grid>
-
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              disabled={!editing}
-            />
+            <TextField label="Email" name="email" value={formData.email} onChange={handleChange} fullWidth size="small" disabled={!editing} />
           </Grid>
-
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              disabled={!editing}
-            />
+            <TextField label="Phone" name="phone" value={formData.phone} onChange={handleChange} fullWidth size="small" disabled={!editing} />
           </Grid>
-
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Join Date"
-              name="join_date"
-              type="date"
-              value={formData.join_date}
-              onChange={handleChange}
-              fullWidth
-              size="small"
-              InputLabelProps={{ shrink: true }}
-              disabled={!editing}
-            />
+            <TextField label="Join Date" name="join_date" type="date" value={formData.join_date} onChange={handleChange} fullWidth size="small" InputLabelProps={{ shrink: true }} disabled={!editing} />
           </Grid>
         </Grid>
 
-        {/* Buttons */}
         <Box sx={{ mt: 3, textAlign: "right" }}>
           {!editing ? (
-            <Button variant="contained" onClick={() => setEditing(true)}>
-              Edit
-            </Button>
+            <Button variant="contained" onClick={() => setEditing(true)}>Edit</Button>
           ) : (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={saveProfile}
-              disabled={saving}
-            >
+            <Button variant="contained" color="success" onClick={saveProfile} disabled={saving}>
               {saving ? <CircularProgress size={20} color="inherit" /> : "Save"}
             </Button>
           )}
         </Box>
       </Paper>
 
-      {/* Snackbar */}
-      <Snackbar
-        open={notification.open}
-        autoHideDuration={6000}
-        onClose={() =>
-          setNotification((prev) => ({ ...prev, open: false }))
-        }
-      >
-        <Alert severity={notification.severity} sx={{ width: "100%" }}>
-          {notification.message}
-        </Alert>
+      <Snackbar open={notification.open} autoHideDuration={6000} onClose={() => setNotification((prev) => ({ ...prev, open: false }))}>
+        <Alert severity={notification.severity} sx={{ width: "100%" }}>{notification.message}</Alert>
       </Snackbar>
     </Box>
   );

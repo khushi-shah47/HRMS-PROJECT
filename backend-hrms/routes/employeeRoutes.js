@@ -10,7 +10,11 @@ import {
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
 import upload from "../middleware/uploadProfile.js"; 
+import { sequelize } from "../config/sequelize.js";
+import { QueryTypes } from "sequelize";
+
 const router = express.Router();
+
 
 router.post(
   "/upload-profile/:id",
@@ -18,31 +22,37 @@ router.post(
   async (req, res) => {
     try {
       console.log("FILE:", req.file);
+      console.log("ID:", req.params.id);
 
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
       }
 
-      const filePath = req.file.path;
+      const filePath = req.file.path.replace(/\\/g, "/");
 
-      await sequelize.query(
-        `UPDATE employees SET profile_image = :path WHERE id = :id`,
+      const result = await sequelize.query(
+        `UPDATE employees 
+         SET profile_image = :path 
+         WHERE id = :id`,
         {
           replacements: {
             path: filePath,
             id: req.params.id
-          }
+          },
+          type: QueryTypes.UPDATE
         }
       );
 
+      console.log("UPDATE RESULT:", result);
+
       res.json({
-        message: "Uploaded successfully",
+        message: "Profile image saved",
         path: filePath
       });
 
-    } catch (error) {
-      console.error("UPLOAD ERROR:", error);
-      res.status(500).json({ message: error.message });
+    } catch (err) {
+      console.error("UPLOAD ERROR:", err);
+      res.status(500).json({ message: err.message });
     }
   }
 );
