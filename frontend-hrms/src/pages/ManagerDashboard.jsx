@@ -13,7 +13,9 @@ import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
-
+import PieChartBox from "../components/dashboard/PieChartBox";
+import LineChartBox from "../components/dashboard/LineChartBox";
+import BarChartBox from "../components/dashboard/BarChartBox";
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
     <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
@@ -60,6 +62,13 @@ export default function ManagerDashboard() {
     wfhRequests: 0,
     completedTasks: 0
   });
+
+  const [chartData, setChartData] = useState({
+    attendanceData: [],
+    taskStatusData: [],
+    productivityData: [],
+    leaveData: []
+  });
   
   const [teamMembers, setTeamMembers] = useState([]);
   const [pendingTasks, setPendingTasks] = useState([]);
@@ -85,7 +94,8 @@ export default function ManagerDashboard() {
         fetchLeaves(),
         fetchWFHRequests(),
         fetchAnnouncements(),
-        fetchHolidays()
+        fetchHolidays(),
+        fetchManagerChartData()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -217,6 +227,132 @@ export default function ManagerDashboard() {
     { title: "In Progress", value: stats.activeTasks, icon: <AccessTimeIcon />, color: "#16A34A", bg: "#ECFDF5" }
   ];
 
+  const fetchManagerChartData = async () => {
+    try {
+      // 🔹 Fetch all data
+      const empRes = await api.get("/employees");
+      const taskRes = await api.get("/tasks");
+      const leaveRes = await api.get("/leaves");
+
+      // ✅ SAFE extraction (VERY IMPORTANT)
+      const employees = Array.isArray(empRes.data)
+        ? empRes.data
+        : empRes.data?.employees || [];
+
+      const tasks = Array.isArray(taskRes.data)
+        ? taskRes.data
+        : taskRes.data?.tasks || [];
+
+      const leaves = Array.isArray(leaveRes.data)
+        ? leaveRes.data
+        : leaveRes.data?.data || [];
+
+      // 🔥 Filter only manager team
+      const managerId = user?.id;
+
+      const teamEmployees = employees.filter(
+        emp => emp.manager_id === managerId
+      );
+
+      const teamIds = teamEmployees.map(emp => emp.id);
+
+      // =========================
+      // 📊 1. Team Attendance Pie
+      // =========================
+      const attendanceMap = {
+        Present: 0,
+        Absent: 0,
+        Leave: 0
+      };
+
+      // If you don’t have attendance API yet → fallback
+      teamEmployees.forEach(emp => {
+        if (emp.status === "Active") attendanceMap.Present++;
+        else if (emp.status === "Leave") attendanceMap.Leave++;
+        else attendanceMap.Absent++;
+      });
+
+      const attendanceData = Object.keys(attendanceMap).map(key => ({
+        name: key,
+        value: attendanceMap[key]
+      }));
+
+      // =========================
+      // 📊 2. Task Status Pie
+      // =========================
+      const taskMap = {
+        Completed: 0,
+        "In Progress": 0,
+        Pending: 0
+      };
+
+      tasks.forEach(task => {
+        if (!teamIds.includes(task.assigned_to)) return;
+
+        if (task.status === "completed") taskMap.Completed++;
+        else if (task.status === "in_progress") taskMap["In Progress"]++;
+        else taskMap.Pending++;
+      });
+
+      const taskStatusData = Object.keys(taskMap).map(key => ({
+        name: key,
+        value: taskMap[key]
+      }));
+
+      // =========================
+      // 📈 3. Productivity (Tasks Completed Over Time)
+      // =========================
+      const productivityMap = {};
+
+      tasks.forEach(task => {
+        if (!teamIds.includes(task.assigned_to)) return;
+        if (task.status !== "completed") return;
+
+        const date = new Date(task.updated_at || task.completed_at);
+        const label = date.toLocaleString("default", { month: "short" });
+
+        productivityMap[label] = (productivityMap[label] || 0) + 1;
+      });
+
+      const productivityData = Object.keys(productivityMap).map(key => ({
+        month: key,
+        value: productivityMap[key]
+      }));
+
+      // =========================
+      // 📊 4. Leave Requests (Monthly)
+      // =========================
+      const leaveMap = {};
+
+      leaves.forEach(leave => {
+        if (!teamIds.includes(leave.employee_id)) return;
+
+        const date = new Date(leave.start_date);
+        const month = date.toLocaleString("default", { month: "short" });
+
+        leaveMap[month] = (leaveMap[month] || 0) + 1;
+      });
+
+      const leaveData = Object.keys(leaveMap).map(key => ({
+        month: key,
+        value: leaveMap[key]
+      }));
+
+      // =========================
+      // ✅ SET DATA
+      // =========================
+      setChartData({
+        attendanceData,
+        taskStatusData,
+        productivityData,
+        leaveData
+      });
+
+    } catch (error) {
+      console.error("Manager chart error:", error);
+    }
+  };
+
   return (
     <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
       {/* Header */}
@@ -244,6 +380,66 @@ export default function ManagerDashboard() {
           </Grid>
         ))}
       </Grid>
+
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+
+  {/* Attendance Pie */}
+  <Grid size={{ xs: 12, md: 6 }}>
+    <Card sx={{ borderRadius: 3 }}>
+      <CardContent>
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+          Team Attendance
+        </Typography>
+
+        {chartData.attendanceData.length === 0 ? (
+          <Typography textAlign="center">No data</Typography>
+        ) : (
+          <PieChartBox data={chartData.attendanceData} />
+        )}
+      </CardContent>
+    </Card>
+  </Grid>
+
+  {/* Task Status */}
+  <Grid size={{ xs: 12, md: 6 }}>
+    <Card sx={{ borderRadius: 3 }}>
+      <CardContent>
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+          Task Status
+        </Typography>
+
+        <PieChartBox data={chartData.taskStatusData} />
+      </CardContent>
+    </Card>
+  </Grid>
+
+  {/* Productivity */}
+  <Grid size={{ xs: 12, md: 6 }}>
+    <Card sx={{ borderRadius: 3 }}>
+      <CardContent>
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+          Team Productivity
+        </Typography>
+
+        <LineChartBox data={chartData.productivityData} />
+      </CardContent>
+    </Card>
+  </Grid>
+
+  {/* Leaves */}
+  <Grid size={{ xs: 12, md: 6 }}>
+    <Card sx={{ borderRadius: 3 }}>
+      <CardContent>
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+          Leave Requests
+        </Typography>
+
+        <BarChartBox data={chartData.leaveData} />
+      </CardContent>
+    </Card>
+  </Grid>
+
+</Grid>
 
       {/* Main Content */}
       <Grid container spacing={3}>

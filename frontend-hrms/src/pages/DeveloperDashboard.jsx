@@ -15,6 +15,9 @@ import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
+import PieChartBox from "../components/dashboard/PieChartBox";
+import LineChartBox from "../components/dashboard/LineChartBox";
+import BarChartBox from "../components/dashboard/BarChartBox";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
@@ -81,6 +84,13 @@ export default function DeveloperDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
 
+  const [chartData, setChartData] = useState({
+    taskStatusData: [],
+    projectData: [],
+    taskTrendData: [],
+    bugTrendData: []
+  });
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -97,7 +107,8 @@ export default function DeveloperDashboard() {
         fetchAttendance(),
         fetchAnnouncements(),
         fetchHolidays(),
-        fetchLeaveBalance()
+        fetchLeaveBalance(),
+        fetchDeveloperChartData()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -224,6 +235,115 @@ export default function DeveloperDashboard() {
 
   const upcomingDeadlines = getUpcomingDeadlines();
 
+  const fetchDeveloperChartData = async () => {
+    try {
+      const taskRes = await api.get("/tasks");
+      const projectRes = await api.get("/projects"); // if exists
+
+      // ✅ SAFE extraction
+      const tasks = Array.isArray(taskRes.data)
+        ? taskRes.data
+        : taskRes.data?.tasks || [];
+
+      const projects = Array.isArray(projectRes?.data)
+        ? projectRes.data
+        : projectRes?.data?.projects || [];
+
+      const userId = user?.id;
+
+      // 🔥 Only developer's tasks
+      const myTasks = tasks.filter(task => task.assigned_to === userId);
+
+      // =========================
+      // 📊 1. Task Status Pie
+      // =========================
+      const taskMap = {
+        Completed: 0,
+        "In Progress": 0,
+        Pending: 0
+      };
+
+      myTasks.forEach(task => {
+        if (task.status === "completed") taskMap.Completed++;
+        else if (task.status === "in_progress") taskMap["In Progress"]++;
+        else taskMap.Pending++;
+      });
+
+      const taskStatusData = Object.keys(taskMap).map(key => ({
+        name: key,
+        value: taskMap[key]
+      }));
+
+      // =========================
+      // 📊 2. Project Allocation Pie
+      // =========================
+      const projectMap = {};
+
+      myTasks.forEach(task => {
+        const project = task.project_name || "General";
+
+        projectMap[project] = (projectMap[project] || 0) + 1;
+      });
+
+      const projectData = Object.keys(projectMap).map(key => ({
+        name: key,
+        value: projectMap[key]
+      }));
+
+      // =========================
+      // 📈 3. Task Completion Trend
+      // =========================
+      const taskTrendMap = {};
+
+      myTasks.forEach(task => {
+        if (task.status !== "completed") return;
+
+        const date = new Date(task.updated_at || task.completed_at);
+        const week = `Week ${Math.ceil(date.getDate() / 7)}`;
+
+        taskTrendMap[week] = (taskTrendMap[week] || 0) + 1;
+      });
+
+      const taskTrendData = Object.keys(taskTrendMap).map(key => ({
+        week: key,
+        value: taskTrendMap[key]
+      }));
+
+      // =========================
+      // 📊 4. Bug Fix Trend
+      // =========================
+      const bugTrendMap = {};
+
+      myTasks.forEach(task => {
+        if (task.type !== "bug") return;
+        if (task.status !== "completed") return;
+
+        const date = new Date(task.updated_at || task.completed_at);
+        const month = date.toLocaleString("default", { month: "short" });
+
+        bugTrendMap[month] = (bugTrendMap[month] || 0) + 1;
+      });
+
+      const bugTrendData = Object.keys(bugTrendMap).map(key => ({
+        month: key,
+        value: bugTrendMap[key]
+      }));
+
+      // =========================
+      // ✅ SET DATA
+      // =========================
+      setChartData({
+        taskStatusData,
+        projectData,
+        taskTrendData,
+        bugTrendData
+      });
+
+    } catch (error) {
+      console.error("Developer chart error:", error);
+    }
+  };
+
   const developerStats = [
     { title: "My Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "#DC2626", bg: "#FEF2F2" },
     { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
@@ -260,6 +380,62 @@ export default function DeveloperDashboard() {
           </Grid>
         ))}
       </Grid>
+
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+
+      {/* Task Status */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Task Status
+            </Typography>
+
+            <PieChartBox data={chartData.taskStatusData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Project Allocation */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Project Allocation
+            </Typography>
+
+            <PieChartBox data={chartData.projectData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Task Trend */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Tasks Completed Over Time
+            </Typography>
+
+            <LineChartBox data={chartData.taskTrendData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Bug Fix Trend */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Bug Reports Fixed
+            </Typography>
+
+            <BarChartBox data={chartData.bugTrendData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+    </Grid>
 
       {/* Main Content */}
       <Grid container spacing={3}>

@@ -1,7 +1,7 @@
 // controllers/employeeController.js
 import { sequelize } from "../config/sequelize.js";
 import { QueryTypes } from "sequelize";
-import upload from "../middleware/uploadProfile.js"; // ✅ ADD THIS
+
 /* GET ALL EMPLOYEES */
 export const getEmployees = async (req, res) => {
   const page = parseInt(req.query.page) || 1;

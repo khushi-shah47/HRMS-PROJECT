@@ -13,7 +13,9 @@ import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
-
+import PieChartBox from "../components/dashboard/PieChartBox";
+import LineChartBox from "../components/dashboard/LineChartBox";
+import BarChartBox from "../components/dashboard/BarChartBox";
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
     <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
@@ -62,6 +64,13 @@ export default function HRDashboard() {
     wfhRequests: 0
   });
   
+  const [chartData, setChartData] = useState({
+    attendanceData: [],
+    leaveTypeData: [],
+    leaveTrendData: [],
+    hiringData: []
+  });
+
   const [recentEmployees, setRecentEmployees] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [wfhRequests, setWfhRequests] = useState([]);
@@ -69,6 +78,114 @@ export default function HRDashboard() {
   const [employees, setEmployees] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
+
+  const fetchHRChartData = async () => {
+    try {
+      const empRes = await api.get("/employees");
+      const leaveRes = await api.get("/leaves");
+
+      // ✅ SAFE extraction
+      const employees = Array.isArray(empRes.data)
+        ? empRes.data
+        : empRes.data?.employees || [];
+
+      const leaves = Array.isArray(leaveRes.data)
+        ? leaveRes.data
+        : leaveRes.data?.data || [];
+
+      // =========================
+      // 📊 1. Attendance Today (Pie)
+      // =========================
+      const attendanceMap = {
+        Present: 0,
+        Absent: 0,
+        Leave: 0,
+        Late: 0
+      };
+
+      // ⚠️ If no attendance API → simulate using employee status
+      employees.forEach(emp => {
+        if (emp.status === "Active") attendanceMap.Present++;
+        else if (emp.status === "Leave") attendanceMap.Leave++;
+        else attendanceMap.Absent++;
+      });
+
+      const attendanceData = Object.keys(attendanceMap).map(key => ({
+        name: key,
+        value: attendanceMap[key]
+      }));
+
+      // =========================
+      // 📊 2. Leave Types (Pie)
+      // =========================
+      const leaveTypeMap = {
+        "Sick Leave": 0,
+        "Casual Leave": 0,
+        "Paid Leave": 0,
+        "Unpaid Leave": 0
+      };
+
+      leaves.forEach(leave => {
+        const type = leave.leave_type || "Casual Leave";
+
+        if (leaveTypeMap[type] !== undefined) {
+          leaveTypeMap[type]++;
+        }
+      });
+
+      const leaveTypeData = Object.keys(leaveTypeMap).map(key => ({
+        name: key,
+        value: leaveTypeMap[key]
+      }));
+
+      // =========================
+      // 📈 3. Leave Requests Trend
+      // =========================
+      const leaveTrendMap = {};
+
+      leaves.forEach(leave => {
+        const date = new Date(leave.start_date);
+        const month = date.toLocaleString("default", { month: "short" });
+
+        leaveTrendMap[month] = (leaveTrendMap[month] || 0) + 1;
+      });
+
+      const leaveTrendData = Object.keys(leaveTrendMap).map(key => ({
+        month: key,
+        value: leaveTrendMap[key]
+      }));
+
+      // =========================
+      // 📈 4. Hiring Trend
+      // =========================
+      const hiringMap = {};
+
+      employees.forEach(emp => {
+        const date = new Date(emp.join_date || emp.created_at);
+        const month = date.toLocaleString("default", { month: "short" });
+
+        hiringMap[month] = (hiringMap[month] || 0) + 1;
+      });
+
+      const hiringData = Object.keys(hiringMap).map(key => ({
+        month: key,
+        value: hiringMap[key]
+      }));
+
+      // =========================
+      // ✅ SET DATA
+      // =========================
+      setChartData({
+        attendanceData,
+        leaveTypeData,
+        leaveTrendData,
+        hiringData
+      });
+
+    } catch (error) {
+      console.error("HR chart error:", error);
+    }
+  };
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -88,7 +205,8 @@ export default function HRDashboard() {
         fetchWFH(),
         fetchDepartments(),
         fetchAnnouncements(),
-        fetchHolidays()
+        fetchHolidays(),
+        fetchHRChartData()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -273,6 +391,63 @@ export default function HRDashboard() {
           </Grid>
         ))}
       </Grid>
+      
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+
+      {/* Attendance */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Attendance Status Today
+            </Typography>
+
+            <PieChartBox data={chartData.attendanceData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Leave Types */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Leave Types Distribution
+            </Typography>
+
+            <PieChartBox data={chartData.leaveTypeData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Leave Trend */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Leave Requests per Month
+            </Typography>
+
+            <BarChartBox data={chartData.leaveTrendData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+      {/* Hiring Trend */}
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+              Employee Hiring Trend
+            </Typography>
+
+            <LineChartBox data={chartData.hiringData} />
+          </CardContent>
+        </Card>
+      </Grid>
+
+    </Grid>
+
 
       {/* Main Content */}
       <Grid container spacing={3}>

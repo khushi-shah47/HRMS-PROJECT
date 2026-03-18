@@ -35,28 +35,28 @@ export default function ProfilePage() {
     severity: "success"
   });
 
+  const fetchEmployee = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.employee_id) return;
+      const res = await api.get(`/profile/${user.employee_id}`);
+      const emp = res.data;
+      setEmployee(emp);
+      setFormData({
+        name: emp.name || "",
+        email: emp.email || "",
+        phone: emp.phone || "",
+        join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
+      });
+    } catch (err) {
+      console.error(err);
+      setNotification({ open: true, message: "Failed to load profile", severity: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
   // Fetch employee
   useEffect(() => {
-    const fetchEmployee = async () => {
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user?.employee_id) return;
-        const res = await api.get(`/profile/${user.employee_id}`);
-        const emp = res.data;
-        setEmployee(emp);
-        setFormData({
-          name: emp.name || "",
-          email: emp.email || "",
-          phone: emp.phone || "",
-          join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
-        });
-      } catch (err) {
-        console.error(err);
-        setNotification({ open: true, message: "Failed to load profile", severity: "error" });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEmployee();
   }, []);
 
