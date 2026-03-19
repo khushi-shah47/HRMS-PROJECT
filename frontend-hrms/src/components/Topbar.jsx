@@ -71,7 +71,6 @@ export default function Topbar({ onMenuClick }){
     const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const openProfileMenu = Boolean(profileAnchorEl);
 
-    
     // Handlers
     const handleProfileClick = (event) => {
         setProfileAnchorEl(event.currentTarget);
@@ -197,7 +196,7 @@ export default function Topbar({ onMenuClick }){
     const openSearch = Boolean(searchAnchorEl);
 
     return(
-        <AppBar position="static" sx={{ background:"#FFFFFF", color:"#000", boxShadow:1 }}>
+        <AppBar position="static" sx={{ boxShadow:1 }}>
             <Toolbar>
                 <IconButton
                     edge="start"
@@ -209,7 +208,7 @@ export default function Topbar({ onMenuClick }){
                 </IconButton>
                 <Typography
                     variant="h6" 
-                    sx={{ flexGrow:1, color:"#1E3A8A", fontWeight: "bold" }}
+                    sx={{ flexGrow:1, color:"primary.main", fontWeight: "bold" }}
                 >
                     {pageTitle}
                 </Typography>
@@ -239,7 +238,7 @@ export default function Topbar({ onMenuClick }){
                                 width: 300,
                                 "& .MuiOutlinedInput-root": {
                                     borderRadius: 5,
-                                    backgroundColor: "#f1f5f9",
+                                    backgroundColor: "action.hover",
                                 }
                             }}
                         />
@@ -248,7 +247,7 @@ export default function Topbar({ onMenuClick }){
                     {/* Notification Bell */}
                     <IconButton color="inherit" onClick={handleNotificationClick}>
                         <Badge badgeContent={unreadCount} color="error">
-                            <NotificationsIcon sx={{ color: "#64748b" }} />
+                            <NotificationsIcon sx={{ color: "text.secondary" }} />
                         </Badge>
                     </IconButton>
 
@@ -269,7 +268,7 @@ export default function Topbar({ onMenuClick }){
                                     ? `http://localhost:5000/${user.profile_image}?t=${new Date().getTime()}`
                                     : ""
                             }
-                            sx={{ bgcolor: "#1E3A8A", width: 35, height: 35 }}
+                            sx={{ bgcolor: "primary.main", width: 35, height: 35 }}
                         >
                             {!user?.profile_image && (user.name || user.username || "U").charAt(0).toUpperCase()}
                         </Avatar>
@@ -460,4 +459,3 @@ export default function Topbar({ onMenuClick }){
         </AppBar>
     );
 }
-

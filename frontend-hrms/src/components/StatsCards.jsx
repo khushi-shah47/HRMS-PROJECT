@@ -10,7 +10,7 @@ const stats = [
     {
         title: "Total Employees",
         value: 18,
-        icon: <PeopleIcon sx={{ fontSize:40, color:"#3B82F6" }} />
+        icon: <PeopleIcon sx={{ fontSize:40, color:"primary.main" }} />
     },
     {
         title: "Present Today",

@@ -478,8 +478,9 @@ const AttendancePage = () => {
         sx={{
           p: 4,
           borderRadius: 4,
-          background: "linear-gradient(145deg, #ffffff 0%, #f1f4f8 100%)",
-          border: "1px solid #e0e6ed",
+          backgroundColor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider"
         }}
       >
         {/* Header */}

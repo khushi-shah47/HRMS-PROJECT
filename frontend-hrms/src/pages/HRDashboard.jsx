@@ -365,8 +365,8 @@ export default function HRDashboard() {
   ];
 
   return (
-    <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
-      {/* Header */}
+<>
+      {/* Header */} 
       <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: "linear-gradient(135deg, #059669 0%, #10B981 100%)", color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
@@ -383,7 +383,7 @@ export default function HRDashboard() {
         </Grid>
       </Box>
 
-      {/* Stats Cards */}
+      {/* Stats Cards */} 
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {hrStats.map((stat, index) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
@@ -670,7 +670,9 @@ export default function HRDashboard() {
         <Grid size={{ xs: 12, lg: 6 }}>
           <HolidayCard holidays={holidays} loading={loading} />
         </Grid>
+        
       </Grid>
-    </Box>
+    </>
+    
   );
 }

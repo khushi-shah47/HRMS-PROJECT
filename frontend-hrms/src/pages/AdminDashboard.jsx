@@ -16,6 +16,7 @@ import HolidayCard from "../components/dashboard/HolidayCard";
 import PieChartBox from "../components/dashboard/PieChartBox";
 import LineChartBox from "../components/dashboard/LineChartBox";
 import BarChartBox from "../components/dashboard/BarChartBox";
+import { useTheme } from "@mui/material/styles";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
@@ -52,6 +53,7 @@ function StatCard({ title, value, icon, color, bg, loading }) {
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const theme = useTheme();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -357,9 +359,9 @@ export default function AdminDashboard() {
 
 
   return (
-    <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, backgroundColor: "background.paper", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)", color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100%)`, color: "common.white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -390,7 +392,7 @@ export default function AdminDashboard() {
       <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
               Employees by Department
             </Typography>
             <PieChartBox data={chartData.departmentData} />
@@ -402,7 +404,7 @@ export default function AdminDashboard() {
       <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
               Employee Status
             </Typography>
             <PieChartBox data={chartData.statusData} />
@@ -414,7 +416,7 @@ export default function AdminDashboard() {
       <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
               Employee Growth
             </Typography>
             <LineChartBox data={chartData.growthData} />
@@ -426,7 +428,7 @@ export default function AdminDashboard() {
       <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
               Monthly Attendance
             </Typography>
             <BarChartBox data={chartData.attendanceData} />
@@ -443,7 +445,7 @@ export default function AdminDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                   Recent Employees
                 </Typography>
                 <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
@@ -461,7 +463,7 @@ export default function AdminDashboard() {
                 <TableContainer>
                   <Table>
                     <TableHead>
-                      <TableRow sx={{ background: "#F8FAFC" }}>
+                      <TableRow sx={{ backgroundColor: "action.hover" }}>
                         <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
@@ -473,7 +475,7 @@ export default function AdminDashboard() {
                         <TableRow key={emp.id || i} sx={{ "&:hover": { background: "#F8FAFC" } }}>
                           <TableCell>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Avatar sx={{ width: 32, height: 32, background: "#3B82F6", fontSize: "0.8rem" }}>
+                          <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main", fontSize: "0.8rem" }}>
                                 {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
                               </Avatar>
                               <Typography fontWeight="500">{emp.name}</Typography>
@@ -481,7 +483,7 @@ export default function AdminDashboard() {
                           </TableCell>
                           <TableCell>{emp.position || "-"}</TableCell>
                           <TableCell>
-                            <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "#EBF5FF", color: "#3B82F6" }} />
+                            <Chip label={emp.department_name || "Not Assigned"} size="small" color="primary" variant="filled" />
                           </TableCell>
                           <TableCell>{emp.join_date?.split("T")[0] || "-"}</TableCell>
                         </TableRow>
@@ -499,7 +501,7 @@ export default function AdminDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                   Pending Tasks
                 </Typography>
                 <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
@@ -515,7 +517,7 @@ export default function AdminDashboard() {
                 </Typography>
               ) : (
                 pendingTasks.map((task, i) => (
-                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, background: "#F8FAFC", border: "1px solid #E5E7EB" }}>
+                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, backgroundColor: "action.hover", border: "1px solid", borderColor: "divider" }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                       <Typography fontWeight="600">{task.title}</Typography>
                       <Chip label={task.priority || "medium"} size="small" color={getPriorityColor(task.priority)} />
@@ -535,7 +537,7 @@ export default function AdminDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                   Pending Leave Requests
                 </Typography>
                 <Button size="small" onClick={() => navigate("/leave")}>View All</Button>
@@ -583,7 +585,7 @@ export default function AdminDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "#3B82F6" }}>
                   Departments
                 </Typography>
                 <Button size="small" onClick={() => navigate("/departments")}>Manage</Button>
@@ -601,7 +603,7 @@ export default function AdminDashboard() {
                 <TableContainer>
                   <Table>
                     <TableHead>
-                      <TableRow sx={{ background: "#F8FAFC" }}>
+                      <TableRow sx={{ background: "#1E293B" }}>
                         <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
                         <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
                       </TableRow>

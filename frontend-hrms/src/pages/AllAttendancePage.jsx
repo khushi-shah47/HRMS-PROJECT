@@ -15,6 +15,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material/styles";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HomeIcon from '@mui/icons-material/Home';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -23,6 +24,7 @@ import api from "../services/api";
 const AllAttendancePage = () => {
   const navigate = useNavigate();
   const [attendanceData, setAttendanceData] = useState([]);
+  const theme = useTheme();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -96,7 +98,7 @@ const AllAttendancePage = () => {
 
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: "#f5f5f5" }}>
+            <TableRow sx={{ bgcolor: "action.hover" }}>
               <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Employee</TableCell>
               <TableCell sx={{ fontWeight: 600 }}>Time In</TableCell>

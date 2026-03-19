@@ -15,7 +15,7 @@ export default function Layout() {
   };
 
   return (
-    <Box sx={{ display: "flex", background: "#F8FAFC", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", backgroundColor: "background.default", minHeight: "100vh" }}>
       <Sidebar mobileOpen={mobileOpen} onDrawerToggle={handleDrawerToggle} />
 
       <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
@@ -28,6 +28,7 @@ export default function Layout() {
             margin: "auto", 
             width: "100%",
             mt: { xs: 8, md: 0 },
+            backgroundColor: "background.paper",
             flexGrow: 1,
             overflow: "auto"
           }}
@@ -39,37 +40,55 @@ export default function Layout() {
 
       {/* Global Scrollbar Styles */}
       <style>{`
-        /* Custom Scrollbar */
+        /* Dynamic Theme Scrollbars */
+        :root {
+          --scrollbar-track-light: #f1f1f1;
+          --scrollbar-thumb-light: #c1c1c1;
+          --scrollbar-thumb-hover-light: #a1a1a1;
+          --scrollbar-track-dark: #334155;
+          --scrollbar-thumb-dark: #64748b;
+          --scrollbar-thumb-hover-dark: #94a3b8;
+          --scrollbar-accent: #60a5fa;
+        }
+        [data-mui-color-scheme="light"] {
+          --scrollbar-track: var(--scrollbar-track-light);
+          --scrollbar-thumb: var(--scrollbar-thumb-light);
+          --scrollbar-thumb-hover: var(--scrollbar-thumb-hover-light);
+        }
+        [data-mui-color-scheme="dark"] {
+          --scrollbar-track: var(--scrollbar-track-dark);
+          --scrollbar-thumb: var(--scrollbar-thumb-dark);
+          --scrollbar-thumb-hover: var(--scrollbar-thumb-hover-dark);
+        }
         ::-webkit-scrollbar {
           width: 8px;
           height: 8px;
         }
         ::-webkit-scrollbar-track {
-          background: #f1f1f1;
+          background: var(--scrollbar-track);
           border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb {
-          background: #c1c1c1;
+          background: var(--scrollbar-thumb);
           border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: #a1a1a1;
+          background: var(--scrollbar-thumb-hover);
         }
         .page-content::-webkit-scrollbar {
           width: 6px;
         }
         .page-content::-webkit-scrollbar-track {
-          background: #f8f9fa;
+          background: var(--scrollbar-track);
         }
         .page-content::-webkit-scrollbar-thumb {
-          background: #d1d5db;
+          background: var(--scrollbar-thumb);
           border-radius: 3px;
         }
         .page-content::-webkit-scrollbar-thumb:hover {
-          background: #9ca3af;
+          background: var(--scrollbar-thumb-hover);
         }
       `}</style>
     </Box>
   );
 }
-

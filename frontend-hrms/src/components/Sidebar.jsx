@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Drawer,
@@ -84,14 +83,14 @@ const roleMenuItems = {
   ]
 };
 
-// Get role colors
+// Get role colors (adaptive for dark mode)
 const getRoleColor = (role) => {
   const colors = {
-    admin: { bg: "#EEF2FF", text: "#1E3A8A", border: "#3B82F6" },
-    manager: { bg: "#F5F3FF", text: "#7C3AED", border: "#8B5CF6" },
-    hr: { bg: "#ECFDF5", text: "#059669", border: "#10B981" },
-    developer: { bg: "#FEF2F2", text: "#DC2626", border: "#EF4444" },
-    intern: { bg: "#FFFBEB", text: "#D97706", border: "#F59E0B" }
+    admin: { bg: "primary.50", text: "primary.main", border: "primary.main" },
+    manager: { bg: "secondary.50", text: "secondary.main", border: "secondary.main" },
+    hr: { bg: "success.50", text: "success.main", border: "success.main" },
+    developer: { bg: "error.50", text: "error.main", border: "error.main" },
+    intern: { bg: "warning.50", text: "warning.main", border: "warning.main" }
   };
   return colors[role] || colors.developer;
 };
@@ -169,10 +168,10 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
               mx: 1,
               borderRadius: 1,
               mb: 0.5,
-              color: "#4B5563"
+              color: "text.secondary"
             }}
           >
-            <Box sx={{ mr: 2, display: "flex", alignItems: "center", color: location.pathname === item.path ? roleColors.text : "#6B7280" }}>
+            <Box sx={{ mr: 2, display: "flex", alignItems: "center", color: location.pathname === item.path ? roleColors.text : "text.secondary" }}>
               {item.icon}
             </Box>
             <ListItemText primary={item.text} />
@@ -222,7 +221,6 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
             width: 280,
-            background: "#FFFFFF"
           }
         }}
       >
@@ -237,8 +235,8 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
           width: 280,
           "& .MuiDrawer-paper": {
             width: 280,
-            background: "#FFFFFF",
-            borderRight: "1px solid #E5E7EB"
+            borderRight: "1px solid",
+            borderColor: "divider"
           }
         }}
       >
@@ -247,5 +245,3 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
     </>
   );
 }
-
-
