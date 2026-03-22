@@ -49,6 +49,15 @@ module.exports = function(sequelize, DataTypes) {
     join_date: {
       type: DataTypes.DATEONLY,
       allowNull: true
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      unique: "user_id",
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     }
   }, {
     sequelize,

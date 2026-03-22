@@ -9,7 +9,8 @@ import {
   Alert,
   Card,
   CardContent,
-  Divider
+  Divider,
+  useTheme
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -57,6 +58,7 @@ const getDashboardRoute = (role) => {
 // };
 
 const LoginPage = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -132,13 +134,13 @@ const LoginPage = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "background.default",
         p: 2
       }}
     >
       <Box
         sx={{
-          backgroundColor: "white",
+          backgroundColor: "background.paper",
           p: 4,
           borderRadius: 4,
           boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
@@ -147,11 +149,11 @@ const LoginPage = () => {
           maxWidth: "450px",
         }}
       >
-        <Typography variant="h4" sx={{ color: "#1E3A8A", fontWeight: "bold", mb: 1 }}>
+        <Typography variant="h4" sx={{ color: "primary.main", fontWeight: "bold", mb: 1 }}>
           Welcome Back 👋
         </Typography>
 
-        <Typography sx={{ color: "#6B7280", mb: 3 }}>
+        <Typography sx={{ color: "text.secondary", mb: 3 }}>
           Login to your HRMS dashboard
         </Typography>
 
@@ -198,8 +200,8 @@ const LoginPage = () => {
           sx={{
             mt: 2,
             mb: 2,
-            backgroundColor: "#1E3A8A",
-            "&:hover": { backgroundColor: "#3B82F6" },
+            backgroundColor: "primary.main",
+            "&:hover": { backgroundColor: "primary.dark" },
             py: 1.5,
             fontWeight: "bold"
           }}
@@ -213,9 +215,9 @@ const LoginPage = () => {
           sx={{
             mb: 2,
             cursor: "pointer",
-            color: "#1E3A8A",
+            color: "primary.main",
             textDecoration: "underline",
-            "&:hover": { color: "#3B82F6" },
+            "&:hover": { color: "primary.dark" },
           }}
           onClick={() => navigate("/forgot-password")}
         >
@@ -226,7 +228,7 @@ const LoginPage = () => {
           Don't have an account?
           <Button
             onClick={() => navigate("/signup")}
-            sx={{ color: "#3B82F6", fontWeight: "bold" }}
+            sx={{ color: "primary.main", fontWeight: "bold" }}
           >
             Create a New Account
           </Button>

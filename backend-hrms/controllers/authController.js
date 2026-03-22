@@ -8,19 +8,20 @@ const JWT_SECRET = "hrms_secret_key";
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // Validate input
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
-  const sql = "SELECT * FROM users WHERE email = ?";
+  // Join employees to get the employee_id for the JWT
+  const sql = `
+    SELECT u.*, e.id AS employee_id
+    FROM users u
+    LEFT JOIN employees e ON e.user_id = u.id
+    WHERE u.email = ?`;
 
   db.query(sql, [email], async (err, results) => {
     if (err)
-      return res.status(500).json({
-        message: "Server error",
-        error: err.message
-      });
+      return res.status(500).json({ message: "Server error", error: err.message });
 
     if (results.length === 0) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -28,16 +29,13 @@ export const login = async (req, res) => {
 
     const user = results[0];
 
-    // Compare hashed password
     const match = await bcrypt.compare(password, user.password);
-
     if (!match) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT
     const token = jwt.sign(
-      { id: user.id, role: user.role, employee_id: user.employee_id },
+      { id: user.id, role: user.role },
       JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -50,7 +48,7 @@ export const login = async (req, res) => {
         name: user.username,
         email: user.email,
         role: user.role,
-        employee_id: user.employee_id   // added
+        employee_id: user.employee_id
       }
     });
   });
@@ -61,12 +59,10 @@ export const login = async (req, res) => {
 export const signup = async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  // Validate input
   if (!name || !email || !password || !role) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ message: "Invalid email format" });
@@ -74,75 +70,50 @@ export const signup = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Check if email already exists
   const checkSql = "SELECT email FROM users WHERE email = ?";
-
   db.query(checkSql, [email], (err, results) => {
-
     if (err)
-      return res.status(500).json({
-        message: "Server error",
-        error: err.message
-      });
+      return res.status(500).json({ message: "Server error", error: err.message });
 
     if (results.length > 0) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // Map frontend role to database enum
     const roleMap = {
-      Admin: "admin",
-      Manager: "manager",
-      HR: "hr",
-      Developer: "developer",
-      Intern: "intern"
+      Admin: "admin", Manager: "manager", HR: "hr",
+      Developer: "developer", Intern: "intern"
     };
-
     const dbRole = roleMap[role] || role;
 
-    // 1️⃣ Create employee first
-    const insertEmployeeSql =
-      "INSERT INTO employees (name,email) VALUES (?,?)";
+    // 1️⃣ Create user first
+    const insertUserSql =
+      "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
 
-    db.query(insertEmployeeSql, [name,email], (err, employeeResult) => {
-
+    db.query(insertUserSql, [name, email, hashedPassword, dbRole], (err, userResult) => {
       if (err) {
-        console.error("Employee creation error:", err);
-        return res.status(500).json({
-          message: "Employee creation failed",
-          error: err.message
-        });
+        console.error("User creation error:", err);
+        return res.status(500).json({ message: "User creation failed", error: err.message });
       }
 
-      const employeeId = employeeResult.insertId;
+      const userId = userResult.insertId;
 
-      // 2️⃣ Create user linked with employee
-      const insertSql =
-        "INSERT INTO users (username, email, password, role, employee_id) VALUES (?, ?, ?, ?, ?)";
+      // 2️⃣ Create employee linked to the user
+      const insertEmployeeSql =
+        "INSERT INTO employees (name, email, user_id) VALUES (?, ?, ?)";
 
-      db.query(
-        insertSql,
-        [name, email, hashedPassword, dbRole, employeeId],
-        (err, result) => {
-
-          if (err) {
-            console.error("Signup error:", err);
-            return res.status(500).json({
-              message: "Signup failed",
-              error: err.message
-            });
-          }
-
-          res.status(201).json({
-            message: "User registered successfully",
-            userId: result.insertId,
-            employeeId: employeeId
-          });
+      db.query(insertEmployeeSql, [name, email, userId], (err, employeeResult) => {
+        if (err) {
+          console.error("Employee creation error:", err);
+          return res.status(500).json({ message: "Employee creation failed", error: err.message });
         }
-      );
 
+        res.status(201).json({
+          message: "User registered successfully",
+          userId,
+          employeeId: employeeResult.insertId
+        });
+      });
     });
-
   });
 };
 
@@ -152,15 +123,11 @@ export const getCurrentUser = (req, res) => {
   const { id } = req.params;
 
   const sql =
-    "SELECT id, username, email, role, employee_id FROM users WHERE id = ?";
+    "SELECT id, username, email, role FROM users WHERE id = ?";
 
   db.query(sql, [id], (err, results) => {
-
     if (err)
-      return res.status(500).json({
-        message: "Server error",
-        error: err.message
-      });
+      return res.status(500).json({ message: "Server error", error: err.message });
 
     if (results.length === 0) {
       return res.status(404).json({ message: "User not found" });

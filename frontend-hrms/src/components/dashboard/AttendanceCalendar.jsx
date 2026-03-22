@@ -54,22 +54,22 @@ const AttendanceCalendar = () => {
     
     // Check holiday first
     const holiday = holidays.find(h => h.holiday_date.split('T')[0] === dateStr);
-    if (holiday) return { type: 'holiday', color: '#3B82F6', label: `Holiday: ${holiday.title}` };
+    if (holiday) return { type: 'holiday', color: 'info.main', label: `Holiday: ${holiday.title}` };
 
     // Check attendance
     const record = attendance.find(a => a.date.split('T')[0] === dateStr);
     if (record) {
-      if (record.work_type === 'present') return { type: 'present', color: '#16A34A', label: 'Present' };
-      if (record.work_type === 'wfh') return { type: 'wfh', color: '#8B5CF6', label: 'WFH' };
-      if (record.work_type === 'leave') return { type: 'leave', color: '#F59E0B', label: 'Leave' };
+      if (record.work_type === 'present') return { type: 'present', color: 'success.main', label: 'Present' };
+      if (record.work_type === 'wfh') return { type: 'wfh', color: 'secondary.main', label: 'WFH' };
+      if (record.work_type === 'leave') return { type: 'leave', color: 'warning.main', label: 'Leave' };
     }
 
     // Check if it's a weekend
     const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    if (dateObj.getDay() === 0 || dateObj.getDay() === 6) return { type: 'weekend', color: '#94A3B8', label: 'Weekend' };
+    if (dateObj.getDay() === 0 || dateObj.getDay() === 6) return { type: 'weekend', color: 'text.secondary', label: 'Weekend' };
 
     // Past date and no record -> Absent
-    if (dateObj < new Date().setHours(0,0,0,0)) return { type: 'absent', color: '#EF4444', label: 'Absent' };
+    if (dateObj < new Date().setHours(0,0,0,0)) return { type: 'absent', color: 'error.main', label: 'Absent' };
 
     return null;
   };
@@ -77,14 +77,14 @@ const AttendanceCalendar = () => {
   return (
     <Box sx={{ 
       p: 2, 
-      background: 'white', 
+      bgcolor: 'background.paper', 
       borderRadius: 3, 
-      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+      boxShadow: 2,
       minWidth: 280,
       maxWidth: 320
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="subtitle1" fontWeight="bold" sx={{ color: '#1E3A8A' }}>
+        <Typography variant="subtitle1" fontWeight="bold" sx={{ color: 'primary.main' }}>
           {monthYear}
         </Typography>
         <Box>
@@ -96,7 +96,7 @@ const AttendanceCalendar = () => {
       <Grid container spacing={0.5}>
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
           <Grid item xs={1.7} key={day}>
-            <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 'bold', color: '#94A3B8' }}>
+            <Typography variant="caption" align="center" display="block" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
               {day}
             </Typography>
           </Grid>
@@ -117,12 +117,13 @@ const AttendanceCalendar = () => {
                     position: 'relative',
                     cursor: 'default',
                     borderRadius: '50%',
-                    border: isToday ? '2px solid #3B82F6' : 'none',
-                    '&:hover': { background: '#F8FAFC' }
+                    border: isToday ? '2px solid' : 'none',
+                    borderColor: 'primary.main',
+                    '&:hover': { background: 'action.hover' }
                   }}>
                     <Typography variant="caption" sx={{ 
                       fontWeight: isToday ? 'bold' : 'normal',
-                      color: isToday ? '#3B82F6' : 'inherit'
+                      color: isToday ? 'primary.main' : 'inherit'
                     }}>
                       {day}
                     </Typography>
@@ -133,7 +134,7 @@ const AttendanceCalendar = () => {
                         width: 4, 
                         height: 4, 
                         borderRadius: '50%', 
-                        background: status.color 
+                        bgcolor: status.color 
                       }} />
                     )}
                   </Box>
@@ -151,17 +152,17 @@ const AttendanceCalendar = () => {
       )}
 
       {/* Legend */}
-      <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1, borderTop: '1px solid #F1F5F9', pt: 1 }}>
+      <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1, borderTop: '1px solid', borderColor: 'divider', pt: 1 }}>
         {[
-          { color: '#16A34A', label: 'P' },
-          { color: '#8B5CF6', label: 'W' },
-          { color: '#F59E0B', label: 'L' },
-          { color: '#EF4444', label: 'A' },
-          { color: '#3B82F6', label: 'H' }
+          { color: 'success.main', label: 'P' },
+          { color: 'secondary.main', label: 'W' },
+          { color: 'warning.main', label: 'L' },
+          { color: 'error.main', label: 'A' },
+          { color: 'info.main', label: 'H' }
         ].map(item => (
           <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Box sx={{ width: 6, height: 6, borderRadius: '50%', background: item.color }} />
-            <Typography variant="caption" sx={{ fontSize: '0.6rem', color: '#64748B' }}>{item.label}</Typography>
+            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: item.color }} />
+            <Typography variant="caption" sx={{ fontSize: '0.6rem', color: 'text.secondary' }}>{item.label}</Typography>
           </Box>
         ))}
       </Box>

@@ -12,7 +12,6 @@ import {
   Paper,
   Stack,
   Box,
-  TablePagination,
   MenuItem,
   Dialog,
   DialogTitle,
@@ -28,598 +27,542 @@ import {
   Tab,
   Card,
   CardContent,
-  Grid
+  Grid,
+  useTheme,
+  Divider,
+  Avatar,
+  Checkbox,
+  LinearProgress
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import HistoryIcon from "@mui/icons-material/History";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import EditIcon from "@mui/icons-material/Edit";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import api from "../services/api";
 
+const squareCardStyle = {
+  borderRadius: 4,
+  boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  textAlign: "center",
+  p: 2,
+  transition: "transform 0.2s",
+  "&:hover": { transform: "translateY(-4px)" }
+};
+
+const iconCircle = {
+  p: 1.5,
+  mb: 1.5,
+  borderRadius: "50%",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: 44,
+  height: 44
+};
+
 const SalaryPage = () => {
+  const theme = useTheme();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdminOrHR, setIsAdminOrHR] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
-  const [calculateDialogOpen, setCalculateDialogOpen] = useState(false);
-  const [employeeId, setEmployeeId] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [monthlySalary, setMonthlySalary] = useState("");
-  const [workingDays, setWorkingDays] = useState("");
-  const [leaveDays, setLeaveDays] = useState("");
+  // Modals
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [payslipDialogOpen, setPayslipDialogOpen] = useState(false);
+  const [selectedPayslip, setSelectedPayslip] = useState(null);
 
-  const [history, setHistory] = useState([]);
-  const [report, setReport] = useState([]);
+  // Bulk Config State
+  const [defAllowance, setDefAllowance] = useState("1000");
+  const [defBonus, setDefBonus] = useState("0");
+  const [defOtherDeduction, setDefOtherDeduction] = useState("0");
+  const [selectedEmpIds, setSelectedEmpIds] = useState([]);
+  const [bulkLoading, setBulkLoading] = useState(false);
 
-  const [historyPage, setHistoryPage] = useState(0);
-  const [historyRowsPerPage, setHistoryRowsPerPage] = useState(10);
-  const [reportPage, setReportPage] = useState(0);
-  const [reportRowsPerPage, setReportRowsPerPage] = useState(10);
+  // Edit State
+  const [editRecord, setEditRecord] = useState(null);
+  const [editAllowance, setEditAllowance] = useState("");
+  const [editBonus, setEditBonus] = useState("");
+  const [editDeduction, setEditDeduction] = useState("");
 
-  const [reportMonth, setReportMonth] = useState("");
+  // Period State
+  const [reportMonth, setReportMonth] = useState(new Date().getMonth() + 1);
   const [reportYear, setReportYear] = useState(new Date().getFullYear());
   const [historyEmployeeId, setHistoryEmployeeId] = useState("");
 
+  // Data State
+  const [report, setReport] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [myLatestSalary, setMyLatestSalary] = useState(null);
+  const [payrollSummary, setPayrollSummary] = useState({ totalEmployees: 0, processedCount: 0 });
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
+  const showSnackbar = (message, severity = "success") => setSnackbar({ open: true, message, severity });
 
   useEffect(() => {
-    api.get("/employees?page=1&limit=100")
-      .then(res => res.data)
-      .then(data => setEmployees(data.employees || data.data || []))
-      .catch(err => console.error(err));
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setCurrentUser(user);
+    setIsAdminOrHR(user.role === "admin" || user.role === "hr");
+    fetchEmployees();
+    if (user.role !== "admin" && user.role !== "hr") {
+      fetchMyLatestSalary();
+    }
   }, []);
 
-  const resetCalculateForm = () => {
-    setEmployeeId("");
-    setMonth("");
-    setMonthlySalary("");
-    setWorkingDays("");
-    setLeaveDays("");
-  };
-
-  const handleCalculateOpen = () => {
-    resetCalculateForm();
-    setCalculateDialogOpen(true);
-  };
-
-  const handleCalculateClose = () => {
-    setCalculateDialogOpen(false);
-    resetCalculateForm();
-  };
-
-  const fetchStats = async () => {
-    if (!employeeId || !month || !year) return;
-    
-    try {
-      const res = await api.get(`/salary/stats?employee_id=${employeeId}&month=${month}&year=${year}`);
-      const data = res.data;
-      setMonthlySalary(data.basic_salary);
-      setWorkingDays(data.standard_working_days);
-      setLeaveDays(data.leave_days);
-    } catch (err) {
-      console.error("Error fetching stats:", err);
-    }
-  };
-
   useEffect(() => {
-    if (calculateDialogOpen && employeeId && month && year) {
-      fetchStats();
+    if (isAdminOrHR) {
+      fetchReport();
+      fetchPayrollSummary();
     }
-  }, [employeeId, month, year, calculateDialogOpen]);
+  }, [reportMonth, reportYear, isAdminOrHR]);
 
-  const calculateSalary = async () => {
-    if (!employeeId || !month || !year || !monthlySalary || !workingDays || leaveDays === "") {
-      showSnackbar("Please fill all required fields", "error");
-      return;
-    }
-
-    setLoading(true);
+  const fetchEmployees = async () => {
     try {
-      await api.post("/salary/calculate", {
-        employee_id: employeeId,
-        month,
-        year,
-        monthly_salary: monthlySalary,
-        working_days: parseInt(workingDays),
-        leave_days: parseInt(leaveDays)
-      });
-
-      handleCalculateClose();
-      showSnackbar("Salary calculated and saved successfully!");
-      if (historyEmployeeId) fetchHistory();
-    } catch (err) {
-      console.error(err);
-      showSnackbar("Error calculating salary", "error");
-    } finally {
-      setLoading(false);
-    }
+      const res = await api.get("/employees?page=1&limit=200");
+      setEmployees(res.data.employees || res.data.data || []);
+    } catch (err) { console.error(err); }
   };
 
-  const fetchHistory = async () => {
-    if (!historyEmployeeId) return;
-    
-    setLoading(true);
+  const fetchPayrollSummary = async () => {
     try {
-      const res = await api.get(`/salary/history/${historyEmployeeId}`);
-      setHistory(Array.isArray(res.data) ? res.data : (res.data.data || []));
-    } catch (err) {
-      console.error("History Fetch Error:", err);
-      showSnackbar("Failed to load salary history", "error");
-      setHistory([]);
-    } finally {
-      setLoading(false);
-    }
+      const res = await api.get(`/salary/summary?month=${reportMonth}&year=${reportYear}`);
+      setPayrollSummary(res.data);
+    } catch (err) { console.error(err); }
   };
-
-  useEffect(() => {
-    if (historyEmployeeId) {
-      fetchHistory();
-    } else {
-      setHistory([]);
-    }
-  }, [historyEmployeeId]);
 
   const fetchReport = async () => {
-    if (!reportMonth || !reportYear) {
-      showSnackbar("Please select month and year", "error");
-      return;
-    }
     setLoading(true);
     try {
       const res = await api.get(`/salary/report?month=${reportMonth}&year=${reportYear}`);
       setReport(res.data);
-    } catch (err) {
-      console.error(err);
-      showSnackbar("Failed to load salary report", "error");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { showSnackbar("Failed to fetch report", "error"); }
+    finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    if (reportMonth && reportYear) {
+  const fetchHistory = async () => {
+    if (!historyEmployeeId) return;
+    setLoading(true);
+    try {
+      const res = await api.get(`/salary/history/${historyEmployeeId}`);
+      setHistory(res.data);
+    } catch (err) { setHistory([]); }
+    finally { setLoading(false); }
+  };
+
+  const fetchMyLatestSalary = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/salary/my");
+      if (res.data && res.data.length > 0) {
+        setMyLatestSalary(res.data[0]); // Most recent
+      }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  };
+
+  const handleBulkGenerate = async () => {
+    setBulkLoading(true);
+    try {
+      await api.post("/salary/bulk-generate", {
+        month: reportMonth,
+        year: reportYear,
+        employeeIds: selectedEmpIds.length > 0 ? selectedEmpIds : null,
+        defaultAllowance: parseFloat(defAllowance),
+        defaultBonus: parseFloat(defBonus),
+        otherDeduction: parseFloat(defOtherDeduction)
+      });
+      showSnackbar("Bulk generation successful!");
+      setBulkDialogOpen(false);
       fetchReport();
-    } else {
-      setReport([]);
-    }
-  }, [reportMonth, reportYear]);
-  const getEmployeeName = (id) => {
-    const emp = employees.find(e => e.id === parseInt(id));
-    return emp ? emp.name : "";
+      fetchPayrollSummary();
+    } catch (err) { showSnackbar("Bulk generation failed", "error"); }
+    finally { setBulkLoading(false); }
+  };
+
+  const handleEditOpen = (rec) => {
+    setEditRecord(rec);
+    setEditAllowance(rec.allowance);
+    setEditBonus(rec.bonus);
+    setEditDeduction(rec.deduction);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateRecord = async () => {
+    const final_salary = parseFloat(editRecord.basic_salary) + parseFloat(editAllowance) + parseFloat(editBonus) - parseFloat(editDeduction);
+    try {
+      await api.put(`/salary/${editRecord.id}`, {
+        allowance: editAllowance,
+        bonus: editBonus,
+        deduction: editDeduction,
+        final_salary
+      });
+      showSnackbar("Record updated successfully");
+      setEditDialogOpen(false);
+      fetchReport();
+      if (historyEmployeeId) fetchHistory();
+    } catch (err) { showSnackbar("Failed to update", "error"); }
+  };
+
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await api.patch(`/salary/status/${id}`, { status: newStatus });
+      showSnackbar(`Marked as ${newStatus}`);
+      fetchReport();
+      if (historyEmployeeId) fetchHistory();
+    } catch (err) { showSnackbar("Failed to update status", "error"); }
   };
 
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
     label: new Date(0, i).toLocaleString('default', { month: 'long' })
   }));
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+  // Financial Summary Calculation
+  const totals = report.reduce((acc, rec) => ({
+    basic: acc.basic + parseFloat(rec.basic_salary || 0),
+    allowance: acc.allowance + parseFloat(rec.allowance || 0),
+    bonus: acc.bonus + parseFloat(rec.bonus || 0),
+    deduction: acc.deduction + parseFloat(rec.deduction || 0),
+    net: acc.net + parseFloat(rec.final_salary || 0)
+  }), { basic: 0, allowance: 0, bonus: 0, deduction: 0, net: 0 });
+
+  const renderTable = (data, isHistory = false) => (
+    <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
+      <Table>
+        <TableHead sx={{ bgcolor: "action.hover" }}>
+          <TableRow>
+            <TableCell sx={{ fontWeight: "bold" }}>{isHistory ? "Period" : "Employee"}</TableCell>
+            {!isHistory && <TableCell sx={{ fontWeight: "bold" }}>Period</TableCell>}
+            <TableCell sx={{ fontWeight: "bold" }} align="right">Basic</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="right">Allow/Bonus</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="center">
+              <Tooltip title="Tracked from Approved Leave Requests">
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, cursor: "help" }}>
+                    Deduction <TrendingUpIcon sx={{ fontSize: 14, opacity: 0.6 }} />
+                </Box>
+              </Tooltip>
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="right">Net Salary</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="center">Status</TableCell>
+            <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((rec) => (
+            <TableRow key={rec.id} hover>
+              <TableCell>
+                {isHistory ? <Chip label={`${months.find(m => m.value == rec.month).label} ${rec.year}`} size="small" variant="outlined" /> : (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                    <Avatar sx={{ width: 30, height: 30, fontSize: "0.8rem", bgcolor: "primary.main" }}>{rec.name?.charAt(0)}</Avatar>
+                    {rec.name}
+                  </Box>
+                )}
+              </TableCell>
+              {!isHistory && <TableCell>{months.find(m => m.value == rec.month).label} {rec.year}</TableCell>}
+              <TableCell align="right">₹{parseFloat(rec.basic_salary).toLocaleString()}</TableCell>
+              <TableCell align="right">₹{(parseFloat(rec.allowance || 0) + parseFloat(rec.bonus || 0)).toLocaleString()}</TableCell>
+              <TableCell align="center" sx={{ color: "error.main" }}>-₹{parseFloat(rec.deduction || 0).toLocaleString()}</TableCell>
+              <TableCell align="right">
+                <Typography sx={{ fontWeight: "bold", color: "success.main" }}>₹{parseFloat(rec.final_salary).toLocaleString()}</Typography>
+              </TableCell>
+              <TableCell align="center">
+                <Chip label={rec.status} color={rec.status === "Paid" ? "success" : "primary"} size="small" />
+              </TableCell>
+              <TableCell align="center">
+                <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center">
+                  <Tooltip title="View Payslip">
+                    <IconButton size="small" color="primary" onClick={() => { setSelectedPayslip(rec); setPayslipDialogOpen(true); }}>
+                        <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  {isAdminOrHR && rec.status === "Generated" && (
+                    <>
+                      <Tooltip title="Manual Override">
+                        <IconButton size="small" color="secondary" onClick={() => handleEditOpen(rec)}>
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Mark as Paid">
+                        <IconButton size="small" color="success" onClick={() => updateStatus(rec.id, "Paid")}>
+                            <PaymentsIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </>
+                  )}
+                </Stack>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Paper>
+  );
 
   return (
     <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
-      {/* Page Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #10B981 0%, #059669 100%)" }}>
+      {/* Dynamic Header */}
+      <Paper sx={{ 
+        p: 3, mb: 3, borderRadius: 2, color: "white",
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <AttachMoneyIcon sx={{ fontSize: 40, color: "white" }} />
+            <AccountBalanceWalletIcon sx={{ fontSize: 40 }} />
             <Box>
-              <Typography variant="h5" sx={{ color: "white", fontWeight: "bold" }}>
-                Salary Management
-              </Typography>
-              <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)" }}>
-                Calculate and manage employee salaries
-              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: "bold" }}>{isAdminOrHR ? "Enterprise Payroll Dashboard" : "My Payout Dashboard"}</Typography>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>{isAdminOrHR ? "Monthly expenditure summary & bulk automation" : "Real-time visibility into your latest payslips"}</Typography>
             </Box>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<CalculateIcon />}
-            onClick={handleCalculateOpen}
-            sx={{ bgcolor: "white", color: "#059669", "&:hover": { bgcolor: "#f0f0f0" } }}
-          >
-            Calculate Salary
-          </Button>
+          {isAdminOrHR && (
+            <Button
+                variant="contained"
+                startIcon={<GroupAddIcon />}
+                onClick={() => setBulkDialogOpen(true)}
+                sx={{ bgcolor: "white", color: "primary.main", fontWeight: "bold", "&:hover": { bgcolor: "rgba(255,255,255,0.9)" } }}
+            >
+                Bulk Generation
+            </Button>
+          )}
         </Box>
       </Paper>
 
-      {/* Tabs */}
-      <Paper sx={{ mb: 3 }}>
-        <Tabs 
-          value={activeTab} 
-          onChange={(e, v) => setActiveTab(v)}
-          sx={{ borderBottom: 1, borderColor: "divider" }}
-        >
-          <Tab icon={<HistoryIcon />} label="Salary History" />
-          <Tab icon={<AssessmentIcon />} label="Monthly Report" />
-        </Tabs>
-      </Paper>
-
-      {/* Salary History Tab */}
-      {activeTab === 0 && (
+      {/* Admin Summary View */}
+      {isAdminOrHR ? (
         <>
-          <Paper sx={{ p: 2, mb: 3 }}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <TextField
-                select
-                label="Select Employee"
-                value={historyEmployeeId}
-                onChange={(e) => setHistoryEmployeeId(e.target.value)}
-                size="small"
-                sx={{ minWidth: 250 }}
-              >
-                <MenuItem value="">Select Employee</MenuItem>
-                {employees.map(emp => (
-                  <MenuItem key={emp.id} value={emp.id}>
-                    {emp.name} ({emp.position})
-                  </MenuItem>
-                ))}
-              </TextField>
-              <Button 
-                variant="contained" 
-                onClick={fetchHistory}
-                disabled={!historyEmployeeId || loading}
-                startIcon={loading ? <CircularProgress size={20} /> : <RefreshIcon />}
-              >
-                Refresh
-              </Button>
-              {historyEmployeeId && (
-                <Chip 
-                  label={getEmployeeName(historyEmployeeId)} 
-                  color="success" 
-                  variant="outlined" 
-                />
-              )}
-            </Stack>
-          </Paper>
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={6} md={2.4}>
+                    <Card sx={squareCardStyle}>
+                        <Box sx={{ ...iconCircle, background: "action.hover" }}><AttachMoneyIcon sx={{ color: "primary.main" }} /></Box>
+                        <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Payout</Typography>
+                        <Typography variant="h5" color="primary.main" sx={{ fontWeight: "bold" }}>₹{totals.net.toLocaleString()}</Typography>
+                    </Card>
+                </Grid>
+                <Grid item xs={6} md={2.4}>
+                    <Card sx={squareCardStyle}>
+                        <Box sx={{ ...iconCircle, background: "action.hover" }}><TrendingUpIcon sx={{ color: "success.main" }} /></Box>
+                        <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Allowances</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: "bold" }}>₹{(totals.allowance + totals.bonus).toLocaleString()}</Typography>
+                    </Card>
+                </Grid>
+                <Grid item xs={6} md={2.4}>
+                    <Card sx={squareCardStyle}>
+                        <Box sx={{ ...iconCircle, background: "action.hover" }}><SummarizeIcon sx={{ color: "error.main" }} /></Box>
+                        <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Deductions</Typography>
+                        <Typography variant="h5" color="error.main" sx={{ fontWeight: "bold" }}>₹{totals.deduction.toLocaleString()}</Typography>
+                    </Card>
+                </Grid>
+                <Grid item xs={6} md={2.4}>
+                    <Card sx={squareCardStyle}>
+                        <Box sx={{ ...iconCircle, background: "action.hover" }}><CheckCircleOutlineIcon sx={{ color: "info.main" }} /></Box>
+                        <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Payroll Status</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>{payrollSummary.processedCount}/{payrollSummary.totalEmployees}</Typography>
+                    </Card>
+                </Grid>
+                <Grid item xs={12} md={2.4}>
+                    <Card sx={squareCardStyle}>
+                        <Box sx={{ ...iconCircle, background: "action.hover" }}><AssessmentIcon sx={{ color: "secondary.main" }} /></Box>
+                        <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Efficiency</Typography>
+                        <Box sx={{ width: '80%', mt: 1 }}>
+                            <LinearProgress variant="determinate" value={(payrollSummary.processedCount / payrollSummary.totalEmployees) * 100 || 0} sx={{ height: 6, borderRadius: 3 }} />
+                        </Box>
+                    </Card>
+                </Grid>
+            </Grid>
 
-          {history.length > 0 && (
-            <Paper sx={{ overflow: "hidden" }}>
-              <Table>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: "#f8fafc" }}>
-                    <TableCell sx={{ fontWeight: "bold" }}>Month</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }}>Year</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="right">Basic Salary</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="center">Working Days</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="center">Present Days</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="center">Leave Days</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="right">Per Day</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="right">Deduction</TableCell>
-                    <TableCell sx={{ fontWeight: "bold" }} align="right">Final Salary</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {history
-                    .slice(historyPage * historyRowsPerPage, historyPage * historyRowsPerPage + historyRowsPerPage)
-                    .map((rec) => (
-                      <TableRow key={rec.id} hover>
-                        <TableCell>
-                          <Chip 
-                            label={new Date(0, rec.month - 1).toLocaleString('default', { month: 'short' })} 
-                            size="small" 
-                            color="primary"
-                            variant="outlined"
-                          />
-                        </TableCell>
-                        <TableCell>{rec.year}</TableCell>
-                        <TableCell align="right">₹{parseFloat(rec.basic_salary).toLocaleString()}</TableCell>
-                        <TableCell align="center">{rec.working_days}</TableCell>
-                        <TableCell align="center">{rec.present_days}</TableCell>
-                        <TableCell align="center">
-                          <Chip label={rec.leave_days} size="small" color={rec.leave_days > 0 ? "warning" : "default"} />
-                        </TableCell>
-                        <TableCell align="right">₹{parseFloat(rec.per_day_salary).toFixed(2)}</TableCell>
-                        <TableCell align="right" sx={{ color: "error.main" }}>
-                          -₹{parseFloat(rec.deduction).toFixed(2)}
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography sx={{ fontWeight: "bold", color: "success.main" }}>
-                            ₹{parseFloat(rec.final_salary).toLocaleString()}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={history.length}
-                rowsPerPage={historyRowsPerPage}
-                page={historyPage}
-                onPageChange={(e, page) => setHistoryPage(page)}
-                onRowsPerPageChange={(e) => {
-                  setHistoryRowsPerPage(parseInt(e.target.value, 10));
-                  setHistoryPage(0);
-                }}
-              />
+            {/* Filter Bar */}
+            <Paper sx={{ p: 2, mb: 3, display: "flex", alignItems: "center", gap: 3, borderRadius: 2 }}>
+                <TextField select label="Target Month" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} size="small" sx={{ minWidth: 150 }}>
+                    {months.map(m => <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>)}
+                </TextField>
+                <TextField select label="Target Year" value={reportYear} onChange={(e) => setReportYear(e.target.value)} size="small" sx={{ minWidth: 120 }}>
+                    {years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+                </TextField>
+                <Divider orientation="vertical" flexItem />
+                <Typography variant="body2" color="text.secondary">Showing Report for <b>{months.find(m => m.value == reportMonth).label} {reportYear}</b></Typography>
+                <Box flexGrow={1} />
+                <Button variant="contained" color="success" onClick={fetchReport} startIcon={<RefreshIcon />}>Reload</Button>
             </Paper>
-          )}
 
-          {history.length === 0 && historyEmployeeId && (
-            <Paper sx={{ p: 4, textAlign: "center" }}>
-              <Typography color="text.secondary">No salary history found for this employee</Typography>
-            </Paper>
-          )}
-        </>
-      )}
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", display: "flex", alignItems: "center", gap: 1 }}>
+                <SummarizeIcon color="primary" /> Monthly Payout List
+            </Typography>
 
-      {/* Monthly Report Tab */}
-      {activeTab === 1 && (
-        <>
-          <Paper sx={{ p: 2, mb: 3 }}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <TextField
-                select
-                label="Month"
-                value={reportMonth}
-                onChange={(e) => setReportMonth(e.target.value)}
-                size="small"
-                sx={{ minWidth: 150 }}
-              >
-                <MenuItem value="">Select Month</MenuItem>
-                {months.map(m => (
-                  <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="Year"
-                value={reportYear}
-                onChange={(e) => setReportYear(e.target.value)}
-                size="small"
-                sx={{ minWidth: 120 }}
-              >
-                {years.map(y => (
-                  <MenuItem key={y} value={y}>{y}</MenuItem>
-                ))}
-              </TextField>
-              <Button 
-                variant="contained" 
-                onClick={fetchReport}
-                disabled={!reportMonth || !reportYear || loading}
-                startIcon={loading ? <CircularProgress size={20} /> : <AssessmentIcon />}
-                color="info"
-              >
-                Generate Report
-              </Button>
-            </Stack>
-          </Paper>
+            <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ mb: 2 }}>
+                <Tab label="Current Report" />
+                <Tab label="Search Employee History" />
+            </Tabs>
 
-          {report.length > 0 && (
-            <>
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} md={4}>
-                  <Card sx={{ bgcolor: "#EFF6FF" }}>
-                    <CardContent>
-                      <Typography color="text.secondary" gutterBottom>Total Employees</Typography>
-                      <Typography variant="h4" color="primary">{report.length}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Card sx={{ bgcolor: "#F0FDF4" }}>
-                    <CardContent>
-                      <Typography color="text.secondary" gutterBottom>Total Payout</Typography>
-                      <Typography variant="h4" color="success.main">
-                        ₹{report.reduce((sum, r) => sum + parseFloat(r.final_salary || 0), 0).toLocaleString()}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Card sx={{ bgcolor: "#FEF3C7" }}>
-                    <CardContent>
-                      <Typography color="text.secondary" gutterBottom>Average Salary</Typography>
-                      <Typography variant="h4" color="warning.main">
-                        ₹{(report.reduce((sum, r) => sum + parseFloat(r.final_salary || 0), 0) / report.length).toFixed(2)}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-
-              <Paper sx={{ overflow: "hidden" }}>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: "#f8fafc" }}>
-                      <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Month</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }}>Year</TableCell>
-                      <TableCell sx={{ fontWeight: "bold" }} align="right">Final Salary</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {report
-                      .slice(reportPage * reportRowsPerPage, reportPage * reportRowsPerPage + reportRowsPerPage)
-                      .map((rec) => (
-                        <TableRow key={rec.id} hover>
-                          <TableCell sx={{ fontWeight: 500 }}>{rec.name}</TableCell>
-                          <TableCell>{rec.department || "-"}</TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={new Date(0, rec.month - 1).toLocaleString('default', { month: 'short' })} 
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>{rec.year}</TableCell>
-                          <TableCell align="right">
-                            <Typography sx={{ fontWeight: "bold", color: "success.main" }}>
-                              ₹{parseFloat(rec.final_salary).toLocaleString()}
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25]}
-                  component="div"
-                  count={report.length}
-                  rowsPerPage={reportRowsPerPage}
-                  page={reportPage}
-                  onPageChange={(e, page) => setReportPage(page)}
-                  onRowsPerPageChange={(e) => {
-                    setReportRowsPerPage(parseInt(e.target.value, 10));
-                    setReportPage(0);
-                  }}
-                />
-              </Paper>
-            </>
-          )}
-
-          {report.length === 0 && reportMonth && reportYear && (
-            <Paper sx={{ p: 4, textAlign: "center" }}>
-              <Typography color="text.secondary">No salary data found for this period</Typography>
-            </Paper>
-          )}
-        </>
-      )}
-
-      {/* Calculate Salary Dialog */}
-      <Dialog open={calculateDialogOpen} onClose={handleCalculateClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#10B981", color: "white" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CalculateIcon />
-            Calculate Salary
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
-            <TextField
-              select
-              label="Employee"
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
-              fullWidth
-              required
-            >
-              <MenuItem value="">Select Employee</MenuItem>
-              {employees.map(emp => (
-                <MenuItem key={emp.id} value={emp.id}>
-                  {emp.name} ({emp.position})
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Stack direction="row" spacing={2}>
-              <TextField
-                select
-                label="Month"
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                fullWidth
-                required
-              >
-                <MenuItem value="">Select Month</MenuItem>
-                {months.map(m => (
-                  <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-                ))}
-              </TextField>
-
-              <TextField
-                select
-                label="Year"
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                fullWidth
-                required
-              >
-                {years.map(y => (
-                  <MenuItem key={y} value={y}>{y}</MenuItem>
-                ))}
-              </TextField>
-            </Stack>
-
-            <TextField
-              label="Monthly Salary (₹)"
-              value={monthlySalary}
-              onChange={(e) => setMonthlySalary(e.target.value)}
-              type="number"
-              fullWidth
-              required
-            />
-
-            <Stack direction="row" spacing={2}>
-              <TextField
-                label="Working Days"
-                value={workingDays}
-                onChange={(e) => setWorkingDays(e.target.value)}
-                type="number"
-                fullWidth
-                required
-                helperText="Standard working days (mon-fri)"
-              />
-
-              <TextField
-                label="Leave Days"
-                value={leaveDays}
-                onChange={(e) => setLeaveDays(e.target.value)}
-                type="number"
-                fullWidth
-                required
-                helperText="Fetched from attendance records"
-              />
-            </Stack>
-
-            {employeeId && month && (
-              <Box sx={{ p: 2, bgcolor: "#f8fafc", borderRadius: 1, border: "1px solid #e2e8f0" }}>
-                <Typography variant="subtitle2" sx={{ color: "#059669", mb: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <AssessmentIcon fontSize="small" />
-                  Attendance Summary for {getEmployeeName(employeeId)}
-                </Typography>
-                <Grid container spacing={1}>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" color="text.secondary">Present Days</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{workingDays - leaveDays} Days</Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" color="text.secondary">Leave Days</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", color: leaveDays > 0 ? "error.main" : "text.primary" }}>
-                      {leaveDays} Days
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Box>
+            {activeTab === 0 && (loading ? <Box sx={{ textAlign: "center", py: 5 }}><CircularProgress /></Box> : renderTable(report))}
+            {activeTab === 1 && (
+                <Box>
+                    <Paper sx={{ p: 2, mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
+                        <TextField select label="Select Employee" value={historyEmployeeId} onChange={(e) => setHistoryEmployeeId(e.target.value)} size="small" sx={{ minWidth: 300 }}>
+                            {employees.map(emp => <MenuItem key={emp.id} value={emp.id}>{emp.name} ({emp.position})</MenuItem>)}
+                        </TextField>
+                        <Button variant="outlined" onClick={fetchHistory} disabled={!historyEmployeeId}>View History</Button>
+                    </Paper>
+                    {loading ? <Box sx={{ textAlign: "center", py: 5 }}><CircularProgress /></Box> : renderTable(history, true)}
+                </Box>
             )}
-          </Stack>
+        </>
+      ) : (
+        /* Regular Employee Dashboard View */
+        <Box sx={{ maxWidth: 600, mx: "auto", mt: 4 }}>
+            {myLatestSalary ? (
+                <Card sx={{ borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                    <Box sx={{ p: 4, bgcolor: "primary.main", color: "white" }}>
+                        <Typography variant="overline">MY LATEST PAYOUT</Typography>
+                        <Typography variant="h3" sx={{ fontWeight: "bold", my: 1 }}>₹{parseFloat(myLatestSalary.final_salary).toLocaleString()}</Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                            <Chip 
+                                label={myLatestSalary.status} 
+                                sx={{ bgcolor: myLatestSalary.status === "Paid" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)", color: "white", fontWeight: "bold" }} 
+                            />
+                            <Typography variant="body2">{months.find(m => m.value == myLatestSalary.month).label} {myLatestSalary.year}</Typography>
+                        </Stack>
+                    </Box>
+                    <CardContent sx={{ p: 4 }}>
+                        <Grid container spacing={3}>
+                            <Grid item xs={6}>
+                                <Typography variant="caption" color="text.secondary">Basic Salary</Typography>
+                                <Typography variant="h6">₹{parseFloat(myLatestSalary.basic_salary).toLocaleString()}</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Typography variant="caption" color="text.secondary">Allow/Bonus</Typography>
+                                <Typography variant="h6">₹{(parseFloat(myLatestSalary.allowance || 0) + parseFloat(myLatestSalary.bonus || 0)).toLocaleString()}</Typography>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Divider />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button 
+                                    fullWidth 
+                                    variant="outlined" 
+                                    startIcon={<VisibilityIcon />}
+                                    onClick={() => { setSelectedPayslip(myLatestSalary); setPayslipDialogOpen(true); }}
+                                    sx={{ py: 1.5, borderRadius: 2 }}
+                                >
+                                    View Detailed Payslip
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </CardContent>
+                    <Box sx={{ position: "absolute", top: -20, right: -20, opacity: 0.1 }}>
+                        <AccountBalanceWalletIcon sx={{ fontSize: 180 }} />
+                    </Box>
+                </Card>
+            ) : (
+                <Paper sx={{ p: 5, textAlign: "center", borderRadius: 4 }}>
+                    <AttachMoneyIcon sx={{ fontSize: 60, color: "text.disabled", mb: 2 }} />
+                    <Typography variant="h6" color="text.secondary">No payday records found yet.</Typography>
+                    <Typography variant="body2" color="text.secondary">Your payslip will appear here once generated by HR.</Typography>
+                </Paper>
+            )}
+        </Box>
+      )}
+
+      {/* Bulk Modal */}
+      <Dialog open={bulkDialogOpen} onClose={() => setBulkDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Automated Bulk Generation ({months.find(m => m.value == reportMonth)?.label})</DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={3} sx={{ mt: 1, mb: 3 }}>
+            <Grid item xs={12} md={4}>
+              <TextField label="Default Allowance" type="number" fullWidth value={defAllowance} onChange={(e) => setDefAllowance(e.target.value)} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField label="Default Bonus" type="number" fullWidth value={defBonus} onChange={(e) => setDefBonus(e.target.value)} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField label="Other Deduction" type="number" fullWidth value={defOtherDeduction} onChange={(e) => setDefOtherDeduction(e.target.value)} />
+            </Grid>
+          </Grid>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>Selected Employees ({selectedEmpIds.length || 'All'})</Typography>
+          <Paper variant="outlined" sx={{ maxHeight: 300, overflow: "auto" }}>
+            <Table size="small" stickyHeader>
+              <TableHead><TableRow>
+                <TableCell padding="checkbox"><Checkbox checked={selectedEmpIds.length === employees.length} indeterminate={selectedEmpIds.length > 0 && selectedEmpIds.length < employees.length} onChange={(e) => setSelectedEmpIds(e.target.checked ? employees.map(emp => emp.id) : [])} /></TableCell>
+                <TableCell>Name</TableCell><TableCell>Position</TableCell>
+              </TableRow></TableHead>
+              <TableBody>
+                {employees.map(emp => (
+                  <TableRow key={emp.id} hover onClick={() => setSelectedEmpIds(prev => prev.includes(emp.id) ? prev.filter(i => i !== emp.id) : [...prev, emp.id])} sx={{ cursor: "pointer" }}>
+                    <TableCell padding="checkbox"><Checkbox checked={selectedEmpIds.includes(emp.id)} /></TableCell>
+                    <TableCell>{emp.name}</TableCell><TableCell>{emp.position}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
         </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
-          <Button onClick={handleCalculateClose} color="inherit">Cancel</Button>
-          <Button 
-            variant="contained" 
-            onClick={calculateSalary}
-            disabled={loading}
-            sx={{ bgcolor: "#10B981", "&:hover": { bgcolor: "#059669" } }}
-            startIcon={loading ? <CircularProgress size={20} /> : <CalculateIcon />}
-          >
-            Calculate & Save
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setBulkDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleBulkGenerate} disabled={bulkLoading}>
+            {bulkLoading ? <CircularProgress size={24} /> : "Start Automated Generation"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for feedback */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
-          severity={snackbar.severity}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
+      {/* Manual Override Modal */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Manual Override - {editRecord?.name}</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Allowance" type="number" fullWidth value={editAllowance} onChange={(e) => setEditAllowance(e.target.value)} />
+            <TextField label="Bonus" type="number" fullWidth value={editBonus} onChange={(e) => setEditBonus(e.target.value)} />
+            <TextField label="Other Deduction" type="number" fullWidth value={editDeduction} onChange={(e) => setEditDeduction(e.target.value)} />
+            <Box sx={{ p: 2, bgcolor: "action.hover", borderRadius: 1 }}>
+              <Typography variant="caption" color="text.secondary">Net Salary Calculation:</Typography>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                ₹{(parseFloat(editRecord?.basic_salary || 0) + parseFloat(editAllowance || 0) + parseFloat(editBonus || 0) - parseFloat(editDeduction || 0)).toLocaleString()}
+              </Typography>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleUpdateRecord}>Save Correction</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Payslip Modal */}
+      <Dialog open={payslipDialogOpen} onClose={() => setPayslipDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ textAlign: "center", borderBottom: 1, borderColor: "divider" }}>
+          PAYSLIP BREAKDOWN - {selectedPayslip && months.find(m => m.value == selectedPayslip.month).label} {selectedPayslip?.year}
+        </DialogTitle>
+        <DialogContent sx={{ py: 3 }}>
+          {selectedPayslip && (
+            <Stack spacing={1.5}>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}><Typography color="text.secondary">Basic Salary</Typography><Typography>₹{parseFloat(selectedPayslip.basic_salary).toLocaleString()}</Typography></Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}><Typography color="text.secondary">Allowance</Typography><Typography>+₹{parseFloat(selectedPayslip.allowance || 0).toLocaleString()}</Typography></Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}><Typography color="text.secondary">Bonus</Typography><Typography>+₹{parseFloat(selectedPayslip.bonus || 0).toLocaleString()}</Typography></Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}><Typography color="text.secondary">Leave Deduction ({selectedPayslip.leave_days} Days)</Typography><Typography color="error.main">-₹{parseFloat(selectedPayslip.deduction || 0).toLocaleString()}</Typography></Box>
+              <Divider sx={{ my: 1 }} />
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}><Typography variant="h6">Net Payout</Typography><Typography variant="h6" color="success.main">₹{parseFloat(selectedPayslip.final_salary).toLocaleString()}</Typography></Box>
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions><Button fullWidth variant="outlined" onClick={() => setPayslipDialogOpen(false)}>Close</Button></DialogActions>
+      </Dialog>
+
+      <Snackbar open={snackbar.open} autoHideDuration={5000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
       </Snackbar>
     </Container>
   );

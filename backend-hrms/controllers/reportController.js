@@ -48,7 +48,6 @@ export const leaveReport = (req, res) => {
 };
 
 export const taskReport = (req, res) => {
-
   const sql = `
   SELECT 
   e.name,
@@ -62,7 +61,44 @@ export const taskReport = (req, res) => {
 
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json(err);
-
     res.json(result);
   });
 };
+
+export const getReportSummary = async (req, res) => {
+  try {
+    const [empCount] = await db.promise().query("SELECT COUNT(*) AS total FROM employees");
+    const [leaveCount] = await db.promise().query("SELECT COUNT(*) AS total FROM leaves WHERE status = 'Pending'");
+    const [wfhCount] = await db.promise().query("SELECT COUNT(*) AS total FROM wfh_requests WHERE status = 'Pending'");
+    const [taskStats] = await db.promise().query(`
+      SELECT 
+        COUNT(*) AS total,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed
+      FROM tasks
+    `);
+    
+    // Attendance Today
+    const [attendanceToday] = await db.promise().query(`
+      SELECT COUNT(DISTINCT employee_id) AS present 
+      FROM attendance 
+      WHERE DATE(date) = CURDATE()
+    `);
+
+    const totalTasks = taskStats[0].total || 0;
+    const completedTasks = taskStats[0].completed || 0;
+    const taskCompletionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    
+    const totalEmployees = empCount[0].total || 1; 
+    const attendanceRate = totalEmployees > 0 ? (attendanceToday[0].present / totalEmployees) * 100 : 0;
+
+    res.json({
+      totalEmployees: empCount[0].total,
+      pendingRequests: (leaveCount[0].total || 0) + (wfhCount[0].total || 0),
+      taskCompletionRate: Math.round(taskCompletionRate),
+      attendanceRate: Math.round(attendanceRate)
+    });
+  } catch (error) {
+    console.error("Report Summary Error:", error);
+    res.status(500).json({ message: "Failed to fetch report summary" });
+  }
+};

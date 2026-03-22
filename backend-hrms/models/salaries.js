@@ -27,6 +27,16 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.DECIMAL(10,2),
       allowNull: true
     },
+    allowance: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true,
+      defaultValue: 0.00
+    },
+    bonus: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: true,
+      defaultValue: 0.00
+    },
     working_days: {
       type: DataTypes.INTEGER,
       allowNull: true
@@ -50,6 +60,11 @@ module.exports = function(sequelize, DataTypes) {
     final_salary: {
       type: DataTypes.DECIMAL(10,2),
       allowNull: true
+    },
+    status: {
+      type: DataTypes.ENUM('Pending', 'Generated', 'Paid'),
+      allowNull: true,
+      defaultValue: "Generated"
     }
   }, {
     sequelize,

@@ -40,8 +40,8 @@ function initModels(sequelize) {
   employees.hasMany(tasks, { as: "tasks", foreignKey: "assigned_to"});
   tasks.belongsTo(employees, { as: "assigned_by_employee", foreignKey: "assigned_by"});
   employees.hasMany(tasks, { as: "assigned_by_tasks", foreignKey: "assigned_by"});
-  users.belongsTo(employees, { as: "employee", foreignKey: "employee_id"});
-  employees.hasMany(users, { as: "users", foreignKey: "employee_id"});
+  employees.belongsTo(users, { as: "user", foreignKey: "user_id" });
+  users.hasOne(employees, { as: "employee", foreignKey: "user_id" });
   wfh_requests.belongsTo(employees, { as: "employee", foreignKey: "employee_id"});
   employees.hasMany(wfh_requests, { as: "wfh_requests", foreignKey: "employee_id"});
   task_attachments.belongsTo(tasks, { as: "task", foreignKey: "task_id"});

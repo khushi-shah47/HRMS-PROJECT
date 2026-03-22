@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, LinearProgress, Divider, CircularProgress } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, LinearProgress, Divider, CircularProgress, useTheme } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -20,33 +20,42 @@ import LineChartBox from "../components/dashboard/LineChartBox";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <Box>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5, fontWeight: 500 }}>
-              {title}
-            </Typography>
-            {loading ? (
-              <CircularProgress size={30} sx={{ color: color }} />
-            ) : (
-              <Typography variant="h3" fontWeight="bold" sx={{ color: color }}>
-                {value}
-              </Typography>
-            )}
-          </Box>
-          <Box sx={{ 
-            p: 2, 
-            borderRadius: 3, 
-            background: bg,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            {React.cloneElement(icon, { sx: { fontSize: 28, color: color } })}
-          </Box>
-        </Box>
-      </CardContent>
+    <Card sx={{ 
+      borderRadius: 4, 
+      boxShadow: "0 4px 20px rgba(0,0,0,0.1)", 
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      p: 2,
+      transition: "transform 0.2s",
+      "&:hover": { transform: "translateY(-4px)" }
+    }}>
+      <Box sx={{ 
+        p: 1.5, 
+        mb: 1.5,
+        borderRadius: "50%", 
+        background: bg,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 50,
+        height: 50
+      }}>
+        {React.cloneElement(icon, { sx: { fontSize: 24, color: color } })}
+      </Box>
+      <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>
+        {title}
+      </Typography>
+      {loading ? (
+        <CircularProgress size={20} sx={{ color: color }} />
+      ) : (
+        <Typography variant="h4" fontWeight="bold" sx={{ color: color }}>
+          {value}
+        </Typography>
+      )}
     </Card>
   );
 }
@@ -65,6 +74,7 @@ function LinearProgressWithLabel(props) {
 }
 
 export default function DeveloperDashboard() {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -204,15 +214,15 @@ export default function DeveloperDashboard() {
 
   const getStatusChip = (status) => {
     const colors = {
-      "in_progress": { bg: "#FEF3C7", color: "#D97706", label: "In Progress" },
-      "completed": { bg: "#ECFDF5", color: "#059669", label: "Completed" },
-      "pending": { bg: "#F3F4F6", color: "#6B7280", label: "Pending" },
-      "WFH": { bg: "#EDE9FE", color: "#7C3AED", label: "WFH" },
-      "Leave": { bg: "#FFEDD5", color: "#EA580C", label: "Leave" },
-      "Present": { bg: "#ECFDF5", color: "#059669", label: "Present" }
+      "in_progress": { bg: "warning.light", color: "warning.dark", label: "In Progress" },
+      "completed": { bg: "success.light", color: "success.dark", label: "Completed" },
+      "pending": { bg: "action.hover", color: "text.secondary", label: "Pending" },
+      "WFH": { bg: "secondary.light", color: "secondary.dark", label: "WFH" },
+      "Leave": { bg: "primary.light", color: "primary.dark", label: "Leave" },
+      "Present": { bg: "success.light", color: "success.dark", label: "Present" }
     };
     const style = colors[status] || colors.pending;
-    return <Chip label={style.label || status} size="small" sx={{ background: style.bg, color: style.color, fontWeight: "bold" }} />;
+    return <Chip label={style.label || status} size="small" sx={{ bgcolor: style.bg, color: style.color, fontWeight: "bold" }} />;
   };
 
   const getPriorityColor = (priority) => {
@@ -233,9 +243,9 @@ export default function DeveloperDashboard() {
   };
 
   const getDaysLeftColor = (days) => {
-    if (days <= 0) return "#DC2626";
-    if (days <= 2) return "#F59E0B";
-    return "#16A34A";
+    if (days <= 0) return "error.main";
+    if (days <= 2) return "warning.main";
+    return "success.main";
   };
 
   const upcomingDeadlines = getUpcomingDeadlines();
@@ -358,18 +368,18 @@ export default function DeveloperDashboard() {
   };
 
   const developerStats = [
-    { title: "My Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "#DC2626", bg: "#FEF2F2" },
-    { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-    { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-    { title: "Pending", value: stats.pendingTasks, icon: <PendingActionsIcon />, color: "#6B7280", bg: "#F3F4F6" },
-    { title: "Leave Balance", value: stats.leaveBalance, icon: <BeachAccessIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
-    { title: "Hours (Week)", value: stats.totalHours, icon: <TimerIcon />, color: "#3B82F6", bg: "#EBF5FF" }
+    { title: "My Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
+    { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "Pending", value: stats.pendingTasks, icon: <PendingActionsIcon />, color: "text.secondary", bg: "action.hover" },
+    { title: "Leave Balance", value: stats.leaveBalance, icon: <BeachAccessIcon />, color: "secondary.main", bg: "action.hover" },
+    { title: "Hours (Week)", value: stats.totalHours, icon: <TimerIcon />, color: "primary.main", bg: "action.hover" }
   ];
 
   return (
-    <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: "linear-gradient(135deg, #DC2626 0%, #EF4444 100%)", color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.error.dark} 0%, ${theme.palette.error.main} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -386,9 +396,9 @@ export default function DeveloperDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={{ mb: 4 }}>
         {developerStats.map((stat, index) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+          <Grid item xs={6} sm={4} md={2} key={index}>
             <StatCard {...stat} loading={loading} />
           </Grid>
         ))}
@@ -400,7 +410,7 @@ export default function DeveloperDashboard() {
       <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
               Task Status
             </Typography>
 
@@ -426,7 +436,7 @@ export default function DeveloperDashboard() {
       <Grid size={{ xs: 12, md: 6 }}>
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "error.main" }}>
               Tasks Completed Over Time
             </Typography>
 
@@ -457,7 +467,7 @@ export default function DeveloperDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#DC2626" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main" }}>
                   My Tasks
                 </Typography>
                 <Button size="small" onClick={() => navigate("/tasks")}>View All Tasks</Button>
@@ -473,7 +483,7 @@ export default function DeveloperDashboard() {
                 </Typography>
               ) : (
                 myTasks.slice(0, 5).map((task, i) => (
-                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, background: "#F8FAFC", border: "1px solid #E5E7EB" }}>
+                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Typography fontWeight="600">{task.title}</Typography>
@@ -502,7 +512,7 @@ export default function DeveloperDashboard() {
         <Grid size={{ xs: 12, lg: 4 }}>
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
             <CardContent>
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "#DC2626", mb: 3 }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main", mb: 3 }}>
                 Upcoming Deadlines
               </Typography>
               
@@ -516,7 +526,7 @@ export default function DeveloperDashboard() {
                 </Typography>
               ) : (
                 upcomingDeadlines.map((item, i) => (
-                  <Box key={item.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, background: "#F8FAFC", borderLeft: `4px solid ${getDaysLeftColor(item.daysLeft)}` }}>
+                  <Box key={item.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "action.hover", borderLeft: `4px solid ${getDaysLeftColor(item.daysLeft)}` }}>
                     <Typography fontWeight="600">{item.title}</Typography>
                     <Typography variant="caption" color="textSecondary">
                       Due: {item.due_date?.split("T")[0]}
@@ -530,7 +540,7 @@ export default function DeveloperDashboard() {
               
               <Divider sx={{ my: 2 }} />
               
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "#DC2626", mb: 2 }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main", mb: 2 }}>
                 Quick Actions
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>

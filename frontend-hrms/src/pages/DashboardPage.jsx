@@ -20,36 +20,36 @@ import BusinessIcon from "@mui/icons-material/Business";
 // Role-based stats configuration
 const roleStats = {
   admin: [
-    { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
-    { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-    { title: "On Leave", value: 5, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-    { title: "WFH", value: 7, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
-    { title: "Pending Tasks", value: 23, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
-    { title: "New Hires", value: 8, icon: <PersonAddIcon />, color: "#06B6D4", bg: "#ECFEFF" }
+    { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "On Leave", value: 5, icon: <BeachAccessIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "WFH", value: 7, icon: <HomeWorkIcon />, color: "secondary.main", bg: "action.hover" },
+    { title: "Pending Tasks", value: 23, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
+    { title: "New Hires", value: 8, icon: <PersonAddIcon />, color: "info.main", bg: "action.hover" }
   ],
   manager: [
-    { title: "Team Members", value: 15, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
-    { title: "Present Today", value: 12, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-    { title: "Pending Leaves", value: 4, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-    { title: "Active Tasks", value: 18, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
-    { title: "WFH Requests", value: 3, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
+    { title: "Team Members", value: 15, icon: <PeopleIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "Present Today", value: 12, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "Pending Leaves", value: 4, icon: <BeachAccessIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "Active Tasks", value: 18, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
+    { title: "WFH Requests", value: 3, icon: <HomeWorkIcon />, color: "secondary.main", bg: "action.hover" }
   ],
   hr: [
-    { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "#3B82F6", bg: "#EBF5FF" },
-    { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-    { title: "Leave Requests", value: 8, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-    { title: "Departments", value: 6, icon: <TrendingUpIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
+    { title: "Total Employees", value: 45, icon: <PeopleIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "Present Today", value: 38, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "Leave Requests", value: 8, icon: <BeachAccessIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "Departments", value: 6, icon: <TrendingUpIcon />, color: "secondary.main", bg: "action.hover" }
   ],
   developer: [
-    { title: "My Tasks", value: 8, icon: <AssignmentIcon />, color: "#3B82F6", bg: "#EBF5FF" },
-    { title: "Completed", value: 5, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-    { title: "In Progress", value: 3, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-    { title: "Leave Balance", value: 15, icon: <BeachAccessIcon />, color: "#8B5CF6", bg: "#F5F3FF" }
+    { title: "My Tasks", value: 8, icon: <AssignmentIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "Completed", value: 5, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "In Progress", value: 3, icon: <AccessTimeIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "Leave Balance", value: 15, icon: <BeachAccessIcon />, color: "secondary.main", bg: "action.hover" }
   ],
   intern: [
-    { title: "Assigned Tasks", value: 4, icon: <AssignmentIcon />, color: "#3B82F6", bg: "#EBF5FF" },
-    { title: "Completed", value: 2, icon: <CheckCircleIcon />, color: "#16A34A", bg: "#ECFDF5" },
-    { title: "In Progress", value: 2, icon: <AccessTimeIcon />, color: "#F59E0B", bg: "#FFFBEB" }
+    { title: "Assigned Tasks", value: 4, icon: <AssignmentIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "Completed", value: 2, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "In Progress", value: 2, icon: <AccessTimeIcon />, color: "warning.main", bg: "action.hover" }
   ]
 };
 
@@ -115,23 +115,29 @@ const sampleData = {
 // Get role display info
 const getRoleInfo = (role) => {
   const roles = {
-    admin: { title: "Admin Dashboard", subtitle: "Full System Overview", color: "#1E3A8A", bg: "#EEF2FF" },
-    manager: { title: "Manager Dashboard", subtitle: "Team Overview", color: "#7C3AED", bg: "#F5F3FF" },
-    hr: { title: "HR Dashboard", subtitle: "Employee Management", color: "#059669", bg: "#ECFDF5" },
-    developer: { title: "Developer Dashboard", subtitle: "My Tasks & Attendance", color: "#DC2626", bg: "#FEF2F2" },
-    intern: { title: "Intern Dashboard", subtitle: "Learning Progress", color: "#D97706", bg: "#FFFBEB" }
+    admin: { title: "Admin Dashboard", subtitle: "Full System Overview", color: "primary.dark", bg: "action.hover" },
+    manager: { title: "Manager Dashboard", subtitle: "Team Overview", color: "secondary.main", bg: "action.hover" },
+    hr: { title: "HR Dashboard", subtitle: "Employee Management", color: "success.main", bg: "action.hover" },
+    developer: { title: "Developer Dashboard", subtitle: "My Tasks & Attendance", color: "error.main", bg: "action.hover" },
+    intern: { title: "Intern Dashboard", subtitle: "Learning Progress", color: "warning.main", bg: "action.hover" }
   };
   return roles[role] || roles.developer;
 };
 
 // Stat Card Component
 function StatCard({ title, value, icon, color, bg }) {
+  const theme = useTheme();
   return (
-    <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", height: "100%" }}>
+    <Card sx={{ 
+      borderRadius: 2, 
+      boxShadow: theme.palette.mode === "light" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+      height: "100%",
+      border: theme.palette.mode === "light" ? "none" : `1px solid ${theme.palette.divider}`
+    }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <Box>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               {title}
             </Typography>
             <Typography variant="h4" fontWeight="bold" sx={{ color: color }}>
@@ -141,7 +147,7 @@ function StatCard({ title, value, icon, color, bg }) {
           <Box sx={{
             p: 1.5,
             borderRadius: 2,
-            background: bg,
+            background: theme.palette.mode === "light" ? bg : "rgba(255,255,255,0.05)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
@@ -228,9 +234,9 @@ export default function DashboardPage() {
   const data = sampleData[role] || sampleData.developer;
 
   return (
-    <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${roleInfo.color} 0%, #64748B 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${roleInfo.color} 0%, ${theme.palette.action.hover} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid item xs={12} md={8}>
             <Typography variant="h3" fontWeight="bold">
@@ -261,9 +267,9 @@ export default function DashboardPage() {
         {role === "admin" && (
           <>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
                     Recent Employees
                   </Typography>
                   <TableContainer>
@@ -292,13 +298,13 @@ export default function DashboardPage() {
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
                     Pending Tasks
                   </Typography>
                   {data.pendingTasks.map((task, i) => (
-                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "#F8FAFC" }}>
+                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "action.hover" }}>
                       <Typography fontWeight="500">{task.task}</Typography>
                       <Typography variant="caption" color="textSecondary">
                         Assigned to: {task.assignedTo} | Priority: {task.priority} | Due: {task.deadline}
@@ -309,13 +315,13 @@ export default function DashboardPage() {
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
                     Leave Requests
                   </Typography>
                   {data.leaveRequests.map((leave, i) => (
-                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "#F8FAFC", display: "flex", justifyContent: "space-between" }}>
+                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "action.hover", display: "flex", justifyContent: "space-between" }}>
                       <Box>
                         <Typography fontWeight="500">{leave.employee}</Typography>
                         <Typography variant="caption" color="textSecondary">{leave.type} - {leave.days} day(s)</Typography>
@@ -333,9 +339,9 @@ export default function DashboardPage() {
         {role === "manager" && (
           <>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#7C3AED" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "secondary.main" }}>
                     Team Attendance Today
                   </Typography>
                   <TableContainer>
@@ -368,13 +374,13 @@ export default function DashboardPage() {
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#7C3AED" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "secondary.main" }}>
                     Team Tasks
                   </Typography>
                   {data.pendingTasks.map((task, i) => (
-                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "#F8FAFC" }}>
+                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "action.hover" }}>
                       <Typography fontWeight="500">{task.task}</Typography>
                       <Typography variant="caption" color="textSecondary">
                         Assigned to: {task.assignedTo} | Priority: {task.priority} | Due: {task.deadline}
@@ -391,9 +397,9 @@ export default function DashboardPage() {
         {role === "hr" && (
           <>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#059669" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "success.main" }}>
                     Recent Hires
                   </Typography>
                   <TableContainer>
@@ -422,16 +428,16 @@ export default function DashboardPage() {
               </Card>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+              <Card>
                 <CardContent>
-                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#059669" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "success.main" }}>
                     Leave Requests
                   </Typography>
                   {data.leaveRequests.map((leave, i) => (
-                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "#F8FAFC", display: "flex", justifyContent: "space-between" }}>
+                    <Box key={i} sx={{ p: 1.5, mb: 1, borderRadius: 1, background: "action.hover", display: "flex", justifyContent: "space-between" }}>
                       <Box>
                         <Typography fontWeight="500">{leave.employee}</Typography>
-                        <Typography variant="caption" color="textSecondary">{leave.type} - {leave.days} day(s)</Typography>
+                        <Typography variant="caption" color="text.secondary">{leave.type} - {leave.days} day(s)</Typography>
                       </Box>
                       <Chip
                         label={leave.status}
@@ -449,9 +455,9 @@ export default function DashboardPage() {
         {/* Developer Content */}
         {(role === "developer" || role === "intern") && (
           <Grid item xs={12}>
-            <Card sx={{ borderRadius: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+            <Card>
               <CardContent>
-                <Typography variant="h6" fontWeight="bold" sx={{ mb: 3, color: "#DC2626" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 3, color: role === "intern" ? "warning.main" : "error.main" }}>
                   My Tasks
                 </Typography>
                 {data.myTasks.map((task, i) => (

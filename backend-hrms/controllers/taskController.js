@@ -51,6 +51,25 @@ export const getAllTasks = (req, res) => {
   });
 };
 
+export const getTaskById = (req, res) => {
+  const { id } = req.params;
+  const sql = `
+    SELECT t.*, 
+    e1.name AS assigned_to_name,
+    e2.name AS assigned_by_name
+    FROM tasks t
+    JOIN employees e1 ON t.assigned_to = e1.id
+    JOIN employees e2 ON t.assigned_by = e2.id
+    WHERE t.id = ?
+  `;
+
+  db.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    if (result.length === 0) return res.status(404).json({ message: "Task not found" });
+    res.json(result[0]);
+  });
+};
+
 export const getEmployeeTasks = (req, res) => {
 
   const { employee_id } = req.params;

@@ -8,9 +8,11 @@ import DeveloperDashboard from "./pages/DeveloperDashboard";
 import InternDashboard from "./pages/InternDashboard";
 
 import EmployeePage from "./pages/EmployeePage";
+import EmployeeDetailPage from "./pages/EmployeeDetailPage";
 import AttendancePage from "./pages/AttendancePage";
 import AllAttendancePage from "./pages/AllAttendancePage";
 import TaskPage from "./pages/TaskPage";
+import TaskDetailPage from "./pages/TaskDetailPage";
 import ReportsPage from "./pages/ReportsPage";
 import UserPage from "./pages/UserPage";
 import LeavePage from "./pages/LeavePage";
@@ -128,6 +130,22 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
                   <TaskPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employees/:id" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                  <EmployeeDetailPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/tasks/:id" 
+              element={
+                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                  <TaskDetailPage />
                 </ProtectedRoute>
               } 
             />

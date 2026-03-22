@@ -32,8 +32,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import SearchIcon from "@mui/icons-material/Search";
 import api from "../services/api";
-
+import { useTheme } from "@mui/material/styles";
 const WFHPage = () => {
+  const theme = useTheme();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,7 +52,7 @@ const WFHPage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const userRole = user?.role;
   const employeeId = user?.employee_id || user?.id;
-  
+
   const canApprove = ["admin", "hr", "manager"].includes(userRole);
   const canViewAll = ["admin", "hr"].includes(userRole);
   const isManager = userRole === "manager";
@@ -162,15 +163,19 @@ const WFHPage = () => {
 
   const getStatusChip = (status) => {
     const statusConfig = {
-      approved: { color: "success", icon: <CheckCircleIcon fontSize="small" /> },
-      rejected: { color: "error", icon: <CancelIcon fontSize="small" /> },
-      pending: { color: "warning", icon: null }
+      approved: { color: "success", label: "Approved", icon: <CheckCircleIcon fontSize="small" /> },
+      rejected: { color: "error", label: "Rejected", icon: <CancelIcon fontSize="small" /> },
+      managerApproved: { color: "info", label: "Manager Approved", icon: <CheckCircleIcon fontSize="small" /> },
+      pending: { color: "warning", label: "Pending", icon: null }
     };
-    const config = statusConfig[status] || statusConfig.pending;
+
+    const key = Object.keys(statusConfig).find(k => k.toLowerCase() === status?.toLowerCase()) || "pending";
+    const config = statusConfig[key];
+
     return (
-      <Chip 
-        label={status?.charAt(0).toUpperCase() + status?.slice(1) || "Pending"} 
-        color={config.color} 
+      <Chip
+        label={config.label}
+        color={config.color}
         size="small"
         icon={config.icon}
       />
@@ -194,7 +199,12 @@ const WFHPage = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
       {/* Page Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)" }}>
+      <Paper sx={{
+        p: 3,
+        mb: 3,
+        background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+        color: "white"
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <HomeWorkIcon sx={{ fontSize: 40, color: "white" }} />
@@ -212,7 +222,7 @@ const WFHPage = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleApplyOpen}
-              sx={{ bgcolor: "white", color: "#0891B2", "&:hover": { bgcolor: "#f0f0f0" } }}
+              sx={{ bgcolor: "background.paper", color: "secondary.main", "&:hover": { bgcolor: "action.hover" } }}
             >
               Apply WFH
             </Button>
@@ -226,7 +236,7 @@ const WFHPage = () => {
       </Paper>
 
       {/* Search Bar */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2, mb: 3, bgcolor: "background.paper" }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             placeholder="Search by name or reason..."
@@ -242,23 +252,23 @@ const WFHPage = () => {
               ),
             }}
           />
-          <Chip 
-            label={`${filteredHistory.length} requests`} 
-            color="info" 
-            variant="outlined" 
+          <Chip
+            label={`${filteredHistory.length} requests`}
+            color="info"
+            variant="outlined"
           />
           {isManager && (
             <Stack direction="row" spacing={1}>
-              <Button 
-                variant={viewMode === "team" ? "contained" : "outlined"} 
+              <Button
+                variant={viewMode === "team" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => setViewMode("team")}
                 color="info"
               >
                 Team Requests
               </Button>
-              <Button 
-                variant={viewMode === "my" ? "contained" : "outlined"} 
+              <Button
+                variant={viewMode === "my" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => setViewMode("my")}
                 color="info"
@@ -280,7 +290,7 @@ const WFHPage = () => {
 
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#f8fafc" }}>
+            <TableRow sx={{ backgroundColor: "action.hover" }}>
               {(canViewAll || (isManager && viewMode === "team")) && <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>}
               <TableCell sx={{ fontWeight: "bold" }}>Date Range</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Reason</TableCell>
@@ -307,26 +317,42 @@ const WFHPage = () => {
                     <TableCell>{getStatusChip(rec.status)}</TableCell>
                     {canApprove && (
                       <TableCell align="center">
-                        {rec.status === "pending" && rec.employee_id !== employeeId && (
+                        {String(rec.employee_id) !== String(employeeId) && (
                           <Stack direction="row" spacing={1} justifyContent="center">
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              startIcon={<CheckCircleIcon />}
-                              onClick={() => handleApprove(rec.id)}
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              color="error"
-                              size="small"
-                              startIcon={<CancelIcon />}
-                              onClick={() => handleReject(rec.id)}
-                            >
-                              Reject
-                            </Button>
+                            {/* Manager Rule: Stage 1 (not for HR requests) */}
+                            {userRole === "manager" && rec.status?.toLowerCase() === "pending" && rec.owner_role !== "hr" && (
+                              <Button
+                                variant="contained"
+                                color="info"
+                                size="small"
+                                onClick={() => handleApprove(rec.id)}
+                              >
+                                Approve
+                              </Button>
+                            )}
+
+                            {/* HR/Admin Rule: Stage 2 or Override */}
+                            {(userRole === "hr" || userRole === "admin") && (rec.status?.toLowerCase() === "pending" || rec.status?.toLowerCase() === "managerapproved") && (
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                onClick={() => handleApprove(rec.id)}
+                              >
+                                {rec.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
+                              </Button>
+                            )}
+
+                            {(rec.status?.toLowerCase() === "pending" || rec.status?.toLowerCase() === "managerapproved") && (
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                onClick={() => handleReject(rec.id)}
+                              >
+                                Reject
+                              </Button>
+                            )}
                           </Stack>
                         )}
                       </TableCell>
@@ -353,7 +379,7 @@ const WFHPage = () => {
 
       {/* Apply WFH Dialog */}
       <Dialog open={applyDialogOpen} onClose={handleApplyClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#06B6D4", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "info.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <HomeWorkIcon />
             Apply Work From Home
@@ -394,11 +420,11 @@ const WFHPage = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button onClick={handleApplyClose} color="inherit">Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={applyWFH}
             disabled={loading}
-            sx={{ bgcolor: "#06B6D4", "&:hover": { bgcolor: "#0891B2" } }}
+            sx={{ bgcolor: "info.main", "&:hover": { bgcolor: "info.dark" } }}
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Submit Request
@@ -413,8 +439,8 @@ const WFHPage = () => {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           variant="filled"
         >

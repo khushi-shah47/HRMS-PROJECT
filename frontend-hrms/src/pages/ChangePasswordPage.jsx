@@ -89,7 +89,7 @@ export default function ChangePasswordPage() {
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <LockIcon sx={{ color: "#1E3A8A", mr: 1 }} />
+          <LockIcon sx={{ color: "primary.main", mr: 1 }} />
           <Typography variant="h6" fontWeight="bold">
             Change Password
           </Typography>

@@ -197,7 +197,7 @@ export default function Topbar({ onMenuClick }){
     const openSearch = Boolean(searchAnchorEl);
 
     return(
-        <AppBar position="static" sx={{ background:"#FFFFFF", color:"#000", boxShadow:1 }}>
+        <AppBar position="static">
             <Toolbar>
                 <IconButton
                     edge="start"
@@ -209,7 +209,7 @@ export default function Topbar({ onMenuClick }){
                 </IconButton>
                 <Typography
                     variant="h6" 
-                    sx={{ flexGrow:1, color:"#1E3A8A", fontWeight: "bold" }}
+                    sx={{ flexGrow:1, color:"primary.main", fontWeight: "bold" }}
                 >
                     {pageTitle}
                 </Typography>
@@ -239,16 +239,20 @@ export default function Topbar({ onMenuClick }){
                                 width: 300,
                                 "& .MuiOutlinedInput-root": {
                                     borderRadius: 5,
-                                    backgroundColor: "#f1f5f9",
+                                    backgroundColor: "action.hover",
                                 }
                             }}
                         />
                     </Box>
 
                     {/* Notification Bell */}
-                    <IconButton color="inherit" onClick={handleNotificationClick}>
+                    <IconButton 
+                        color="inherit" 
+                        onClick={handleNotificationClick}
+                        aria-label="show new notifications"
+                    >
                         <Badge badgeContent={unreadCount} color="error">
-                            <NotificationsIcon sx={{ color: "#64748b" }} />
+                            <NotificationsIcon sx={{ color: "text.secondary" }} />
                         </Badge>
                     </IconButton>
 
@@ -269,7 +273,7 @@ export default function Topbar({ onMenuClick }){
                                     ? `http://localhost:5000/${user.profile_image}?t=${new Date().getTime()}`
                                     : ""
                             }
-                            sx={{ bgcolor: "#1E3A8A", width: 35, height: 35 }}
+                            sx={{ bgcolor: "primary.main", width: 35, height: 35 }}
                         >
                             {!user?.profile_image && (user.name || user.username || "U").charAt(0).toUpperCase()}
                         </Avatar>
@@ -352,7 +356,7 @@ export default function Topbar({ onMenuClick }){
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
                 PaperProps={{ sx: { width: 350, maxHeight: 400, mt: 1.5, borderRadius: 2 } }}
             >
-                <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0" }}>
+                <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid", borderColor: "divider" }}>
                     <Typography variant="subtitle1" fontWeight="bold">Notifications</Typography>
                     {unreadCount > 0 && (
                         <IconButton size="small" onClick={handleMarkAllRead} title="Mark all as read">
@@ -370,14 +374,14 @@ export default function Topbar({ onMenuClick }){
                                     button 
                                     onClick={() => handleMarkRead(notif.id)}
                                     sx={{ 
-                                        bgcolor: notif.is_read ? "transparent" : "#EFF6FF", 
-                                        "&:hover": { bgcolor: "#f8fafc" },
+                                        bgcolor: notif.is_read ? "transparent" : "action.hover", 
+                                        "&:hover": { bgcolor: "action.selected" },
                                         transition: "background-color 0.2s"
                                     }}
                                 >
                                     <ListItemText 
                                         primary={
-                                            <Typography variant="body2" fontWeight={notif.is_read ? "normal" : "bold"} color="#1e293b">
+                                            <Typography variant="body2" fontWeight={notif.is_read ? "normal" : "bold"} color="text.primary">
                                                 {notif.title}
                                             </Typography>
                                         }
@@ -412,12 +416,16 @@ export default function Topbar({ onMenuClick }){
                     {/* Employees */}
                     {searchResults.employees?.length > 0 && (
                         <>
-                            <Box sx={{ px: 2, py: 1, bgcolor: "#f8fafc" }}>
+                            <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
                                 <Typography variant="caption" fontWeight="bold" color="text.secondary">EMPLOYEES</Typography>
                             </Box>
                             {searchResults.employees.map(emp => (
-                                <ListItem button key={`emp-${emp.id}`} onClick={() => handleSearchResultClick("/employees")}>
-                                    <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: 12, bgcolor: "#3b82f6" }}>{emp.name.charAt(0)}</Avatar>
+                                <ListItem 
+                                    button 
+                                    key={`emp-${emp.id}`} 
+                                    onClick={() => handleSearchResultClick(`/employees/${emp.id}`)}
+                                >
+                                    <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: 12, bgcolor: "primary.main" }}>{emp.name.charAt(0)}</Avatar>
                                     <ListItemText primary={emp.name} secondary={emp.position} />
                                 </ListItem>
                             ))}
@@ -427,11 +435,15 @@ export default function Topbar({ onMenuClick }){
                     {/* Tasks */}
                     {searchResults.tasks?.length > 0 && (
                         <>
-                            <Box sx={{ px: 2, py: 1, bgcolor: "#f8fafc" }}>
+                            <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
                                 <Typography variant="caption" fontWeight="bold" color="text.secondary">TASKS</Typography>
                             </Box>
                             {searchResults.tasks.map(task => (
-                                <ListItem button key={`task-${task.id}`} onClick={() => handleSearchResultClick("/tasks")}>
+                                <ListItem 
+                                    button 
+                                    key={`task-${task.id}`} 
+                                    onClick={() => handleSearchResultClick(`/tasks/${task.id}`)}
+                                >
                                     <ListItemText primary={task.title} secondary={`Status: ${task.status}`} />
                                 </ListItem>
                             ))}
@@ -441,7 +453,7 @@ export default function Topbar({ onMenuClick }){
                     {/* Requests */}
                     {searchResults.requests?.length > 0 && (
                         <>
-                            <Box sx={{ px: 2, py: 1, bgcolor: "#f8fafc" }}>
+                            <Box sx={{ px: 2, py: 1, bgcolor: "background.default" }}>
                                 <Typography variant="caption" fontWeight="bold" color="text.secondary">REQUESTS</Typography>
                             </Box>
                             {searchResults.requests.map(req => (

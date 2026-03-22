@@ -4,7 +4,11 @@ import {
   getSalaryHistory,
   getSalaryReport,
   getMySalary,
-  getAttendanceStats
+  getAttendanceStats,
+  updateSalaryStatus,
+  bulkGenerateSalary,
+  getPayrollSummary,
+  updateSalaryRecord
 } from "../controllers/salaryController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -16,5 +20,9 @@ router.get("/stats", verifyToken, authorizeRoles("admin", "hr"), getAttendanceSt
 router.get("/my", verifyToken, getMySalary);
 router.get("/history/:employee_id", verifyToken, authorizeRoles("admin", "hr"), getSalaryHistory);
 router.get("/report", verifyToken, authorizeRoles("admin", "hr"), getSalaryReport);
+router.get("/summary", verifyToken, authorizeRoles("admin", "hr"), getPayrollSummary);
+router.post("/bulk-generate", verifyToken, authorizeRoles("admin", "hr"), bulkGenerateSalary);
+router.patch("/status/:id", verifyToken, authorizeRoles("admin", "hr"), updateSalaryStatus);
+router.put("/:id", verifyToken, authorizeRoles("admin", "hr"), updateSalaryRecord);
 
 export default router;

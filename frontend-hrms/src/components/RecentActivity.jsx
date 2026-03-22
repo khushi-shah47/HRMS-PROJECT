@@ -50,7 +50,7 @@ export default function RecentActivity() {
         {activities.length > 0 ? (
           activities.map((activity, index) => (
             <Typography key={index} sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#3B82F6' }} />
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'primary.main' }} />
               {activity}
             </Typography>
           ))

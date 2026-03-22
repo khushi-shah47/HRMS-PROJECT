@@ -65,12 +65,12 @@ const SignupPage = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "background.default",
       }}
     >
       <Box
         sx={{
-          backgroundColor: "white",
+          backgroundColor: "background.paper",
           p: 4,
           borderRadius: 3,
           boxShadow: 5,
@@ -80,11 +80,11 @@ const SignupPage = () => {
           mx: 2,
         }}
       >
-        <Typography variant="h5" sx={{ color: "#1E3A8A", fontWeight: "bold", mb: 1 }}>
+        <Typography variant="h5" sx={{ color: "primary.main", fontWeight: "bold", mb: 1 }}>
           Create Your Account 
         </Typography>
 
-        <Typography sx={{ color: "#3B82F6", mb: 3 }}>
+        <Typography sx={{ color: "primary.main", mb: 3, opacity: 0.8 }}>
           Sign up for HRMS Dashboard
         </Typography>
 
@@ -142,8 +142,8 @@ const SignupPage = () => {
           fullWidth
           sx={{
             mt: 2,
-            backgroundColor: "#1E3A8A",
-            "&:hover": { backgroundColor: "#3B82F6" },
+            backgroundColor: "primary.main",
+            "&:hover": { backgroundColor: "primary.dark" },
           }}
           onClick={handleSignup}
           disabled={loading}
@@ -155,7 +155,7 @@ const SignupPage = () => {
           Already have an account?
           <Button
             onClick={() => navigate("/login")}
-            sx={{ color: "#3B82F6", fontWeight: "bold" }}
+            sx={{ color: "primary.main", fontWeight: "bold" }}
           >
             Login Here
           </Button>

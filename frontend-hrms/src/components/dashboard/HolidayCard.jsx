@@ -10,12 +10,12 @@ const HolidayCard = ({ holidays = [], loading = false }) => {
     .slice(0, 3);
 
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
+    <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <EventIcon sx={{ color: "#16A34A" }} />
-            <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+            <EventIcon sx={{ color: "success.main" }} />
+            <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
               Upcoming Holidays
             </Typography>
           </Box>
@@ -39,8 +39,8 @@ const HolidayCard = ({ holidays = [], loading = false }) => {
                   </Typography>
                 </Box>
                 <Box sx={{ 
-                  background: "#ECFDF5", 
-                  color: "#16A34A", 
+                  bgcolor: "success.light", 
+                  color: "success.dark", 
                   p: 1, 
                   borderRadius: 2, 
                   textAlign: "center",

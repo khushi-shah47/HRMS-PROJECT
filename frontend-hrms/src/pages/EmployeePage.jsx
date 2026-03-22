@@ -24,7 +24,8 @@ import {
   Snackbar,
   CircularProgress,
   Tooltip,
-  InputAdornment
+  InputAdornment,
+  useTheme
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -35,6 +36,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import api from "../services/api";
 
 const EmployeePage = () => {
+  const theme = useTheme();
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,11 +50,17 @@ const EmployeePage = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [phone, setPhone] = useState("");
   const [position, setPosition] = useState("");
   const [departmentId, setDepartmentId] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [salary, setSalary] = useState("");
+  const [hrList, setHrList] = useState([]);
+  const [managerList, setManagerList] = useState([]);
+  const [selectedHrId, setSelectedHrId] = useState("");
+  const [selectedManagerId, setSelectedManagerId] = useState("");
   
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   
@@ -73,7 +81,50 @@ const EmployeePage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const canManage = ["admin", "hr"].includes(user?.role);
 
-  const positionsList = ["Junior Developer", "Senior Developer", "Intern", "Project Manager"];
+  const rolePositions = {
+    admin: ["Administrator"],
+    hr: ["HR Executive", "Senior HR", "HR Manager"],
+    manager: ["Team Lead", "Engineering Manager", "Product Manager"],
+    developer: ["Junior Developer", "Senior Developer"],
+    intern: ["Intern"]
+  };
+
+  const [currentPositions, setCurrentPositions] = useState([]);
+
+  const positionsList = [
+    "Administrator",
+    "HR Executive", "Senior HR", "HR Manager",
+    "Team Lead", "Engineering Manager", "Product Manager",
+    "Junior Developer", "Senior Developer", "Intern"
+  ];
+
+  const handleRoleChange = (selectedRole) => {
+    setRole(selectedRole);
+    setPosition("");
+    setSelectedHrId("");
+    setSelectedManagerId("");
+    setManagerList([]);
+    setDepartmentId("");
+
+    // Set dynamic positions
+    setCurrentPositions(rolePositions[selectedRole] || []);
+
+    // If HR, auto-select HR department
+    if (selectedRole === "hr") {
+      const hrDept = departments.find(d => d.name === "HR");
+      if (hrDept) setDepartmentId(hrDept.id);
+    }
+
+    // If Intern, force position
+    if (selectedRole === "intern") {
+      setPosition("Intern");
+    }
+    
+    // If Admin, force position
+    if (selectedRole === "admin") {
+      setPosition("Administrator");
+    }
+  };
 
   const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
@@ -127,16 +178,47 @@ const EmployeePage = () => {
   const resetAddForm = () => {
     setName("");
     setEmail("");
+    setPassword("");
+    setRole("");
     setPhone("");
     setPosition("");
     setDepartmentId("");
     setJoinDate("");
     setSalary("");
+    setSelectedHrId("");
+    setSelectedManagerId("");
+    setManagerList([]);
+  };
+
+  const fetchHrs = async () => {
+    try {
+      const res = await api.get("/admin/hrs");
+      setHrList(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Failed to fetch HR list:", err);
+    }
+  };
+
+  const fetchManagers = async (hrId) => {
+    if (!hrId) { setManagerList([]); return; }
+    try {
+      const res = await api.get(`/admin/managers?hrId=${hrId}`);
+      setManagerList(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Failed to fetch manager list:", err);
+    }
   };
 
   const handleAddOpen = () => {
     resetAddForm();
+    fetchHrs();
     setAddDialogOpen(true);
+  };
+
+  const handleHrChange = (hrId) => {
+    setSelectedHrId(hrId);
+    setSelectedManagerId("");
+    fetchManagers(hrId);
   };
 
   const handleAddClose = () => {
@@ -173,16 +255,18 @@ const EmployeePage = () => {
     return null; // valid
   };
 
-  const addEmployee = async () => {
-    const error = validateEmployee({
-      name,
-      email,
-      phone,
-      position,
-      salary,
-      joinDate
-    });
+  const validateAddForm = () => {
+    if (!role) return "Role is required";
+    if (!password || password.length < 6) return "Password must be at least 6 characters";
+    const basicError = validateEmployee({ name, email, phone, position, salary, joinDate });
+    if (basicError) return basicError;
+    if (role === "manager" && !selectedHrId) return "Please select an HR for this manager";
+    if ((role === "developer" || role === "intern") && !selectedManagerId) return "Please select a manager for this employee";
+    return null;
+  };
 
+  const addEmployee = async () => {
+    const error = validateAddForm();
     if (error) {
       showSnackbar(error, "error");
       return;
@@ -190,21 +274,26 @@ const EmployeePage = () => {
 
     setLoading(true);
     try {
-      await api.post("/employees/add", { 
-        name, 
-        email, 
-        phone, 
-        position, 
-        department_id: departmentId || null, 
+      await api.post("/admin/create-employee", {
+        name,
+        email,
+        password,
+        role,
+        phone,
+        position,
+        department_id: departmentId || null,
         join_date: joinDate,
-        basic_salary: parseFloat(salary)
+        basic_salary: parseFloat(salary) || 0,
+        hr_id: selectedHrId || null,
+        manager_id: selectedManagerId || null
       });
-      
+
       handleAddClose();
-      showSnackbar("Employee added successfully");
+      showSnackbar("Employee and user account created successfully");
       fetchEmployees();
-    } catch (error) {
-      showSnackbar("Failed to add employee", "error");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to create employee";
+      showSnackbar(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -305,7 +394,12 @@ const EmployeePage = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
       {/* Page Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)" }}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+        color: "white"
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <PeopleIcon sx={{ fontSize: 40, color: "white" }} />
@@ -324,7 +418,7 @@ const EmployeePage = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddOpen}
-                sx={{ bgcolor: "white", color: "#1E3A8A", "&:hover": { bgcolor: "#f0f0f0" } }}
+                sx={{ bgcolor: "background.paper", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
               >
                 Add Employee
               </Button>
@@ -339,7 +433,7 @@ const EmployeePage = () => {
       </Paper>
 
       {/* Search & Filter Bar */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2, mb: 3, bgcolor: "background.paper" }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             placeholder="Search employees..."
@@ -364,7 +458,7 @@ const EmployeePage = () => {
       </Paper>
 
       {/* Data Table */}
-      <Paper sx={{ overflow: "hidden" }}>
+      <Paper sx={{ overflow: "hidden", bgcolor: "background.paper" }}>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress />
@@ -373,7 +467,7 @@ const EmployeePage = () => {
         
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#f8fafc" }}>
+            <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
@@ -443,7 +537,7 @@ const EmployeePage = () => {
 
       {/* Add Employee Dialog */}
       <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#1E3A8A", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AddIcon />
             Add New Employee
@@ -451,13 +545,68 @@ const EmployeePage = () => {
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
+            {/* Role — controls which hierarchy fields appear */}
             <TextField
-              label="Name"
+              select
+              label="Role"
+              value={role}
+              onChange={(e) => handleRoleChange(e.target.value)}
+              fullWidth
+              required
+            >
+              <MenuItem value="">Select Role</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="hr">HR</MenuItem>
+              <MenuItem value="manager">Manager</MenuItem>
+              <MenuItem value="developer">Developer</MenuItem>
+              <MenuItem value="intern">Intern</MenuItem>
+            </TextField>
+
+            {/* HR dropdown — for Manager/Developer/Intern */}
+            {(role === "manager" || role === "developer" || role === "intern") && (
+              <TextField
+                select
+                label="Select HR"
+                value={selectedHrId}
+                onChange={(e) => handleHrChange(e.target.value)}
+                fullWidth
+                required
+                disabled={role === "admin"}
+                helperText={role === "manager" ? "HR this manager reports to" : "Filter managers by HR"}
+              >
+                <MenuItem value="">Select HR</MenuItem>
+                {hrList.map((hr) => (
+                  <MenuItem key={hr.id} value={hr.id}>{hr.name} ({hr.email})</MenuItem>
+                ))}
+              </TextField>
+            )}
+
+            {/* Manager dropdown — for developer/intern */}
+            {(role === "developer" || role === "intern") && (
+              <TextField
+                select
+                label="Assign Manager"
+                value={selectedManagerId}
+                onChange={(e) => setSelectedManagerId(e.target.value)}
+                fullWidth
+                required
+                disabled={!selectedHrId || role === "admin"}
+                helperText={selectedHrId ? "Manager for this employee" : "Select HR first"}
+              >
+                <MenuItem value="">Select Manager</MenuItem>
+                {managerList.map((m) => (
+                  <MenuItem key={m.id} value={m.id}>{m.name} ({m.email})</MenuItem>
+                ))}
+              </TextField>
+            )}
+
+            <TextField
+              label="Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               fullWidth
               required
-              error={!name && addDialogOpen && name.length < 3}
+              error={name.length > 0 && name.length < 3}
               helperText={name.length > 0 && name.length < 3 ? "Minimum 3 characters" : ""}
             />
             <TextField
@@ -467,16 +616,26 @@ const EmployeePage = () => {
               onChange={(e) => setEmail(e.target.value)}
               fullWidth
               required
-              error={email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
-              helperText={email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "Invalid email" : ""}
+              error={email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
+              helperText={email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "Invalid email" : ""}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              required
+              error={password.length > 0 && password.length < 6}
+              helperText={password.length > 0 && password.length < 6 ? "Minimum 6 characters" : "Login password for this employee"}
             />
             <TextField
               label="Phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               fullWidth
-              error={phone && !/^\d{10}$/.test(phone)}
-              helperText={phone && !/^\d{10}$/.test(phone) ? "Enter 10 digit number" : ""}
+              error={phone.length > 0 && !/^\d{10}$/.test(phone)}
+              helperText={phone.length > 0 && !/^\d{10}$/.test(phone) ? "Enter 10 digit number" : ""}
             />
             <TextField
               select
@@ -485,26 +644,31 @@ const EmployeePage = () => {
               onChange={(e) => setPosition(e.target.value)}
               fullWidth
               required
+              disabled={role === "admin" || role === "intern"}
             >
               <MenuItem value="">Select Position</MenuItem>
-              {positionsList.map((pos) => (
-                <MenuItem key={pos} value={pos}>
-                  {pos}
-                </MenuItem>
+              {currentPositions.map((pos) => (
+                <MenuItem key={pos} value={pos}>{pos}</MenuItem>
               ))}
             </TextField>
-            <TextField
-              select
-              label="Department"
-              value={departmentId}
-              onChange={(e) => setDepartmentId(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="">Select Department</MenuItem>
-              {departments.map((dept) => (
-                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
-              ))}
-            </TextField>
+
+            {/* Department — Hidden for developer/intern (managed by manager) */}
+            {!(role === "developer" || role === "intern") && (
+              <TextField
+                select
+                label="Department"
+                value={departmentId}
+                onChange={(e) => setDepartmentId(e.target.value)}
+                fullWidth
+                required={role !== "admin"}
+                disabled={role === "admin" || role === "hr"}
+              >
+                <MenuItem value="">Select Department</MenuItem>
+                {departments.map((dept) => (
+                  <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                ))}
+              </TextField>
+            )}
             <TextField
               type="date"
               label="Join Date"
@@ -523,15 +687,15 @@ const EmployeePage = () => {
               InputProps={{
                 startAdornment: <InputAdornment position="start">₹</InputAdornment>
               }}
-              error={salary && Number(salary) <= 0}
-              helperText={salary && Number(salary) <= 0 ? "Must be positive" : ""}
+              error={salary.length > 0 && Number(salary) <= 0}
+              helperText={salary.length > 0 && Number(salary) <= 0 ? "Must be positive" : ""}
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button onClick={handleAddClose} color="inherit">Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={addEmployee}
             disabled={loading}
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
@@ -543,7 +707,7 @@ const EmployeePage = () => {
 
       {/* Edit Employee Dialog */}
       <Dialog open={editOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#3B82F6", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <EditIcon />
             Edit Employee
@@ -634,7 +798,7 @@ const EmployeePage = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteClose} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#DC2626", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <DeleteIcon />
             Confirm Delete

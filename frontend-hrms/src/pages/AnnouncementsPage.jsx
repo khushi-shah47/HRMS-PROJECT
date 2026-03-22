@@ -21,6 +21,7 @@ import {
   DialogActions,
   Tooltip,
   InputAdornment,
+  useTheme
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -33,6 +34,7 @@ import SpeakerNotesOffIcon from "@mui/icons-material/SpeakerNotesOff";
 import api from "../services/api";
 
 const AnnouncementsPage = () => {
+  const theme = useTheme();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
@@ -176,7 +178,7 @@ const AnnouncementsPage = () => {
           p: 3, 
           mb: 3, 
           borderRadius: 2,
-          background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)"
+          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -200,11 +202,11 @@ const AnnouncementsPage = () => {
                 startIcon={<AddIcon />}
                 onClick={handleCreateOpen}
                 sx={{ 
-                  bgcolor: "white", 
-                  color: "#1E3A8A", 
+                  bgcolor: "background.paper", 
+                  color: "primary.main", 
                   px: 2,
                   fontWeight: "bold",
-                  "&:hover": { bgcolor: "#f8fafc" }
+                  "&:hover": { bgcolor: "action.hover" }
                 }}
               >
                 Create New
@@ -263,11 +265,11 @@ const AnnouncementsPage = () => {
             sx={{ 
               p: 10, 
               textAlign: "center", 
-              bgcolor: "#f8fafc"
+              bgcolor: "background.paper"
             }}
           >
-            <SpeakerNotesOffIcon sx={{ fontSize: 64, color: "#cbd5e0", mb: 2 }} />
-            <Typography variant="h6" sx={{ color: "#475569", fontWeight: 700 }}>
+            <SpeakerNotesOffIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
+            <Typography variant="h6" sx={{ color: "text.secondary", fontWeight: 700 }}>
               {searchQuery ? "No matches found" : "No announcements posted yet."}
             </Typography>
             {searchQuery && (
@@ -293,7 +295,7 @@ const AnnouncementsPage = () => {
                     p: 4, 
                     transition: "all 0.2s",
                     position: "relative",
-                    "&:hover": { bgcolor: "#f1f5f9" },
+                    "&:hover": { bgcolor: "action.hover" },
                     "&::before": isRecent ? {
                       content: '""',
                       position: "absolute",
@@ -301,14 +303,14 @@ const AnnouncementsPage = () => {
                       top: 0,
                       bottom: 0,
                       width: 4,
-                      background: "#3b82f6"
+                      background: theme.palette.primary.main
                     } : {}
                   }}
                 >
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
                     <Box sx={{ flex: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 800, color: "#1e293b" }}>
+                        <Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>
                           {announcement.title}
                         </Typography>
                         {isRecent && (
@@ -325,13 +327,13 @@ const AnnouncementsPage = () => {
                           />
                         )}
                       </Box>
-                      <Typography variant="body1" sx={{ color: "#475569", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                      <Typography variant="body1" sx={{ color: "text.secondary", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
                         {announcement.content}
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 600 }}>
+                        <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
                           {formatDate(announcement.created_at)}
                         </Typography>
                         {canManage && (
@@ -348,10 +350,10 @@ const AnnouncementsPage = () => {
                         )}
                       </Box>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: "#1e293b" }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>
                           {announcement.author_name || "System Admin"}
                         </Typography>
-                        <PersonIcon sx={{ fontSize: 16, color: "#64748b" }} />
+                        <PersonIcon sx={{ fontSize: 16, color: "text.secondary" }} />
                       </Box>
                     </Box>
                   </Box>
@@ -371,7 +373,7 @@ const AnnouncementsPage = () => {
         PaperProps={{ sx: { borderRadius: 4, p: 1 } }}
       >
         <DialogTitle sx={{ pb: 1 }}>
-          <Typography variant="h5" component="div" fontWeight={800} color="#1e293b">
+          <Typography variant="h5" component="div" fontWeight={800} color="text.primary">
             Post Announcement
           </Typography>
           <Typography variant="body2" component="div" color="text.secondary">
@@ -388,7 +390,7 @@ const AnnouncementsPage = () => {
               required
               variant="filled"
               placeholder="E.g. Team Meeting Tomorrow"
-              InputProps={{ disableUnderline: true, sx: { borderRadius: 2, bgcolor: "#f8fafc" } }}
+              InputProps={{ disableUnderline: true, sx: { borderRadius: 2, bgcolor: "background.default" } }}
             />
             <TextField
               label="Message Body"
@@ -399,7 +401,7 @@ const AnnouncementsPage = () => {
               fullWidth
               variant="filled"
               placeholder="Provide more details here..."
-              InputProps={{ disableUnderline: true, sx: { borderRadius: 2, bgcolor: "#f8fafc" } }}
+              InputProps={{ disableUnderline: true, sx: { borderRadius: 2, bgcolor: "background.default" } }}
             />
           </Stack>
         </DialogContent>

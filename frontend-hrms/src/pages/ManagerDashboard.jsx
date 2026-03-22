@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -18,38 +18,48 @@ import LineChartBox from "../components/dashboard/LineChartBox";
 import BarChartBox from "../components/dashboard/BarChartBox";
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
-      <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <Box>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5, fontWeight: 500 }}>
-              {title}
-            </Typography>
-            {loading ? (
-              <CircularProgress size={30} sx={{ color: color }} />
-            ) : (
-              <Typography variant="h3" fontWeight="bold" sx={{ color: color }}>
-                {value}
-              </Typography>
-            )}
-          </Box>
-          <Box sx={{ 
-            p: 2, 
-            borderRadius: 3, 
-            background: bg,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            {React.cloneElement(icon, { sx: { fontSize: 28, color: color } })}
-          </Box>
-        </Box>
-      </CardContent>
+    <Card sx={{ 
+      borderRadius: 4, 
+      boxShadow: "0 4px 20px rgba(0,0,0,0.1)", 
+      height: "100%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      p: 2,
+      transition: "transform 0.2s",
+      "&:hover": { transform: "translateY(-4px)" }
+    }}>
+      <Box sx={{ 
+        p: 1.5, 
+        mb: 1.5,
+        borderRadius: "50%", 
+        background: bg,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 50,
+        height: 50
+      }}>
+        {React.cloneElement(icon, { sx: { fontSize: 24, color: color } })}
+      </Box>
+      <Typography variant="body2" color="textSecondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>
+        {title}
+      </Typography>
+      {loading ? (
+        <CircularProgress size={20} sx={{ color: color }} />
+      ) : (
+        <Typography variant="h4" fontWeight="bold" sx={{ color: color }}>
+          {value}
+        </Typography>
+      )}
     </Card>
   );
 }
 
 export default function ManagerDashboard() {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -211,10 +221,10 @@ export default function ManagerDashboard() {
 
   const getStatusChip = (status) => {
     const colors = {
-      Present: { bg: "#ECFDF5", color: "#16A34A" },
-      WFH: { bg: "#F5F3FF", color: "#8B5CF6" },
-      Leave: { bg: "#FFFBEB", color: "#F59E0B" },
-      Absent: { bg: "#FEF2F2", color: "#EF4444" }
+      Present: { bg: "success.light", color: "success.dark" },
+      WFH: { bg: "secondary.light", color: "secondary.dark" },
+      Leave: { bg: "primary.light", color: "primary.dark" },
+      Absent: { bg: "error.light", color: "error.dark" }
     };
     const style = colors[status] || colors.Present;
     return <Chip label={status} size="small" sx={{ background: style.bg, color: style.color, fontWeight: "bold" }} />;
@@ -225,12 +235,12 @@ export default function ManagerDashboard() {
   };
 
   const managerStats = [
-    { title: "Team Members", value: stats.teamMembers, icon: <PeopleIcon />, color: "#7C3AED", bg: "#F5F3FF" },
-    { title: "Pending Leaves", value: stats.pendingLeaves, icon: <BeachAccessIcon />, color: "#F59E0B", bg: "#FFFBEB" },
-    { title: "Active Tasks", value: stats.activeTasks, icon: <AssignmentIcon />, color: "#EF4444", bg: "#FEF2F2" },
-    { title: "WFH Requests", value: stats.wfhRequests, icon: <HomeWorkIcon />, color: "#8B5CF6", bg: "#F5F3FF" },
-    { title: "Completed Tasks", value: stats.completedTasks, icon: <CheckCircleOutlineIcon />, color: "#06B6D4", bg: "#ECFEFF" },
-    { title: "In Progress", value: stats.activeTasks, icon: <AccessTimeIcon />, color: "#16A34A", bg: "#ECFDF5" }
+    { title: "Team Members", value: stats.teamMembers, icon: <PeopleIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "Pending Leaves", value: stats.pendingLeaves, icon: <BeachAccessIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "Active Tasks", value: stats.activeTasks, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
+    { title: "WFH Requests", value: stats.wfhRequests, icon: <HomeWorkIcon />, color: "info.main", bg: "action.hover" },
+    { title: "Completed Tasks", value: stats.completedTasks, icon: <CheckCircleOutlineIcon />, color: "success.main", bg: "action.hover" },
+    { title: "In Progress", value: stats.activeTasks, icon: <AccessTimeIcon />, color: "secondary.main", bg: "action.hover" }
   ];
 
   const fetchManagerChartData = async () => {
@@ -334,9 +344,9 @@ export default function ManagerDashboard() {
   };
 
   return (
-    <Box sx={{ p: 3, background: "#F8FAFC", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: "linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)", color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -353,9 +363,9 @@ export default function ManagerDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={{ mb: 4 }}>
         {managerStats.map((stat, index) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+          <Grid item xs={6} sm={4} md={2} key={index}>
             <StatCard {...stat} loading={loading} />
           </Grid>
         ))}
@@ -408,7 +418,7 @@ export default function ManagerDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#7C3AED" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
                   Team Members
                 </Typography>
                 <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
@@ -416,7 +426,7 @@ export default function ManagerDashboard() {
               
               {loading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "#7C3AED" }} />
+                  <CircularProgress sx={{ color: "secondary.main" }} />
                 </Box>
               ) : teamMembers.length === 0 ? (
                 <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
@@ -424,9 +434,9 @@ export default function ManagerDashboard() {
                 </Typography>
               ) : (
                 teamMembers.map((member, i) => (
-                  <Box key={member.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, background: "#F8FAFC", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Box key={member.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.paper", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Avatar sx={{ background: "#7C3AED" }}>
+                      <Avatar sx={{ background: theme.palette.secondary.main }}>
                         {member.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
                       </Avatar>
                       <Box>
@@ -437,7 +447,7 @@ export default function ManagerDashboard() {
                     <Chip 
                       label={member.department_name || "Not Assigned"} 
                       size="small" 
-                      sx={{ background: "#F5F3FF", color: "#7C3AED" }} 
+                      sx={{ background: "action.selected", color: "secondary.main" }} 
                     />
                   </Box>
                 ))
@@ -451,7 +461,7 @@ export default function ManagerDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#7C3AED" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
                   Team Tasks
                 </Typography>
                 <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
@@ -459,7 +469,7 @@ export default function ManagerDashboard() {
               
               {loading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "#7C3AED" }} />
+                  <CircularProgress sx={{ color: "secondary.main" }} />
                 </Box>
               ) : pendingTasks.length === 0 ? (
                 <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
@@ -467,7 +477,7 @@ export default function ManagerDashboard() {
                 </Typography>
               ) : (
                 pendingTasks.map((task, i) => (
-                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, background: "#F8FAFC", border: "1px solid #E5E7EB" }}>
+                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
                       <Typography fontWeight="600">{task.title}</Typography>
                       <Chip label={task.priority || "medium"} size="small" color={getPriorityColor(task.priority)} />
@@ -478,7 +488,7 @@ export default function ManagerDashboard() {
                     <Chip 
                       label={task.status === "in_progress" ? "In Progress" : "Pending"} 
                       size="small" 
-                      sx={{ mt: 1, background: task.status === "in_progress" ? "#FEF3C7" : "#F3F4F6", color: task.status === "in_progress" ? "#D97706" : "#6B7280" }}
+                      sx={{ mt: 1, bgcolor: task.status === "in_progress" ? "warning.light" : "action.hover", color: task.status === "in_progress" ? "warning.dark" : "text.secondary" }}
                     />
                   </Box>
                 ))
@@ -492,7 +502,7 @@ export default function ManagerDashboard() {
           <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
             <CardContent>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#7C3AED" }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
                   Pending Leave Requests
                 </Typography>
                 <Button size="small" onClick={() => navigate("/leave")}>View All</Button>
@@ -500,7 +510,7 @@ export default function ManagerDashboard() {
               
               {loading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "#7C3AED" }} />
+                  <CircularProgress sx={{ color: "secondary.main" }} />
                 </Box>
               ) : leaveRequests.length === 0 ? (
                 <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
@@ -510,7 +520,7 @@ export default function ManagerDashboard() {
                 <Grid container spacing={2}>
                   {leaveRequests.map((leave, i) => (
                     <Grid size={{ xs: 12, md: 6, lg: 4 }} key={leave.id || i}>
-                      <Box sx={{ p: 2, borderRadius: 2, background: "#F8FAFC", border: "1px solid #E5E7EB" }}>
+                      <Box sx={{ p: 2, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
                         <Typography fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
                         <Typography variant="caption" color="textSecondary" display="block">
                           {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}

@@ -7,12 +7,12 @@ const AnnouncementCard = ({ announcements = [], loading = false }) => {
   const navigate = useNavigate();
 
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
+    <Card sx={{ borderRadius: 3, boxShadow: 2, height: "100%" }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CampaignIcon sx={{ color: "#3B82F6" }} />
-            <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+            <CampaignIcon sx={{ color: "info.main" }} />
+            <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
               Announcements
             </Typography>
           </Box>
@@ -33,13 +33,14 @@ const AnnouncementCard = ({ announcements = [], loading = false }) => {
                 p: 2, 
                 mb: 2, 
                 borderRadius: 2, 
-                background: "#F8FAFC", 
-                borderLeft: "4px solid #3B82F6",
+                bgcolor: "action.hover", 
+                borderLeft: "4px solid",
+                borderLeftColor: "info.main",
                 transition: "transform 0.2s",
                 "&:hover": { transform: "translateX(4px)" }
               }}
             >
-              <Typography fontWeight="600" sx={{ color: "#1E3A8A" }}>{ann.title}</Typography>
+              <Typography fontWeight="600" sx={{ color: "primary.main" }}>{ann.title}</Typography>
               <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
                 {ann.content?.substring(0, 80)}{ann.content?.length > 80 ? "..." : ""}
               </Typography>

@@ -1,9 +1,17 @@
 // components/dashboard/PieChartBox.jsx
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-
-const COLORS = ["#3B82F6", "#16A34A", "#F59E0B", "#EF4444", "#8B5CF6"];
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useTheme } from "@mui/material";
 
 export default function PieChartBox({ data }) {
+  const theme = useTheme();
+  const COLORS = [
+    theme.palette.primary.main, 
+    theme.palette.success.main, 
+    theme.palette.warning.main, 
+    theme.palette.error.main, 
+    theme.palette.secondary.main
+  ];
+
   return (
     <ResponsiveContainer width="100%" height={250}>
       <PieChart>

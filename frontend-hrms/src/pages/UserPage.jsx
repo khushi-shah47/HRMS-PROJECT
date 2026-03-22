@@ -24,7 +24,8 @@ import {
   Tooltip,
   Chip,
   InputAdornment,
-  TablePagination
+  TablePagination,
+  useTheme
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -39,6 +40,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import api from "../services/api";
 
 const UserPage = () => {
+  const theme = useTheme();
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -68,11 +70,11 @@ const UserPage = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const roleOptions = [
-    { value: "admin", label: "Admin", color: "#DC2626", icon: <AdminPanelSettingsIcon fontSize="small" /> },
-    { value: "manager", label: "Manager", color: "#2563EB", icon: <SupervisorAccountIcon fontSize="small" /> },
-    { value: "hr", label: "HR", color: "#7C3AED", icon: <BadgeIcon fontSize="small" /> },
-    { value: "developer", label: "Developer", color: "#059669", icon: <PersonIcon fontSize="small" /> },
-    { value: "intern", label: "Intern", color: "#D97706", icon: <SchoolIcon fontSize="small" /> }
+    { value: "admin", label: "Admin", color: "error.main", icon: <AdminPanelSettingsIcon fontSize="small" /> },
+    { value: "manager", label: "Manager", color: "primary.main", icon: <SupervisorAccountIcon fontSize="small" /> },
+    { value: "hr", label: "HR", color: "secondary.main", icon: <BadgeIcon fontSize="small" /> },
+    { value: "developer", label: "Developer", color: "success.main", icon: <PersonIcon fontSize="small" /> },
+    { value: "intern", label: "Intern", color: "warning.main", icon: <SchoolIcon fontSize="small" /> }
   ];
 
   const showSnackbar = (message, severity = "success") => {
@@ -223,7 +225,7 @@ const UserPage = () => {
         size="small"
         icon={roleConfig?.icon}
         sx={{ 
-          bgcolor: roleConfig?.color || "#6B7280",
+          bgcolor: roleConfig?.color || "grey.500",
           color: "white",
           "& .MuiChip-icon": { color: "white" }
         }}
@@ -240,7 +242,12 @@ const UserPage = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
       {/* Page Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)" }}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        background: `linear-gradient(135deg, ${theme.palette.error.main} 0%, ${theme.palette.error.dark} 100%)`, 
+        color: "white" 
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <PersonIcon sx={{ fontSize: 40, color: "white" }} />
@@ -258,7 +265,7 @@ const UserPage = () => {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleAddOpen}
-              sx={{ bgcolor: "white", color: "#DC2626", "&:hover": { bgcolor: "#f0f0f0" } }}
+              sx={{ bgcolor: "background.paper", color: "error.main", "&:hover": { bgcolor: "action.hover" } }}
             >
               Add User
             </Button>
@@ -272,7 +279,7 @@ const UserPage = () => {
       </Paper>
 
       {/* Search Bar */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2, mb: 3, bgcolor: "background.paper" }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             placeholder="Search users..."
@@ -297,7 +304,7 @@ const UserPage = () => {
       </Paper>
 
       {/* Data Table */}
-      <Paper sx={{ overflow: "hidden" }}>
+      <Paper sx={{ overflow: "hidden", bgcolor: "background.paper" }}>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress color="error" />
@@ -306,7 +313,7 @@ const UserPage = () => {
 
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#f8fafc" }}>
+            <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
@@ -366,7 +373,7 @@ const UserPage = () => {
 
       {/* Add User Dialog */}
       <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#EF4444", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AddIcon />
             Add New User
@@ -445,7 +452,7 @@ const UserPage = () => {
 
       {/* Edit User Dialog */}
       <Dialog open={editOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#3B82F6", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <EditIcon />
             Edit User
@@ -513,7 +520,7 @@ const UserPage = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteClose} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#DC2626", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <DeleteIcon />
             Confirm Delete

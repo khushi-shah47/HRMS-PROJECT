@@ -7,14 +7,6 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    employee_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'employees',
-        key: 'id'
-      }
-    },
     username: {
       type: DataTypes.STRING(100),
       allowNull: true,
@@ -61,13 +53,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "username" },
-        ]
-      },
-      {
-        name: "employee_id",
-        using: "BTREE",
-        fields: [
-          { name: "employee_id" },
         ]
       },
     ]

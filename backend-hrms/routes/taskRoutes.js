@@ -6,7 +6,8 @@ import {
   updateTaskStatus,
   deleteTask,
   getMyTasks,
-  updateTask
+  updateTask,
+  getTaskById
 } from "../controllers/taskController.js";
 import {
   getTaskComments,
@@ -28,6 +29,7 @@ const router = express.Router();
 router.post("/", verifyToken, authorizeRoles("admin", "manager"), createTask);
 router.get("/", verifyToken, authorizeRoles("admin", "manager", "hr"), getAllTasks);
 router.get("/my", verifyToken, getMyTasks);
+router.get("/:id", verifyToken, getTaskById);
 router.get("/employee/:employee_id", verifyToken, getEmployeeTasks);
 router.put("/:id", verifyToken, authorizeRoles("admin", "manager"), updateTask);
 router.put("/:id/status", verifyToken, updateTaskStatus);

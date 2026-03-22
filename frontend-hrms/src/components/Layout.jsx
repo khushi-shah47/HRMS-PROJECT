@@ -15,7 +15,7 @@ export default function Layout() {
   };
 
   return (
-    <Box sx={{ display: "flex", background: "#F8FAFC", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", bgcolor: "background.default", minHeight: "100vh" }}>
       <Sidebar mobileOpen={mobileOpen} onDrawerToggle={handleDrawerToggle} />
 
       <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
@@ -39,34 +39,33 @@ export default function Layout() {
 
       {/* Global Scrollbar Styles */}
       <style>{`
-        /* Custom Scrollbar */
+        /* Custom Scrollbar - Neutral transparent thumb works in both */
         ::-webkit-scrollbar {
           width: 8px;
           height: 8px;
         }
         ::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
+          background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-          background: #c1c1c1;
+          background: #88888844;
           border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-          background: #a1a1a1;
+          background: #88888866;
         }
         .page-content::-webkit-scrollbar {
           width: 6px;
         }
         .page-content::-webkit-scrollbar-track {
-          background: #f8f9fa;
+          background: transparent;
         }
         .page-content::-webkit-scrollbar-thumb {
-          background: #d1d5db;
+          background: #88888844;
           border-radius: 3px;
         }
         .page-content::-webkit-scrollbar-thumb:hover {
-          background: #9ca3af;
+          background: #88888866;
         }
       `}</style>
     </Box>

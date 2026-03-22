@@ -24,7 +24,8 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  InputAdornment
+  InputAdornment,
+  useTheme
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -44,6 +45,7 @@ import { Tabs, Tab, List, ListItem, ListItemText, ListItemSecondaryAction, Divid
 import api from "../services/api";
 
 const TaskPage = () => {
+  const theme = useTheme();
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -385,7 +387,12 @@ const TaskPage = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
       {/* Page Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)" }}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+        color: "white"
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <AssignmentIcon sx={{ fontSize: 40, color: "white" }} />
@@ -404,7 +411,7 @@ const TaskPage = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddOpen}
-                sx={{ bgcolor: "white", color: "#6D28D9", "&:hover": { bgcolor: "#f0f0f0" } }}
+                sx={{ bgcolor: "background.paper", color: "secondary.main", "&:hover": { bgcolor: "action.hover" } }}
               >
                 Create Task
               </Button>
@@ -419,7 +426,7 @@ const TaskPage = () => {
       </Paper>
 
       {/* Search Bar */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2, mb: 3, bgcolor: "background.paper" }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             placeholder="Search tasks..."
@@ -444,7 +451,7 @@ const TaskPage = () => {
       </Paper>
 
       {/* Data Table */}
-      <Paper sx={{ overflow: "hidden" }}>
+      <Paper sx={{ overflow: "hidden", bgcolor: "background.paper" }}>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress color="secondary" />
@@ -453,7 +460,7 @@ const TaskPage = () => {
 
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#f8fafc" }}>
+            <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Title</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Assigned To</TableCell>
@@ -586,7 +593,7 @@ const TaskPage = () => {
 
       {/* Add Task Dialog */}
       <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#8B5CF6", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "secondary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AddIcon />
             Create New Task
@@ -652,7 +659,7 @@ const TaskPage = () => {
             variant="contained" 
             onClick={createTask}
             disabled={loading}
-            sx={{ bgcolor: "#8B5CF6", "&:hover": { bgcolor: "#6D28D9" } }}
+            sx={{ bgcolor: "secondary.main", "&:hover": { bgcolor: "secondary.dark" } }}
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Create Task
@@ -662,7 +669,7 @@ const TaskPage = () => {
 
       {/* Edit Task Dialog */}
       <Dialog open={editDialogOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#3B82F6", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <EditIcon />
             Edit Task
@@ -733,7 +740,7 @@ const TaskPage = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteClose} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#DC2626", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <DeleteIcon />
             Confirm Delete
@@ -769,7 +776,7 @@ const TaskPage = () => {
         fullWidth
         PaperProps={{ sx: { borderRadius: 2, minHeight: '60vh' } }}
       >
-        <DialogTitle sx={{ bgcolor: "#6D28D9", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <DialogTitle sx={{ bgcolor: "secondary.dark", color: "white", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <VisibilityIcon />
             <Typography variant="h6">Task Details: {selectedTask?.title}</Typography>
@@ -777,7 +784,7 @@ const TaskPage = () => {
           <Chip 
             label={selectedTask?.status || "pending"} 
             size="small" 
-            sx={{ bgcolor: "white", color: "#6D28D9", fontWeight: "bold" }} 
+            sx={{ bgcolor: "background.paper", color: "secondary.main", fontWeight: "bold" }} 
           />
         </DialogTitle>
         <DialogContent sx={{ p: 0 }}>
@@ -801,7 +808,7 @@ const TaskPage = () => {
               <Stack spacing={3}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary" gutterBottom>Description</Typography>
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', bgcolor: '#f8fafc', p: 2, borderRadius: 1 }}>
+                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', bgcolor: 'action.hover', p: 2, borderRadius: 1 }}>
                     {selectedTask?.description || "No description provided."}
                   </Typography>
                 </Box>
@@ -844,7 +851,7 @@ const TaskPage = () => {
                     comments.map((comment, index) => (
                       <React.Fragment key={comment.id}>
                         <ListItem alignItems="flex-start" sx={{ px: 0 }}>
-                          <Avatar sx={{ mr: 2, bgcolor: index % 2 === 0 ? '#8B5CF6' : '#EC4899' }}>
+                          <Avatar sx={{ mr: 2, bgcolor: index % 2 === 0 ? 'primary.main' : 'secondary.main' }}>
                             {comment.employee_name?.charAt(0)}
                           </Avatar>
                           <ListItemText
@@ -903,7 +910,7 @@ const TaskPage = () => {
             {/* Tab 2: Attachments */}
             {activeTab === 2 && (
               <Box>
-                <Box sx={{ mb: 3, p: 2, border: '2px dashed #e2e8f0', borderRadius: 2, textAlign: 'center' }}>
+                <Box sx={{ mb: 3, p: 2, border: '2px dashed', borderColor: 'divider', borderRadius: 2, textAlign: 'center' }}>
                   <input
                     type="file"
                     id="task-file-upload"
@@ -932,7 +939,7 @@ const TaskPage = () => {
                     attachments.map((file) => (
                       <Paper variant="outlined" key={file.id} sx={{ mb: 1.5, overflow: 'hidden' }}>
                         <ListItem>
-                          <Avatar sx={{ bgcolor: '#f1f5f9', color: '#64748b', mr: 2 }}>
+                          <Avatar sx={{ bgcolor: 'action.hover', color: 'text.secondary', mr: 2 }}>
                             <AttachFileIcon />
                           </Avatar>
                           <ListItemText 

@@ -364,6 +364,7 @@ import {
   Alert,
   CircularProgress,
   Chip,
+  useTheme
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -375,8 +376,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const AttendancePage = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [attendance, setAttendance] = useState(null);
+  const [todayStatus, setTodayStatus] = useState({ holiday: null, leave: null, wfh: null });
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -396,7 +399,17 @@ const AttendancePage = () => {
     setLoading(true);
     try {
       const res = await api.get(`/attendance/today/${employeeId}`);
-      setAttendance(res.data?.id ? res.data : null);
+      if (res.data.attendance) {
+        setAttendance(res.data.attendance);
+      } else {
+        setAttendance(null);
+      }
+      setTodayStatus({
+        holiday: res.data.holiday,
+        leave: res.data.leave,
+        wfh: res.data.wfh,
+        dailyStatus: res.data.dailyStatus
+      });
     } catch (err) {
       setErrorMsg("Failed to fetch attendance status.");
     } finally {
@@ -417,7 +430,6 @@ const AttendancePage = () => {
         employee_id: employeeId,
         work_type: type,
       });
-      setAttendance(res.data);
       await fetchTodayAttendance();
     } catch (err) {
       setErrorMsg(err.response?.data?.message || "Check-in failed.");
@@ -471,6 +483,10 @@ const AttendancePage = () => {
   const hasCheckedIn = !!attendance?.time_in;
   const hasCheckedOut = !!attendance?.time_out;
 
+  const isHoliday = !!todayStatus.holiday;
+  const isOnLeave = !!todayStatus.leave;
+  const isWFHApproved = !!todayStatus.wfh;
+
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
       <Paper
@@ -478,8 +494,9 @@ const AttendancePage = () => {
         sx={{
           p: 4,
           borderRadius: 4,
-          background: "linear-gradient(145deg, #ffffff 0%, #f1f4f8 100%)",
-          border: "1px solid #e0e6ed",
+          bgcolor: "background.paper",
+          border: "1px solid",
+          borderColor: "divider",
         }}
       >
         {/* Header */}
@@ -493,7 +510,7 @@ const AttendancePage = () => {
             sx={{
               fontFamily: "monospace",
               fontWeight: 700,
-              color: "#3182ce",
+              color: "primary.main",
               mt: 1,
             }}
           >
@@ -501,17 +518,71 @@ const AttendancePage = () => {
           </Typography>
         </Box>
 
+        {isHoliday && (
+          <Box 
+            sx={{ 
+              mb: 3, 
+              p: 4, 
+              textAlign: "center", 
+              borderRadius: 4, 
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                top: -50,
+                right: -50,
+                width: 150,
+                height: 150,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.1)",
+              }
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
+               🎉 Happy Holiday!
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 900, mb: 2 }}>
+              {todayStatus.holiday.title}
+            </Typography>
+            {todayStatus.holiday.description && (
+              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                {todayStatus.holiday.description}
+              </Typography>
+            )}
+            <Typography variant="body2" sx={{ mt: 3, fontWeight: 600, opacity: 0.8 }}>
+              Terminal is closed for the holiday. Enjoy your time off!
+            </Typography>
+          </Box>
+        )}
+
+        {isOnLeave && (
+          <Alert severity="warning" sx={{ mb: 3, borderRadius: 3, p: 2 }}>
+            <Typography sx={{ fontWeight: 700 }}>You are on Approved Leave Today</Typography>
+            Take this time to rest and recharge. The attendance terminal is restricted.
+          </Alert>
+        )}
+
+        {isWFHApproved && !hasCheckedIn && !isHoliday && !isOnLeave && (
+          <Alert severity="success" sx={{ mb: 3 }}>
+            You have an approved WFH session for today.
+          </Alert>
+        )}
+
         {errorMsg && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {errorMsg}
           </Alert>
         )}
 
-        {/* CHECK-IN SECTION */}
+        {/* ATTENDANCE SECTION */}
         {!hasCheckedIn ? (
-          <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 700 }}>
-              Select Work Mode
+          <Box sx={{ textAlign: "center", display: (isHoliday || isOnLeave) ? "none" : "block" }}>
+            <Typography variant="h6" sx={{ mb: 3, fontWeight: 700, color: isWFHApproved ? "success.main" : "text.primary" }}>
+              {isWFHApproved ? "WFH Mode Activated" : "Select Work Mode"}
             </Typography>
             <Stack
               direction={{ xs: "column", sm: "row" }}
@@ -524,18 +595,24 @@ const AttendancePage = () => {
                 variant="outlined"
                 startIcon={<WorkIcon />}
                 onClick={() => handleAutoCheckIn("present")}
-                disabled={actionLoading}
+                disabled={actionLoading || isWFHApproved}
                 sx={{
                   py: 2,
                   fontSize: 18,
                   fontWeight: 700,
                   borderRadius: 3,
-                  border: "2px solid #38a169",
-                  color: "#38a169",
+                  border: "2px solid",
+                  borderColor: (actionLoading || isWFHApproved) ? "action.disabled" : "success.main",
+                  color: (actionLoading || isWFHApproved) ? "text.disabled" : "success.main",
                   width: 380, // Fixed width
+                  "&.Mui-disabled": {
+                    border: "2px solid",
+                    borderColor: "action.disabled",
+                    bgcolor: isWFHApproved ? "action.hover" : "transparent"
+                  }
                 }}
               >
-                Office
+                {isWFHApproved ? "Office Restricted" : "Office"}
               </Button>
 
               {/* WFH */}
@@ -550,8 +627,9 @@ const AttendancePage = () => {
                   fontSize: 18,
                   fontWeight: 700,
                   borderRadius: 3,
-                  border: "2px solid #3182ce",
-                  color: "#3182ce",
+                  border: "2px solid",
+                  borderColor: actionLoading ? "action.disabled" : "primary.main",
+                  color: actionLoading ? "text.disabled" : "primary.main",
                   width: 380, // Fixed width
                 }}
               >
@@ -567,9 +645,9 @@ const AttendancePage = () => {
                 borderRadius: 3,
                 p: 3,
                 mb: 3,
-                bgcolor: hasCheckedOut ? "#f8fafc" : "#ebf8ff",
+                bgcolor: hasCheckedOut ? "action.hover" : "action.selected",
                 border: 2,
-                borderColor: hasCheckedOut ? "#cbd5e0" : "#bee3f8",
+                borderColor: "divider",
               }}
             >
               <Stack direction="row" spacing={2} alignItems="center" mb={3}>
@@ -632,7 +710,8 @@ const AttendancePage = () => {
               fontSize: 18,
               fontWeight: 700,
               borderRadius: 3,
-              border: "2px solid #3182ce",
+              border: "2px solid",
+              borderColor: "primary.main",
             }}
           >
             View Full History

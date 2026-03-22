@@ -33,8 +33,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EventIcon from "@mui/icons-material/Event";
 import api from "../services/api";
-
+import { useTheme } from "@mui/material/styles";
 function LeavePage() {
+  const theme = useTheme();
   const [leaves, setLeaves] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,6 @@ function LeavePage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [viewMode, setViewMode] = useState("team"); // 'team' or 'my'
-
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -55,7 +55,7 @@ function LeavePage() {
   const user = JSON.parse(localStorage.getItem("user"));
   const userRole = user?.role;
   const employeeId = user?.employee_id || user?.id;
-  
+
   const canApprove = ["admin", "hr", "manager"].includes(userRole);
   const canViewAll = ["admin", "hr"].includes(userRole);
   const isManager = userRole === "manager";
@@ -71,7 +71,7 @@ function LeavePage() {
         .then(data => setEmployees(data.data || data.employees || []))
         .catch(err => console.error(err));
     }
-    
+
     fetchLeaveBalance();
   }, []);
 
@@ -107,7 +107,7 @@ function LeavePage() {
       } else {
         res = await api.get(`/leaves/my?${query.toString()}`);
       }
-      
+
       setLeaves(res.data.data || []);
       setTotalCount(res.data.totalLeaves || res.data.total || 0);
     } catch (err) {
@@ -189,15 +189,20 @@ function LeavePage() {
 
   const getStatusChip = (status) => {
     const statusConfig = {
-      Pending: { color: "warning", icon: <EventIcon fontSize="small" /> },
-      Approved: { color: "success", icon: <CheckCircleIcon fontSize="small" /> },
-      Rejected: { color: "error", icon: <CancelIcon fontSize="small" /> }
+      pending: { color: "warning", label: "Pending", icon: <EventIcon fontSize="small" /> },
+      managerApproved: { color: "info", label: "Manager Approved", icon: <CheckCircleIcon fontSize="small" /> },
+      approved: { color: "success", label: "Approved", icon: <CheckCircleIcon fontSize="small" /> },
+      rejected: { color: "error", label: "Rejected", icon: <CancelIcon fontSize="small" /> }
     };
-    const config = statusConfig[status] || statusConfig.Pending;
+
+    // Handle case-insensitivity if backend returns differently
+    const key = Object.keys(statusConfig).find(k => k.toLowerCase() === status?.toLowerCase()) || "pending";
+    const config = statusConfig[key];
+
     return (
-      <Chip 
-        label={status} 
-        color={config.color} 
+      <Chip
+        label={config.label}
+        color={config.color}
         size="small"
         icon={config.icon}
       />
@@ -213,7 +218,12 @@ function LeavePage() {
   return (
     <Container maxWidth="xl" sx={{ mt: 3, mb: 4 }}>
       {/* Page Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)" }}>
+      <Paper sx={{
+        p: 3,
+        mb: 3,
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+        color: "white"
+      }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <BeachAccessIcon sx={{ fontSize: 40, color: "white" }} />
@@ -228,16 +238,16 @@ function LeavePage() {
           </Box>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             {leaveBalance !== null && !canViewAll && (
-              <Chip 
-                label={`Balance: ${leaveBalance} days`} 
-                sx={{ bgcolor: "white", color: "#D97706", fontWeight: "bold" }}
+              <Chip
+                label={`Balance: ${leaveBalance} days`}
+                sx={{ bgcolor: "background.paper", color: "primary.main", fontWeight: "bold" }}
               />
             )}
             <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleApplyOpen}
-              sx={{ bgcolor: "white", color: "#D97706", "&:hover": { bgcolor: "#f0f0f0" } }}
+              sx={{ bgcolor: "background.paper", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
             >
               Apply Leave
             </Button>
@@ -270,23 +280,23 @@ function LeavePage() {
             <MenuItem value="Approved">Approved</MenuItem>
             <MenuItem value="Rejected">Rejected</MenuItem>
           </TextField>
-          <Chip 
-            label={`${totalCount} requests`} 
-            color="warning" 
-            variant="outlined" 
+          <Chip
+            label={`${totalCount} requests`}
+            color="warning"
+            variant="outlined"
           />
           {isManager && (
             <Stack direction="row" spacing={1}>
-              <Button 
-                variant={viewMode === "team" ? "contained" : "outlined"} 
+              <Button
+                variant={viewMode === "team" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => { setViewMode("team"); setPage(0); }}
                 color="warning"
               >
                 Team Requests
               </Button>
-              <Button 
-                variant={viewMode === "my" ? "contained" : "outlined"} 
+              <Button
+                variant={viewMode === "my" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => { setViewMode("my"); setPage(0); }}
                 color="warning"
@@ -299,7 +309,7 @@ function LeavePage() {
       </Paper>
 
       {/* Data Table */}
-      <Paper sx={{ overflow: "hidden" }}>
+      <Paper sx={{ overflow: "hidden", bgcolor: "background.paper" }}>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress color="warning" />
@@ -308,7 +318,7 @@ function LeavePage() {
 
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#f8fafc" }}>
+            <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
               {(canViewAll || isManager) && <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>}
@@ -339,26 +349,42 @@ function LeavePage() {
                   <TableCell>{getStatusChip(leave.status)}</TableCell>
                   {canApprove && (
                     <TableCell align="center">
-                      {leave.status === "Pending" && leave.employee_id !== employeeId && (
+                      {String(leave.employee_id) !== String(employeeId) && (
                         <Stack direction="row" spacing={1} justifyContent="center">
-                          <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            startIcon={<CheckCircleIcon />}
-                            onClick={() => updateStatus(leave.id, "Approved")}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            size="small"
-                            startIcon={<CancelIcon />}
-                            onClick={() => updateStatus(leave.id, "Rejected")}
-                          >
-                            Reject
-                          </Button>
+                          {/* Manager: Approve Stage 1 (only if not an HR request) */}
+                          {userRole === "manager" && leave.status?.toLowerCase() === "pending" && leave.owner_role !== "hr" && (
+                            <Button
+                              variant="contained"
+                              color="info"
+                              size="small"
+                              onClick={() => updateStatus(leave.id, "Approved")}
+                            >
+                              Approve
+                            </Button>
+                          )}
+
+                          {/* HR/Admin: Final Approval or Override */}
+                          {(userRole === "hr" || userRole === "admin") && (leave.status?.toLowerCase() === "pending" || leave.status?.toLowerCase() === "managerapproved") && (
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() => updateStatus(leave.id, "Approved")}
+                            >
+                              {leave.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
+                            </Button>
+                          )}
+
+                          {(leave.status?.toLowerCase() === "pending" || leave.status?.toLowerCase() === "managerapproved") && (
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              onClick={() => updateStatus(leave.id, "Rejected")}
+                            >
+                              Reject
+                            </Button>
+                          )}
                         </Stack>
                       )}
                     </TableCell>
@@ -385,7 +411,7 @@ function LeavePage() {
 
       {/* Apply Leave Dialog */}
       <Dialog open={applyDialogOpen} onClose={handleApplyClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "#F59E0B", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <BeachAccessIcon />
             Apply for Leave
@@ -421,8 +447,8 @@ function LeavePage() {
 
             {startDate && endDate && new Date(startDate) <= new Date(endDate) && (
               <Alert severity={
-                Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1 > (leaveBalance || 0) 
-                  ? "warning" 
+                Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1 > (leaveBalance || 0)
+                  ? "warning"
                   : "success"
               }>
                 Requesting: <strong>
@@ -444,11 +470,11 @@ function LeavePage() {
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button onClick={handleApplyClose} color="inherit">Cancel</Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={handleApply}
             disabled={loading}
-            sx={{ bgcolor: "#F59E0B", "&:hover": { bgcolor: "#D97706" } }}
+            sx={{ bgcolor: "warning.main", "&:hover": { bgcolor: "warning.dark" } }}
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Submit Request
@@ -463,8 +489,8 @@ function LeavePage() {
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert 
-          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           variant="filled"
         >

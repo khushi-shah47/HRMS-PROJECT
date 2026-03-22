@@ -204,7 +204,7 @@ export default function ProfilePage() {
 
   return (
     <Box sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
-      <Typography variant="h4" fontWeight="bold" sx={{ mb: 4, color: "#1E3A8A" }}>
+      <Typography variant="h4" fontWeight="bold" sx={{ mb: 4, color: "primary.main" }}>
         My Profile
       </Typography>
 
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                     ? `http://localhost:5000/${employee.profile_image}?t=${new Date().getTime()}`
                     : ""
               }
-              sx={{ bgcolor: "#3b82f6", width: 48, height: 48 }}
+              sx={{ bgcolor: "primary.main", width: 48, height: 48 }}
             >
               {!employee?.profile_image && <PersonIcon fontSize="medium" />}
             </Avatar>
@@ -255,10 +255,10 @@ export default function ProfilePage() {
                   justifyContent: "center",
                   alignItems: "center",
                   cursor: "pointer",
-                  "&:hover": { bgcolor: "#f0f0f0" }
+                  "&:hover": { bgcolor: "action.hover" }
                 }}
               >
-                <CameraAltIcon sx={{ fontSize: 16, color: "#555" }} />
+                <CameraAltIcon sx={{ fontSize: 16, color: "text.primary" }} />
               </Box>
             </label>
           </Box>

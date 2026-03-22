@@ -85,16 +85,7 @@ const roleMenuItems = {
 };
 
 // Get role colors
-const getRoleColor = (role) => {
-  const colors = {
-    admin: { bg: "#EEF2FF", text: "#1E3A8A", border: "#3B82F6" },
-    manager: { bg: "#F5F3FF", text: "#7C3AED", border: "#8B5CF6" },
-    hr: { bg: "#ECFDF5", text: "#059669", border: "#10B981" },
-    developer: { bg: "#FEF2F2", text: "#DC2626", border: "#EF4444" },
-    intern: { bg: "#FFFBEB", text: "#D97706", border: "#F59E0B" }
-  };
-  return colors[role] || colors.developer;
-};
+// Removed hardcoded role colors - now using theme.roleColors from CustomThemeProvider
 
 export default function Sidebar({ mobileOpen, onDrawerToggle }) {
   const navigate = useNavigate();
@@ -125,17 +116,17 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
 
   const role = user?.role || "developer";
   const menuItems = roleMenuItems[role] || roleMenuItems.developer;
-  const roleColors = getRoleColor(role);
+  const roleColors = theme.roleColors[role] || theme.roleColors.developer;
 
   const drawer = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `3px solid ${roleColors.border}` }}>
         <Box>
-          <Typography variant="h6" fontWeight="bold" sx={{ color: roleColors.text }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ color: roleColors.main }}>
             HRMS
           </Typography>
-          <Typography variant="caption" sx={{ color: roleColors.text, textTransform: "capitalize" }}>
+          <Typography variant="caption" sx={{ color: roleColors.main, textTransform: "capitalize" }}>
             {role} Panel
           </Typography>
         </Box>
@@ -157,7 +148,7 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
               "&.Mui-selected": {
                 background: roleColors.bg,
                 borderLeft: `4px solid ${roleColors.border}`,
-                color: roleColors.text,
+                color: roleColors.main,
                 fontWeight: "bold",
                 "&:hover": {
                   background: roleColors.bg,
@@ -169,10 +160,10 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
               mx: 1,
               borderRadius: 1,
               mb: 0.5,
-              color: "#4B5563"
+              color: "text.secondary"
             }}
           >
-            <Box sx={{ mr: 2, display: "flex", alignItems: "center", color: location.pathname === item.path ? roleColors.text : "#6B7280" }}>
+            <Box sx={{ mr: 2, display: "flex", alignItems: "center", color: location.pathname === item.path ? roleColors.main : "text.secondary" }}>
               {item.icon}
             </Box>
             <ListItemText primary={item.text} />
@@ -185,10 +176,10 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
       {/* User Info */}
       {user && (
         <Box sx={{ p: 2, background: roleColors.bg }}>
-          <Typography variant="body2" fontWeight="bold" sx={{ color: roleColors.text }}>
+          <Typography variant="body2" fontWeight="bold" sx={{ color: roleColors.main }}>
             {user.name || user.username}
           </Typography>
-          <Typography variant="caption" sx={{ color: roleColors.text, textTransform: "capitalize" }}>
+          <Typography variant="caption" sx={{ color: roleColors.main, textTransform: "capitalize" }}>
             {role}
           </Typography>
         </Box>
@@ -222,7 +213,6 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
             width: 280,
-            background: "#FFFFFF"
           }
         }}
       >
@@ -237,8 +227,6 @@ export default function Sidebar({ mobileOpen, onDrawerToggle }) {
           width: 280,
           "& .MuiDrawer-paper": {
             width: 280,
-            background: "#FFFFFF",
-            borderRight: "1px solid #E5E7EB"
           }
         }}
       >
