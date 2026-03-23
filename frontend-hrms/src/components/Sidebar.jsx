@@ -42,7 +42,6 @@ const roleMenuItems = {
     { text: "Policies", path: "/policies", icon: <PolicyIcon /> },
     { text: "WFH", path: "/wfh", icon: <HomeWorkIcon /> },
     { text: "Holidays", path: "/holidays", icon: <EventIcon /> },
-    { text: "Department", path: "/departments", icon: <BusinessIcon /> },
     { text: "Announcements", path: "/announcements", icon: <CampaignIcon /> },
     { text: "Reports", path: "/reports", icon: <AssessmentIcon /> },
     { text: "Users", path: "/users", icon: <AdminPanelSettingsIcon /> }
@@ -64,7 +63,6 @@ const roleMenuItems = {
     { text: "Salary", path: "/salary", icon: <CurrencyRupeeIcon /> },
     { text: "Policies", path: "/policies", icon: <PolicyIcon /> },
     { text: "WFH", path: "/wfh", icon: <HomeWorkIcon /> },
-    { text: "Department", path: "/departments", icon: <BusinessIcon /> },
     { text: "Holidays", path: "/holidays", icon: <EventIcon /> },
     { text: "Announcements", path: "/announcements", icon: <CampaignIcon /> }
   ],

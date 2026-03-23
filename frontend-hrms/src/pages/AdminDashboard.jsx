@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
+import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -13,15 +13,14 @@ import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
-import PieChartBox from "../components/dashboard/PieChartBox";
-import LineChartBox from "../components/dashboard/LineChartBox";
-import BarChartBox from "../components/dashboard/BarChartBox";
+import QuickActions from "../components/dashboard/QuickActions";
+import ProfileCard from "../components/dashboard/ProfileCard";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
-    <Card sx={{ 
-      borderRadius: 4, 
-      boxShadow: "0 4px 20px rgba(0,0,0,0.1)", 
+    <Card sx={{
+      borderRadius: 4,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
       height: "100%",
       display: "flex",
       flexDirection: "column",
@@ -32,10 +31,10 @@ function StatCard({ title, value, icon, color, bg, loading }) {
       transition: "transform 0.2s",
       "&:hover": { transform: "translateY(-4px)" }
     }}>
-      <Box sx={{ 
-        p: 1.5, 
+      <Box sx={{
+        p: 1.5,
         mb: 1.5,
-        borderRadius: "50%", 
+        borderRadius: "50%",
         background: bg,
         display: "flex",
         alignItems: "center",
@@ -64,16 +63,18 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const [stats, setStats] = useState({
     totalEmployees: 0,
     presentToday: 0,
     onLeave: 0,
     wfhToday: 0,
     pendingTasks: 0,
-    totalDepartments: 0
+    totalDepartments: 0,
+    wfhPending: 0,
+    leaveBalance: 0
   });
-  
+
   const [recentEmployees, setRecentEmployees] = useState([]);
   const [pendingTasks, setPendingTasks] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -82,12 +83,6 @@ export default function AdminDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
 
-  const [chartData, setChartData] = useState({
-    departmentData: [],
-    statusData: [],
-    growthData: [],
-    attendanceData: []
-  });
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -105,10 +100,11 @@ export default function AdminDashboard() {
         fetchEmployees(),
         fetchTasks(),
         fetchLeaves(),
+        fetchWFHRequests(),
         fetchDepartments(),
         fetchAnnouncements(),
         fetchHolidays(),
-        fetchChartData()
+        fetchLeaveBalance()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -139,8 +135,8 @@ export default function AdminDashboard() {
       const data = res.data;
       let employeesArray = Array.isArray(data) ? data : (data.employees || []);
       setEmployees(employeesArray);
-      
-      const sorted = [...employeesArray].sort((a, b) => 
+
+      const sorted = [...employeesArray].sort((a, b) =>
         new Date(b.created_at || b.join_date) - new Date(a.created_at || a.join_date)
       );
       setRecentEmployees(sorted.slice(0, 5));
@@ -153,10 +149,10 @@ export default function AdminDashboard() {
     try {
       const res = await api.get("/tasks");
       const tasks = res.data || [];
-      
+
       const pending = tasks.filter(t => t.status === "pending" || t.status === "in_progress");
       setPendingTasks(pending.slice(0, 4));
-      
+
       setStats(prev => ({ ...prev, pendingTasks: pending.length }));
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -167,11 +163,33 @@ export default function AdminDashboard() {
     try {
       const res = await api.get("/leaves");
       const leaves = res.data?.data || res.data || [];
-      
+
       const pendingLeaves = leaves.filter(l => l.status === "Pending");
       setLeaveRequests(pendingLeaves.slice(0, 3));
     } catch (error) {
       console.error("Error fetching leaves:", error);
+    }
+  };
+
+  const fetchWFHRequests = async () => {
+    try {
+      const res = await api.get("/wfh/all");
+      const wfh = res.data || [];
+      const pending = wfh.filter(r => r.status === "pending");
+      setStats(prev => ({ ...prev, wfhPending: pending.length }));
+    } catch (error) {
+      console.error("Error fetching WFH requests:", error);
+    }
+  };
+
+  const fetchLeaveBalance = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const employeeId = userData?.employee_id || userData?.id;
+      const res = await api.get(`/employees/${employeeId}`);
+      setStats(prev => ({ ...prev, leaveBalance: res.data?.leave_balance || 0 }));
+    } catch (error) {
+      console.error("Error fetching leave balance:", error);
     }
   };
 
@@ -229,140 +247,19 @@ export default function AdminDashboard() {
   };
 
   const getPriorityColor = (priority) => {
-    switch(priority?.toLowerCase()) {
+    switch (priority?.toLowerCase()) {
       case "high": return "error";
       case "medium": return "warning";
       default: return "info";
     }
   };
 
-  const fetchChartData = async () => {
-    try {
-      // 🔹 Employees
-      const empRes = await api.get("/employees");
-      console.log("EMP API:", empRes.data);
-      const employees = Array.isArray(empRes.data)
-        ? empRes.data
-        : empRes.data?.employees || [];
-
-      if (!Array.isArray(employees)) {
-        console.error("Employees is not an array", employees);
-        return;
-      }
-      // 🔹 Departments
-      const deptRes = await api.get("/departments/all");
-      console.log("DEPT API:", deptRes.data);
-      const departments = deptRes.data || [];
-
-      // 🔹 Attendance
-      const attendanceRes = await api.get("/attendance/all");
-      const attendance = Array.isArray(attendanceRes.data)
-        ? attendanceRes.data
-        : attendanceRes.data?.data || [];
-
-      // =========================
-      // 📊 1. Department Pie
-      // =========================
-      const deptMap = {};
-
-      employees.forEach(emp => {
-        const dept = emp.department_name || "Unknown";
-        deptMap[dept] = (deptMap[dept] || 0) + 1;
-      });
-
-      const departmentData = Object.keys(deptMap).map(key => ({
-        name: key,
-        value: deptMap[key]
-      }));
-
-      // =========================
-      // 📊 2. Employee Status Pie
-      // =========================
-      const statusMap = {
-        Active: 0,
-        Leave: 0,
-        Resigned: 0,
-        Probation: 0
-      };
-
-      employees.forEach(emp => {
-        const status = emp.status || "Active";
-        if (statusMap[status] !== undefined) {
-          statusMap[status]++;
-        }
-      });
-
-      const statusData = Object.keys(statusMap).map(key => ({
-        name: key,
-        value: statusMap[key]
-      }));
-
-      // =========================
-      // 📈 3. Employee Growth (Month-wise)
-      // =========================
-      const growthMap = {};
-
-      employees.forEach(emp => {
-        const date = new Date(emp.join_date || emp.created_at);
-        const month = date.toLocaleString("default", { month: "short" });
-
-        growthMap[month] = (growthMap[month] || 0) + 1;
-      });
-
-      const growthData = Object.keys(growthMap).map(month => ({
-        month,
-        value: growthMap[month]
-      }));
-
-      // =========================
-      // 📊 4. Attendance % (Month-wise)
-      // =========================
-      const attendanceMap = {};
-
-      attendance.forEach(att => {
-        const date = new Date(att.date);
-        const month = date.toLocaleString("default", { month: "short" });
-
-        if (!attendanceMap[month]) {
-          attendanceMap[month] = { present: 0, total: 0 };
-        }
-
-        if (att.status === "Present") {
-          attendanceMap[month].present++;
-        }
-
-        attendanceMap[month].total++;
-      });
-
-      const attendanceData = Object.keys(attendanceMap).map(month => ({
-        month,
-        value: Math.round(
-          (attendanceMap[month].present / attendanceMap[month].total) * 100
-        )
-      }));
-
-      // =========================
-      // ✅ SET DATA
-      // =========================
-      setChartData({
-        departmentData,
-        statusData,
-        growthData,
-        attendanceData
-      });
-
-    } catch (error) {
-      console.error("Error fetching chart data:", error);
-    }
-  };
 
   const adminStats = [
     { title: "Total Employees", value: stats.totalEmployees, icon: <PeopleIcon />, color: "primary.main", bg: "action.hover" },
     { title: "Present Today", value: stats.presentToday, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
     { title: "On Leave", value: stats.onLeave, icon: <BeachAccessIcon />, color: "warning.main", bg: "action.hover" },
-    { title: "WFH Today", value: stats.wfhToday, icon: <HomeWorkIcon />, color: "secondary.main", bg: "action.hover" },
-    { title: "Pending Tasks", value: stats.pendingTasks, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
-    { title: "Departments", value: stats.totalDepartments, icon: <BusinessIcon />, color: "info.main", bg: "action.hover" }
+    { title: "WFH Today", value: stats.wfhToday, icon: <HomeWorkIcon />, color: "secondary.main", bg: "action.hover" }
   ];
 
 
@@ -385,260 +282,184 @@ export default function AdminDashboard() {
         </Grid>
       </Box>
 
-      {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      {/* Stats Cards Row */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {adminStats.map((stat, index) => (
-          <Grid item xs={6} sm={4} md={2} key={index}>
+          <Box key={index} sx={{ width: 197 }}>
             <StatCard {...stat} loading={loading} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-  
-      {/* Pie 1 */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Employees by Department
-            </Typography>
-            <PieChartBox data={chartData.departmentData} />
-          </CardContent>
-        </Card>
-      </Grid>
 
-      {/* Pie 2 */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Employee Status
-            </Typography>
-            <PieChartBox data={chartData.statusData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Line Chart */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Employee Growth
-            </Typography>
-            <LineChartBox data={chartData.growthData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Bar Chart */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Monthly Attendance
-            </Typography>
-            <BarChartBox data={chartData.attendanceData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-    </Grid>
-
-      {/* Main Content */}
+      {/* Layout Grid */}
       <Grid container spacing={3}>
-        {/* Recent Employees */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
-                  Recent Employees
-                </Typography>
-                <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress />
-                </Box>
-              ) : recentEmployees.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No employees found
-                </Typography>
-              ) : (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ background: "action.hover" }}>
-                        <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Join Date</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {recentEmployees.map((emp, i) => (
-                        <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
-                          <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
-                                {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
-                              </Avatar>
-                              <Typography fontWeight="500">{emp.name}</Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>{emp.position || "-"}</TableCell>
-                          <TableCell>
-                            <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "action.selected", color: "primary.main" }} />
-                          </TableCell>
-                          <TableCell>{emp.join_date?.split("T")[0] || "-"}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+        {/* Left column (70%) */}
+        <Grid size={{ xs: 12, lg: 8.5 }}>
+          <Stack spacing={3}>
+            {/* My Profile - Standardized */}
+            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
 
-        {/* Pending Tasks */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
-                  Pending Tasks
-                </Typography>
-                <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress />
+            {/* Recent Employees */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
+                    Recent Employees
+                  </Typography>
+                  <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
                 </Box>
-              ) : pendingTasks.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No pending tasks
-                </Typography>
-              ) : (
-                pendingTasks.map((task, i) => (
-                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                      <Typography fontWeight="600">{task.title}</Typography>
-                      <Chip label={task.priority || "medium"} size="small" color={getPriorityColor(task.priority)} />
-                    </Box>
-                    <Typography variant="caption" color="textSecondary">
-                      Assigned to: {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "Not set"}
-                    </Typography>
+
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
                   </Box>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+                ) : recentEmployees.length === 0 ? (
+                  <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
+                    No employees found
+                  </Typography>
+                ) : (
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ background: "action.hover" }}>
+                          <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Join Date</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {recentEmployees.map((emp, i) => (
+                          <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
+                            <TableCell>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
+                                  {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
+                                </Avatar>
+                                <Typography fontWeight="500">{emp.name}</Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell>{emp.position || "-"}</TableCell>
+                            <TableCell>
+                              <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "action.selected", color: "primary.main" }} />
+                            </TableCell>
+                            <TableCell>{emp.join_date?.split("T")[0] || "-"}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Leave Requests */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
-                  Pending Leave Requests
-                </Typography>
-                <Button size="small" onClick={() => navigate("/leave")}>View All</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress />
+            {/* Pending Tasks */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+                    Pending Tasks
+                  </Typography>
+                  <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
                 </Box>
-              ) : leaveRequests.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No pending leave requests
-                </Typography>
-              ) : (
-                leaveRequests.map((leave, i) => (
-                  <Box key={leave.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
-                    <Box>
-                      <Typography fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
+
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : pendingTasks.length === 0 ? (
+                  <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
+                    No pending tasks
+                  </Typography>
+                ) : (
+                  pendingTasks.map((task, i) => (
+                    <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography fontWeight="600">{task.title}</Typography>
+                        <Chip label={task.priority || "medium"} size="small" color={getPriorityColor(task.priority)} />
+                      </Box>
                       <Typography variant="caption" color="textSecondary">
-                        {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
+                        Assigned to: {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "Not set"}
                       </Typography>
-                      {leave.reason && (
-                        <Typography variant="caption" display="block" color="textSecondary">
-                          Reason: {leave.reason}
-                        </Typography>
-                      )}
                     </Box>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <Button size="small" variant="contained" color="success" onClick={() => handleApproveLeave(leave.id)}>
-                        Approve
-                      </Button>
-                      <Button size="small" variant="outlined" color="error" onClick={() => handleRejectLeave(leave.id)}>
-                        Reject
-                      </Button>
-                    </Box>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Pending Leave Requests */}
+            {leaveRequests.length > 0 && (
+              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
+                      Pending Leave Requests
+                    </Typography>
+                    <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
                   </Box>
-                ))
-              )}
-            </CardContent>
-          </Card>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                      <CircularProgress color="warning" />
+                    </Box>
+                  ) : (
+                    leaveRequests.map((leave, i) => (
+                      <Box key={leave.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
+                        <Box>
+                          <Typography fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button size="small" variant="contained" color="success" onClick={() => handleApproveLeave(leave.id)}>
+                            Approve
+                          </Button>
+                          <Button size="small" variant="outlined" color="error" onClick={() => handleRejectLeave(leave.id)}>
+                            Reject
+                          </Button>
+                        </Box>
+                      </Box>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Pending WFH Requests */}
+            {stats.wfhPending > 0 && (
+              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
+                      Pending WFH Requests
+                    </Typography>
+                    <Button size="small" color="secondary" onClick={() => navigate("/wfh")}>View All</Button>
+                  </Box>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                      <CircularProgress color="secondary" />
+                    </Box>
+                  ) : (
+                     <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ py: 2 }}>
+                        There are {stats.wfhPending} WFH requests pending in the system.
+                     </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </Stack>
         </Grid>
 
-        {/* Department Overview */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
-                  Departments
-                </Typography>
-                <Button size="small" onClick={() => navigate("/departments")}>Manage</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress />
-                </Box>
-              ) : departments.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No departments found
-                </Typography>
-              ) : (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ background: "action.hover" }}>
-                        <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {departments.slice(0, 5).map((dept, i) => (
-                        <TableRow key={dept.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
-                          <TableCell>
-                            <Chip label={dept.name} size="small" sx={{ background: "action.selected", color: "primary.main", fontWeight: "bold" }} />
-                          </TableCell>
-                          <TableCell>{dept.description || "-"}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Announcements & Holidays */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <AnnouncementCard announcements={announcements} loading={loading} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <HolidayCard holidays={holidays} loading={loading} />
+        {/* Right column (30%) */}
+        <Grid size={{ xs: 12, lg: 3.5 }}>
+          <Stack spacing={3}>
+            <QuickActions role="admin" />
+            <AnnouncementCard announcements={announcements} loading={loading} />
+            <HolidayCard holidays={holidays} loading={loading} />
+          </Stack>
         </Grid>
       </Grid>
     </Box>

@@ -251,24 +251,29 @@ const ReportsPage = () => {
       </Paper>
 
       {/* Stats Summary Dashboard */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={6} sm={4} md={3}>
+      <Box sx={{ 
+        display: "flex", 
+        flexWrap: "wrap", 
+        gap: 3,
+        mb: 4
+      }}>
+        <Box sx={{ width: 300 }}>
           <StatCard 
             title="Total Employees" 
             value={summary?.totalEmployees || 0} 
             icon={<GroupIcon />} 
             gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
           />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3}>
+        </Box>
+        <Box sx={{ width: 300 }}>
           <StatCard 
             title="Pending Requests" 
             value={summary?.pendingRequests || 0} 
             icon={<PendingActionsIcon />} 
             gradient="linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)"
           />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3}>
+        </Box>
+        <Box sx={{ width: 300 }}>
           <StatCard 
             title="Task Velocity" 
             value={summary?.taskCompletionRate || 0} 
@@ -276,8 +281,8 @@ const ReportsPage = () => {
             icon={<CheckCircleIcon />} 
             gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
           />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3}>
+        </Box>
+        <Box sx={{ width: 300 }}>
           <StatCard 
             title="Attendance Rate" 
             value={summary?.attendanceRate || 0} 
@@ -285,8 +290,8 @@ const ReportsPage = () => {
             icon={<EventAvailableIcon />} 
             gradient="linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Main Reports Section */}
       <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
@@ -305,24 +310,24 @@ const ReportsPage = () => {
             </Box>
           ) : (
             <Grid container spacing={4}>
-              {/* Visual Chart */}
-              <Grid item xs={12}>
+              {/* Visual Analysis */}
+              <Grid item xs={12} md={6}>
                 <Typography variant="h6" gutterBottom color="text.secondary">
                   Visual Analysis
                 </Typography>
-                <Paper variant="outlined" sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)" }}>
+                <Paper variant="outlined" sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", height: "100%", width: "600px" }}>
                   {activeTab === 0 && renderAttendanceChart()}
                   {activeTab === 1 && renderLeaveChart()}
                   {activeTab === 2 && renderTaskChart()}
                 </Paper>
               </Grid>
 
-              {/* Data Table */}
-              <Grid item xs={12}>
+              {/* Detailed Data */}
+              <Grid item xs={12} md={6}>
                 <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
                   Detailed Data
                 </Typography>
-                <Paper variant="outlined" sx={{ overflowX: "auto" }}>
+                <Paper variant="outlined" sx={{ overflowX: "auto", height: "100%", width: "600px" }}>
                   <Table size="small">
                     <TableHead sx={{ bgcolor: "action.hover" }}>
                       <TableRow>

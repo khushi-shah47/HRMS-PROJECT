@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, LinearProgress, Divider, CircularProgress, useTheme } from "@mui/material";
+import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, LinearProgress, Divider, CircularProgress, useTheme, Avatar } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -15,14 +15,13 @@ import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
-import PieChartBox from "../components/dashboard/PieChartBox";
-import LineChartBox from "../components/dashboard/LineChartBox";
+import ProfileCard from "../components/dashboard/ProfileCard";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
-    <Card sx={{ 
-      borderRadius: 4, 
-      boxShadow: "0 4px 20px rgba(0,0,0,0.1)", 
+    <Card sx={{
+      borderRadius: 4,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
       height: "100%",
       display: "flex",
       flexDirection: "column",
@@ -33,10 +32,10 @@ function StatCard({ title, value, icon, color, bg, loading }) {
       transition: "transform 0.2s",
       "&:hover": { transform: "translateY(-4px)" }
     }}>
-      <Box sx={{ 
-        p: 1.5, 
+      <Box sx={{
+        p: 1.5,
         mb: 1.5,
-        borderRadius: "50%", 
+        borderRadius: "50%",
         background: bg,
         display: "flex",
         alignItems: "center",
@@ -78,7 +77,7 @@ export default function DeveloperDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const [stats, setStats] = useState({
     totalTasks: 0,
     completedTasks: 0,
@@ -87,18 +86,12 @@ export default function DeveloperDashboard() {
     leaveBalance: 0,
     totalHours: 0
   });
-  
+
   const [myTasks, setMyTasks] = useState([]);
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
 
-  const [chartData, setChartData] = useState({
-    taskStatusData: [],
-    // projectData: [],
-    taskTrendData: [],
-    // bugTrendData: []
-  });
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -108,11 +101,6 @@ export default function DeveloperDashboard() {
     fetchAllData();
   }, []);
 
-  useEffect(() => {
-  if (user) {
-    fetchDeveloperChartData();
-  }
-  }, [user]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -136,13 +124,13 @@ export default function DeveloperDashboard() {
     try {
       const res = await api.get("/tasks/my");
       const myTasksList = res.data || [];
-      
+
       setMyTasks(myTasksList);
-      
+
       const completed = myTasksList.filter(t => t.status === "completed").length;
       const inProgress = myTasksList.filter(t => t.status === "in_progress").length;
       const pending = myTasksList.filter(t => t.status === "pending" || !t.status).length;
-      
+
       setStats(prev => ({
         ...prev,
         totalTasks: myTasksList.length,
@@ -159,10 +147,10 @@ export default function DeveloperDashboard() {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
       const employeeId = userData?.employee_id || userData?.id;
-      
+
       const res = await api.get(`/attendance/history/${employeeId}`);
       const attendance = Array.isArray(res.data) ? res.data : [];
-      
+
       const formattedAttendance = attendance.slice(0, 7).map(att => ({
         date: att.date?.split("T")[0],
         status: att.work_type === "present" ? "Present" : att.work_type === "wfh" ? "WFH" : "Leave",
@@ -170,9 +158,9 @@ export default function DeveloperDashboard() {
         checkOut: att.time_out ? new Date(att.time_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-",
         hours: att.total_hours || 0
       }));
-      
+
       setAttendanceHistory(formattedAttendance);
-      
+
       const totalHours = formattedAttendance.reduce((sum, att) => sum + (parseFloat(att.hours) || 0), 0);
       setStats(prev => ({ ...prev, totalHours: Math.round(totalHours * 10) / 10 }));
     } catch (error) {
@@ -184,10 +172,10 @@ export default function DeveloperDashboard() {
     try {
       const userData = JSON.parse(localStorage.getItem("user"));
       const employeeId = userData?.employee_id || userData?.id;
-      
+
       const res = await api.get(`/employees/${employeeId}`);
       const employee = res.data;
-      
+
       setStats(prev => ({ ...prev, leaveBalance: employee?.leave_balance || 0 }));
     } catch (error) {
       console.error("Error fetching leave balance:", error);
@@ -250,122 +238,6 @@ export default function DeveloperDashboard() {
 
   const upcomingDeadlines = getUpcomingDeadlines();
 
-  const fetchDeveloperChartData = async () => {
-    try {
-      const taskRes = await api.get("/tasks/my");
-      // const projectRes = await api.get("/projects"); // if exists
-
-      // ✅ SAFE extraction
-      const tasks = Array.isArray(taskRes.data)
-        ? taskRes.data
-        : taskRes.data?.tasks || [];
-      console.log("TASK API DATA:", taskRes.data);
-      // const projects = Array.isArray(projectRes?.data)
-      //   ? projectRes.data
-      //   : projectRes?.data?.projects || [];
-
-      const userId = user?.employee_id || user?.id;
-
-      // 🔥 Only developer's tasks
-      const myTasks = tasks.filter(
-        task => Number(task.assigned_to) === Number(userId)
-      );
-      console.log("MY TASKS:", myTasks);
-
-      console.log("USER:", user);
-      console.log("USER ID USED:", userId);
-      console.log("TASK assigned_to values:", tasks.map(t => t.assigned_to));
-
-      // =========================
-      // 📊 1. Task Status Pie
-      // =========================
-      const taskMap = {
-        Completed: 0,
-        "In Progress": 0,
-        Pending: 0
-      };
-
-      myTasks.forEach(task => {
-        const status = task.status?.toLowerCase();
-        if (task.status === "completed") taskMap.Completed++;
-        else if (task.status === "in_progress") taskMap["In Progress"]++;
-        else taskMap.Pending++;
-      });
-
-      const taskStatusData = Object.keys(taskMap).map(key => ({
-        name: key,
-        value: taskMap[key]
-      }));
-
-      // // =========================
-      // // 📊 2. Project Allocation Pie
-      // // =========================
-      // const projectMap = {};
-
-      // myTasks.forEach(task => {
-      //   const project = task.project_name || "General";
-
-      //   projectMap[project] = (projectMap[project] || 0) + 1;
-      // });
-
-      // const projectData = Object.keys(projectMap).map(key => ({
-      //   name: key,
-      //   value: projectMap[key]
-      // }));
-
-      // =========================
-      // 📈 3. Task Completion Trend
-      // =========================
-      const taskTrendMap = {};
-
-      myTasks.forEach(task => {
-        if (task.status !== "completed") return;
-
-        const date = new Date(task.updated_at || task.completed_at);
-        const week = `Week ${Math.ceil(date.getDate() / 7)}`;
-
-        taskTrendMap[week] = (taskTrendMap[week] || 0) + 1;
-      });
-
-      const taskTrendData = Object.keys(taskTrendMap).map(key => ({
-        week: key,
-        value: taskTrendMap[key]
-      }));
-
-      // // =========================
-      // // 📊 4. Bug Fix Trend
-      // // =========================
-      // const bugTrendMap = {};
-
-      // myTasks.forEach(task => {
-      //   if (task.type !== "bug") return;
-      //   if (task.status !== "completed") return;
-
-      //   const date = new Date(task.updated_at || task.completed_at);
-      //   const month = date.toLocaleString("default", { month: "short" });
-
-      //   bugTrendMap[month] = (bugTrendMap[month] || 0) + 1;
-      // });
-
-      // const bugTrendData = Object.keys(bugTrendMap).map(key => ({
-      //   month: key,
-      //   value: bugTrendMap[key]
-      // }));
-
-      // =========================
-      // ✅ SET DATA
-      // =========================
-      setChartData({
-        taskStatusData,
-        // projectData,
-        taskTrendData,
-        // bugTrendData
-      });
-
-    } catch (error) {
-      console.error("Developer chart error:", error);
-    }
-  };
 
   const developerStats = [
     { title: "My Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
@@ -396,171 +268,164 @@ export default function DeveloperDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {developerStats.map((stat, index) => (
-          <Grid item xs={6} sm={4} md={2} key={index}>
+          <Box key={index} sx={{ width: 197 }}>
             <StatCard {...stat} loading={loading} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
-
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-
-      {/* Task Status */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Task Status
-            </Typography>
-
-            <PieChartBox data={chartData.taskStatusData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Project Allocation
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
-              Project Allocation
-            </Typography>
-
-            <PieChartBox data={chartData.projectData} />
-          </CardContent>
-        </Card>
-      </Grid> */}
-
-      {/* Task Trend */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "error.main" }}>
-              Tasks Completed Over Time
-            </Typography>
-
-            <LineChartBox data={chartData.taskTrendData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Bug Fix Trend
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "#1E3A8A" }}>
-              Bug Reports Fixed
-            </Typography>
-
-            <BarChartBox data={chartData.bugTrendData} />
-          </CardContent>
-        </Card>
-      </Grid> */}
-
-    </Grid>
+      </Box>
 
       {/* Main Content */}
+      {/* Layout Grid */}
       <Grid container spacing={3}>
-        {/* My Tasks */}
-        <Grid size={{ xs: 12, lg: 8 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main" }}>
-                  My Tasks
-                </Typography>
-                <Button size="small" onClick={() => navigate("/tasks")}>View All Tasks</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress />
+        {/* Left column (70%) */}
+        <Grid size={{ xs: 12, lg: 8.5 }}>
+          <Stack spacing={3}>
+            {/* My Profile - Standardized */}
+            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
+
+            {/* My Tasks - FOCUS AREA */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
+                    My Tasks
+                  </Typography>
+                  <Button variant="outlined" size="small" onClick={() => navigate("/tasks")}>View All</Button>
                 </Box>
-              ) : myTasks.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No tasks assigned to you
+
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : myTasks.length === 0 ? (
+                  <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
+                    You have no pending tasks. Great job!
+                  </Typography>
+                ) : (
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ background: "action.hover" }}>
+                          <TableCell sx={{ fontWeight: "bold" }}>Task Title</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {myTasks.slice(0, 5).map((task, i) => (
+                          <TableRow key={task.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
+                            <TableCell sx={{ fontWeight: "500" }} variant="body2">{task.title}</TableCell>
+                            <TableCell>
+                              <Chip label={task.priority} size="small" color={getPriorityColor(task.priority)} />
+                            </TableCell>
+                            <TableCell variant="body2">{task.due_date?.split("T")[0] || "No date"}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={task.status.replace("_", " ")}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  color: task.status === "completed" ? "success.main" : "warning.main",
+                                  borderColor: task.status === "completed" ? "success.main" : "warning.main"
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Attendance History */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 3, color: "primary.main" }}>
+                  Recent Attendance
                 </Typography>
-              ) : (
-                myTasks.slice(0, 5).map((task, i) => (
-                  <Box key={task.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Typography fontWeight="600">{task.title}</Typography>
-                        {task.priority && (
-                          <Chip label={task.priority} size="small" color={getPriorityColor(task.priority)} />
-                        )}
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ background: "action.hover" }}>
+                          <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Type</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Check In</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Check Out</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {attendanceHistory.map((att, i) => (
+                          <TableRow key={i}>
+                            <TableCell variant="body2">{att.date}</TableCell>
+                            <TableCell>{getStatusChip(att.status)}</TableCell>
+                            <TableCell variant="body2">{att.checkIn}</TableCell>
+                            <TableCell variant="body2">{att.checkOut}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </CardContent>
+            </Card>
+          </Stack>
+        </Grid>
+
+        {/* Right column (30%) */}
+        <Grid size={{ xs: 12, lg: 3.5 }}>
+          <Stack spacing={3}>
+            {/* Profile Summary Removed */}
+            
+            {/* PayslipCard Removed */}
+
+            {/* Upcoming Deadlines */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+                  <TimerIcon color="error" /> Upcoming Deadlines
+                </Typography>
+                {upcomingDeadlines.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">No immediate deadlines.</Typography>
+                ) : (
+                  <Stack spacing={2}>
+                    {upcomingDeadlines.map((deadline) => (
+                      <Box key={deadline.id} sx={{ p: 1.5, borderRadius: 2, bgcolor: "action.hover", borderLeft: "4px solid", borderColor: getDaysLeftColor(deadline.daysLeft) }}>
+                        <Typography variant="body2" fontWeight="bold">{deadline.title}</Typography>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 0.5 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Due: {deadline.due_date?.split("T")[0]}
+                          </Typography>
+                          <Typography variant="caption" fontWeight="bold" sx={{ color: getDaysLeftColor(deadline.daysLeft) }}>
+                            {deadline.daysLeft <= 0 ? "OVERDUE" : `${deadline.daysLeft} days left`}
+                          </Typography>
+                        </Box>
                       </Box>
-                      {getStatusChip(task.status || "pending")}
-                    </Box>
-                    <Typography variant="caption" color="textSecondary" display="block">
-                      Assigned by: {task.assigned_by_name || "Manager"} | Due: {task.due_date?.split("T")[0] || "Not set"}
-                    </Typography>
-                    {task.description && (
-                      <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                        {task.description.substring(0, 100)}{task.description.length > 100 ? "..." : ""}
-                      </Typography>
-                    )}
-                  </Box>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+                    ))}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Upcoming Deadlines & Quick Actions */}
-        <Grid size={{ xs: 12, lg: 4 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", height: "100%" }}>
-            <CardContent>
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main", mb: 3 }}>
-                Upcoming Deadlines
-              </Typography>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                  <CircularProgress size={30} />
-                </Box>
-              ) : upcomingDeadlines.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 2 }}>
-                  No upcoming deadlines
-                </Typography>
-              ) : (
-                upcomingDeadlines.map((item, i) => (
-                  <Box key={item.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "action.hover", borderLeft: `4px solid ${getDaysLeftColor(item.daysLeft)}` }}>
-                    <Typography fontWeight="600">{item.title}</Typography>
-                    <Typography variant="caption" color="textSecondary">
-                      Due: {item.due_date?.split("T")[0]}
-                    </Typography>
-                    <Typography variant="body2" fontWeight="bold" sx={{ color: getDaysLeftColor(item.daysLeft), mt: 0.5 }}>
-                      {item.daysLeft <= 0 ? "Overdue!" : `${item.daysLeft} day(s) left`}
-                    </Typography>
-                  </Box>
-                ))
-              )}
-              
-              <Divider sx={{ my: 2 }} />
-              
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main", mb: 2 }}>
-                Quick Actions
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button variant="outlined" fullWidth onClick={() => navigate("/leave")} sx={{ justifyContent: "flex-start" }}>
-                  <BeachAccessIcon sx={{ mr: 1 }} /> Request Leave
-                </Button>
-                <Button variant="outlined" fullWidth onClick={() => navigate("/wfh")} sx={{ justifyContent: "flex-start" }}>
-                  <HomeWorkIcon sx={{ mr: 1 }} /> Request WFH
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Announcements & Holidays */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <AnnouncementCard announcements={announcements} loading={loading} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <HolidayCard holidays={holidays} loading={loading} />
+            <Box sx={{ p: 2, bgcolor: "background.paper", borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Quick Shortcuts</Typography>
+              <Stack spacing={1}>
+                <Button variant="outlined" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Request Leave</Button>
+                <Button variant="outlined" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>Request WFH</Button>
+              </Stack>
+            </Box>
+            <AnnouncementCard announcements={announcements} loading={loading} />
+            <HolidayCard holidays={holidays} loading={loading} />
+          </Stack>
         </Grid>
       </Grid>
     </Box>

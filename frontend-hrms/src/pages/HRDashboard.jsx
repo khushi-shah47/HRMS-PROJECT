@@ -1,26 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, CircularProgress, useTheme } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, CircularProgress, useTheme, Stack } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
-import BusinessIcon from "@mui/icons-material/Business";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import WorkIcon from "@mui/icons-material/Work";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
-import PieChartBox from "../components/dashboard/PieChartBox";
-import LineChartBox from "../components/dashboard/LineChartBox";
-import BarChartBox from "../components/dashboard/BarChartBox";
+import QuickActions from "../components/dashboard/QuickActions";
+import ProfileCard from "../components/dashboard/ProfileCard";
+
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
-    <Card sx={{ 
-      borderRadius: 4, 
-      boxShadow: "0 4px 20px rgba(0,0,0,0.1)", 
+    <Card sx={{
+      borderRadius: 4,
+      boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
       height: "100%",
       display: "flex",
       flexDirection: "column",
@@ -31,10 +28,10 @@ function StatCard({ title, value, icon, color, bg, loading }) {
       transition: "transform 0.2s",
       "&:hover": { transform: "translateY(-4px)" }
     }}>
-      <Box sx={{ 
-        p: 1.5, 
+      <Box sx={{
+        p: 1.5,
         mb: 1.5,
-        borderRadius: "50%", 
+        borderRadius: "50%",
         background: bg,
         display: "flex",
         alignItems: "center",
@@ -63,139 +60,23 @@ export default function HRDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const [stats, setStats] = useState({
     totalEmployees: 0,
     presentToday: 0,
     leaveRequests: 0,
-    totalDepartments: 0,
     pendingTasks: 0,
     wfhToday: 0,
-    wfhRequests: 0
-  });
-  
-  const [chartData, setChartData] = useState({
-    attendanceData: [],
-    leaveTypeData: [],
-    leaveTrendData: [],
-    hiringData: []
+    wfhRequests: 0,
+    leaveBalance: 0
   });
 
   const [recentEmployees, setRecentEmployees] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [wfhRequests, setWfhRequests] = useState([]);
-  const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
-
-  const fetchHRChartData = async () => {
-    try {
-      const empRes = await api.get("/employees");
-      const leaveRes = await api.get("/leaves");
-
-      // ✅ SAFE extraction
-      const employees = Array.isArray(empRes.data)
-        ? empRes.data
-        : empRes.data?.employees || [];
-
-      const leaves = Array.isArray(leaveRes.data)
-        ? leaveRes.data
-        : leaveRes.data?.data || [];
-
-      // =========================
-      // 📊 1. Attendance Today (Pie)
-      // =========================
-      const attendanceMap = {
-        Present: 0,
-        Absent: 0,
-        Leave: 0,
-        Late: 0
-      };
-
-      // ⚠️ If no attendance API → simulate using employee status
-      employees.forEach(emp => {
-        if (emp.status === "Active") attendanceMap.Present++;
-        else if (emp.status === "Leave") attendanceMap.Leave++;
-        else attendanceMap.Absent++;
-      });
-
-      const attendanceData = Object.keys(attendanceMap).map(key => ({
-        name: key,
-        value: attendanceMap[key]
-      }));
-
-      // =========================
-      // 📊 2. Leave Types (Pie)
-      // =========================
-      const leaveTypeMap = {
-        "Sick Leave": 0,
-        "Casual Leave": 0,
-        "Paid Leave": 0,
-        "Unpaid Leave": 0
-      };
-
-      leaves.forEach(leave => {
-        const type = leave.leave_type || "Casual Leave";
-
-        if (leaveTypeMap[type] !== undefined) {
-          leaveTypeMap[type]++;
-        }
-      });
-
-      const leaveTypeData = Object.keys(leaveTypeMap).map(key => ({
-        name: key,
-        value: leaveTypeMap[key]
-      }));
-
-      // =========================
-      // 📈 3. Leave Requests Trend
-      // =========================
-      const leaveTrendMap = {};
-
-      leaves.forEach(leave => {
-        const date = new Date(leave.start_date);
-        const month = date.toLocaleString("default", { month: "short" });
-
-        leaveTrendMap[month] = (leaveTrendMap[month] || 0) + 1;
-      });
-
-      const leaveTrendData = Object.keys(leaveTrendMap).map(key => ({
-        month: key,
-        value: leaveTrendMap[key]
-      }));
-
-      // =========================
-      // 📈 4. Hiring Trend
-      // =========================
-      const hiringMap = {};
-
-      employees.forEach(emp => {
-        const date = new Date(emp.join_date || emp.created_at);
-        const month = date.toLocaleString("default", { month: "short" });
-
-        hiringMap[month] = (hiringMap[month] || 0) + 1;
-      });
-
-      const hiringData = Object.keys(hiringMap).map(key => ({
-        month: key,
-        value: hiringMap[key]
-      }));
-
-      // =========================
-      // ✅ SET DATA
-      // =========================
-      setChartData({
-        attendanceData,
-        leaveTypeData,
-        leaveTrendData,
-        hiringData
-      });
-
-    } catch (error) {
-      console.error("HR chart error:", error);
-    }
-  };
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -213,10 +94,9 @@ export default function HRDashboard() {
         fetchEmployees(),
         fetchLeaves(),
         fetchWFH(),
-        fetchDepartments(),
         fetchAnnouncements(),
         fetchHolidays(),
-        fetchHRChartData()
+        fetchLeaveBalance()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -246,8 +126,8 @@ export default function HRDashboard() {
       const data = res.data;
       let employeesArray = Array.isArray(data) ? data : (data.employees || []);
       setEmployees(employeesArray);
-      
-      const sorted = [...employeesArray].sort((a, b) => 
+
+      const sorted = [...employeesArray].sort((a, b) =>
         new Date(b.created_at || b.join_date) - new Date(a.created_at || a.join_date)
       );
       setRecentEmployees(sorted.slice(0, 5));
@@ -260,9 +140,7 @@ export default function HRDashboard() {
     try {
       const res = await api.get("/leaves");
       const leaves = res.data?.data || res.data || [];
-      
       setLeaveRequests(leaves.slice(0, 4));
-      
       const pending = leaves.filter(l => l.status === "Pending");
       setStats(prev => ({ ...prev, leaveRequests: pending.length }));
     } catch (error) {
@@ -271,25 +149,25 @@ export default function HRDashboard() {
   };
 
   const fetchWFH = async () => {
-     try {
-       const res = await api.get("/wfh/all");
-       const wfh = res.data || [];
-       setWfhRequests(wfh.slice(0, 4));
-       const pending = wfh.filter(r => r.status === "pending");
-       setStats(prev => ({ ...prev, wfhRequests: pending.length }));
-     } catch (error) {
-       console.error("Error fetching WFH requests:", error);
-     }
+    try {
+      const res = await api.get("/wfh/all");
+      const wfh = res.data || [];
+      setWfhRequests(wfh.slice(0, 4));
+      const pending = wfh.filter(r => r.status === "pending");
+      setStats(prev => ({ ...prev, wfhRequests: pending.length }));
+    } catch (error) {
+      console.error("Error fetching WFH requests:", error);
+    }
   };
 
-  const fetchDepartments = async () => {
+  const fetchLeaveBalance = async () => {
     try {
-      const res = await api.get("/departments/all");
-      const depts = res.data || [];
-      setDepartments(depts);
-      setStats(prev => ({ ...prev, totalDepartments: depts.length }));
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const employeeId = userData?.employee_id || userData?.id;
+      const res = await api.get(`/employees/${employeeId}`);
+      setStats(prev => ({ ...prev, leaveBalance: res.data?.leave_balance || 0 }));
     } catch (error) {
-      console.error("Error fetching departments:", error);
+      console.error("Error fetching leave balance:", error);
     }
   };
 
@@ -335,24 +213,6 @@ export default function HRDashboard() {
     }
   };
 
-  const handleApproveWFH = async (id) => {
-    try {
-      await api.post("/wfh/approve", { id });
-      fetchWFH();
-    } catch (error) {
-       console.error("Error approving WFH:", error);
-    }
-  };
-
-  const handleRejectWFH = async (id) => {
-    try {
-      await api.post("/wfh/reject", { id });
-      fetchWFH();
-    } catch (error) {
-      console.error("Error rejecting WFH:", error);
-    }
-  };
-
   const getStatusChip = (status) => {
     const colors = {
       Active: { bg: "success.light", color: "success.main" },
@@ -370,7 +230,6 @@ export default function HRDashboard() {
     { title: "Present Today", value: stats.presentToday, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
     { title: "Leave Requests", value: stats.leaveRequests, icon: <BeachAccessIcon />, color: "warning.main", bg: "action.hover" },
     { title: "WFH Requests", value: stats.wfhRequests, icon: <HomeWorkIcon />, color: "info.main", bg: "action.hover" },
-    { title: "Departments", value: stats.totalDepartments, icon: <BusinessIcon />, color: "secondary.main", bg: "action.hover" },
     { title: "Active", value: stats.totalEmployees, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" }
   ];
 
@@ -394,291 +253,157 @@ export default function HRDashboard() {
       </Box>
 
       {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {hrStats.map((stat, index) => (
-          <Grid item xs={6} sm={4} md={2} key={index}>
+          <Box key={index} sx={{ width: 197 }}>
             <StatCard {...stat} loading={loading} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
-      
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      </Box>
 
-      {/* Attendance */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Attendance Status Today
-            </Typography>
-
-            <PieChartBox data={chartData.attendanceData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Leave Types */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Leave Types Distribution
-            </Typography>
-
-            <PieChartBox data={chartData.leaveTypeData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Leave Trend */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Leave Requests per Month
-            </Typography>
-
-            <BarChartBox data={chartData.leaveTrendData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-      {/* Hiring Trend */}
-      <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, color: "primary.main" }}>
-              Employee Hiring Trend
-            </Typography>
-
-            <LineChartBox data={chartData.hiringData} />
-          </CardContent>
-        </Card>
-      </Grid>
-
-    </Grid>
-
-
-      {/* Main Content */}
+      {/* Layout Grid */}
       <Grid container spacing={3}>
-        {/* Recent Employees */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
-                  Recent Employees
-                </Typography>
-                <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "primary.main" }} />
-                </Box>
-              ) : recentEmployees.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No employees found
-                </Typography>
-              ) : (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ background: "action.hover" }}>
-                        <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {recentEmployees.map((emp, i) => (
-                        <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
-                          <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                              <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
-                                {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
-                              </Avatar>
-                              <Typography fontWeight="500">{emp.name}</Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell>{emp.position || "-"}</TableCell>
-                          <TableCell>
-                            <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "action.selected", color: "primary.main" }} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+        {/* Left column (70%) */}
+        <Grid size={{ xs: 12, lg: 8.5 }}>
+          <Stack spacing={3}>
+            {/* My Profile - Standardized */}
+            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
 
-        {/* Leave Requests */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
-                  Leave Requests
-                </Typography>
-                <Button size="small" onClick={() => navigate("/leave")}>View All</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "primary.main" }} />
+            {/* Employee Directory */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
+                    Employee Directory
+                  </Typography>
+                  <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
                 </Box>
-              ) : leaveRequests.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No leave requests
-                </Typography>
-              ) : (
-                leaveRequests.map((leave, i) => (
-                  <Box key={leave.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
-                    <Box>
-                      <Typography fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
-                      </Typography>
-                      {leave.reason && (
-                        <Typography variant="caption" display="block" color="textSecondary">
-                          Reason: {leave.reason}
-                        </Typography>
-                      )}
-                    </Box>
-                    {leave.status === "Pending" ? (
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Button size="small" variant="contained" color="success" onClick={() => handleApproveLeave(leave.id)}>
-                          Approve
-                        </Button>
-                        <Button size="small" variant="outlined" color="error" onClick={() => handleRejectLeave(leave.id)}>
-                          Reject
-                        </Button>
-                      </Box>
-                    ) : (
-                      getStatusChip(leave.status)
-                    )}
+
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
                   </Box>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* WFH Requests */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "info.main" }}>
-                  WFH Requests
-                </Typography>
-                <Button size="small" onClick={() => navigate("/wfh")}>View All</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "info.main" }} />
-                </Box>
-              ) : wfhRequests.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No WFH requests
-                </Typography>
-              ) : (
-                wfhRequests.map((req, i) => (
-                  <Box key={req.id || i} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
-                    <Box>
-                      <Typography fontWeight="600">{req.name}</Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        {req.start_date?.split("T")[0]} to {req.end_date?.split("T")[0]}
-                      </Typography>
-                      {req.reason && (
-                        <Typography variant="caption" display="block" color="textSecondary">
-                          Reason: {req.reason}
-                        </Typography>
-                      )}
-                    </Box>
-                    {req.status === "pending" ? (
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Button size="small" variant="contained" color="success" onClick={() => handleApproveWFH(req.id)}>
-                          Approve
-                        </Button>
-                        <Button size="small" variant="outlined" color="error" onClick={() => handleRejectWFH(req.id)}>
-                          Reject
-                        </Button>
-                      </Box>
-                    ) : (
-                      <Chip 
-                        label={req.status.charAt(0).toUpperCase() + req.status.slice(1)} 
-                        size="small" 
-                        color={req.status === "approved" ? "success" : "error"} 
-                      />
-                    )}
-                  </Box>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Department Overview */}
-        <Grid size={{ xs: 12 }}>
-          <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold" sx={{ color: "success.main" }}>
-                  Departments
-                </Typography>
-                <Button size="small" onClick={() => navigate("/departments")}>Manage Departments</Button>
-              </Box>
-              
-              {loading ? (
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress sx={{ color: "success.main" }} />
-                </Box>
-              ) : departments.length === 0 ? (
-                <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                  No departments found
-                </Typography>
-              ) : (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow sx={{ background: "action.hover" }}>
-                        <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Description</TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {departments.map((dept, i) => (
-                        <TableRow key={dept.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
-                          <TableCell>
-                            <Chip label={dept.name} size="small" sx={{ background: "action.selected", color: "primary.main", fontWeight: "bold" }} />
-                          </TableCell>
-                          <TableCell>{dept.description || "-"}</TableCell>
-                          <TableCell>
-                            <Button size="small" variant="outlined" onClick={() => navigate("/departments")}>
-                              View
-                            </Button>
-                          </TableCell>
+                ) : employees.length === 0 ? (
+                  <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
+                    No employees found
+                  </Typography>
+                ) : (
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ background: "action.hover" }}>
+                          <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </CardContent>
-          </Card>
+                      </TableHead>
+                      <TableBody>
+                        {employees.slice(0, 5).map((emp, i) => (
+                          <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
+                            <TableCell>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
+                                  {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
+                                </Avatar>
+                                <Typography fontWeight="500" variant="body2">{emp.name}</Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell variant="body2">{emp.position || "-"}</TableCell>
+                            <TableCell>
+                              <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "action.selected", color: "primary.main" }} />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Leave Requests */}
+            {leaveRequests.length > 0 && (
+              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
+                      Recent Leave Requests
+                    </Typography>
+                    <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
+                  </Box>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                      <CircularProgress color="warning" />
+                    </Box>
+                  ) : (
+                    leaveRequests.map((leave, i) => (
+                      <Box key={leave.id || i} sx={{ p: 2, mb: 1, borderRadius: 2, bgcolor: "background.default", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
+                        <Box>
+                          <Typography fontWeight="600" variant="body2">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button size="small" variant="contained" color="success" onClick={() => handleApproveLeave(leave.id)}>
+                            Approve
+                          </Button>
+                          <Button size="small" variant="outlined" color="error" onClick={() => handleRejectLeave(leave.id)}>
+                            Reject
+                          </Button>
+                        </Box>
+                      </Box>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* WFH Requests */}
+            {wfhRequests.length > 0 && (
+              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "info.main" }}>
+                      Recent WFH Requests
+                    </Typography>
+                    <Button size="small" color="info" onClick={() => navigate("/wfh")}>View All</Button>
+                  </Box>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                      <CircularProgress color="info" />
+                    </Box>
+                  ) : (
+                    wfhRequests.map((request, i) => (
+                      <Box key={request.id || i} sx={{ p: 2, mb: 1, borderRadius: 2, bgcolor: "background.default", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid", borderColor: "divider" }}>
+                        <Box>
+                          <Typography fontWeight="600" variant="body2">{request.name || getEmployeeName(request.employee_id)}</Typography>
+                          <Typography variant="caption" color="textSecondary">
+                            Applied for: {request.date?.split("T")[0]}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button size="small" color="info">Manage</Button>
+                        </Box>
+                      </Box>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </Stack>
         </Grid>
-        {/* Announcements & Holidays */}
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <AnnouncementCard announcements={announcements} loading={loading} />
-        </Grid>
-        <Grid size={{ xs: 12, lg: 6 }}>
-          <HolidayCard holidays={holidays} loading={loading} />
+
+        {/* Right column (30%) */}
+        <Grid size={{ xs: 12, lg: 3.5 }}>
+          <Stack spacing={3}>
+            <QuickActions role="hr" />
+            {/* PayslipCard REMOVED */}
+            <AnnouncementCard announcements={announcements} loading={loading} />
+            <HolidayCard holidays={holidays} loading={loading} />
+          </Stack>
         </Grid>
       </Grid>
     </Box>

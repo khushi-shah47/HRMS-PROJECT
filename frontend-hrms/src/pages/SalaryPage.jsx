@@ -346,36 +346,36 @@ const SalaryPage = () => {
       {/* Admin Summary View */}
       {isAdminOrHR ? (
         <>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={6} md={2.4}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
+                <Box sx={{ width: 225 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><AttachMoneyIcon sx={{ color: "primary.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Payout</Typography>
                         <Typography variant="h5" color="primary.main" sx={{ fontWeight: "bold" }}>₹{totals.net.toLocaleString()}</Typography>
                     </Card>
-                </Grid>
-                <Grid item xs={6} md={2.4}>
+                </Box>
+                <Box sx={{ width: 225 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><TrendingUpIcon sx={{ color: "success.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Allowances</Typography>
                         <Typography variant="h5" sx={{ fontWeight: "bold" }}>₹{(totals.allowance + totals.bonus).toLocaleString()}</Typography>
                     </Card>
-                </Grid>
-                <Grid item xs={6} md={2.4}>
+                </Box>
+                <Box sx={{ width: 225 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><SummarizeIcon sx={{ color: "error.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Deductions</Typography>
                         <Typography variant="h5" color="error.main" sx={{ fontWeight: "bold" }}>₹{totals.deduction.toLocaleString()}</Typography>
                     </Card>
-                </Grid>
-                <Grid item xs={6} md={2.4}>
+                </Box>
+                <Box sx={{ width: 225 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><CheckCircleOutlineIcon sx={{ color: "info.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Payroll Status</Typography>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{payrollSummary.processedCount}/{payrollSummary.totalEmployees}</Typography>
                     </Card>
-                </Grid>
-                <Grid item xs={12} md={2.4}>
+                </Box>
+                <Box sx={{ width: 225 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><AssessmentIcon sx={{ color: "secondary.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Efficiency</Typography>
@@ -383,8 +383,8 @@ const SalaryPage = () => {
                             <LinearProgress variant="determinate" value={(payrollSummary.processedCount / payrollSummary.totalEmployees) * 100 || 0} sx={{ height: 6, borderRadius: 3 }} />
                         </Box>
                     </Card>
-                </Grid>
-            </Grid>
+                </Box>
+            </Box>
 
             {/* Filter Bar */}
             <Paper sx={{ p: 2, mb: 3, display: "flex", alignItems: "center", gap: 3, borderRadius: 2 }}>

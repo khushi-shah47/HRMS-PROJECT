@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Avatar, LinearProgress, Divider } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Avatar, LinearProgress, Divider, useTheme } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -128,8 +128,8 @@ const getRoleInfo = (role) => {
 function StatCard({ title, value, icon, color, bg }) {
   const theme = useTheme();
   return (
-    <Card sx={{ 
-      borderRadius: 2, 
+    <Card sx={{
+      borderRadius: 2,
       boxShadow: theme.palette.mode === "light" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
       height: "100%",
       border: theme.palette.mode === "light" ? "none" : `1px solid ${theme.palette.divider}`
@@ -190,7 +190,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
-
+  const theme = useTheme();
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
