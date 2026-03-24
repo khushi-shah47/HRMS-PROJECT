@@ -136,11 +136,13 @@ export const getSalaryHistory = async (req, res) => {
 
 /* Monthly Salary Report */
 export const getSalaryReport = async (req, res) => {
-  const { month, year } = req.query;
+  const { month, year, page = 1, limit = 10, role, status } = req.query;
+  const offset = (parseInt(page) - 1) * parseInt(limit);
 
   let baseQuery = `
     FROM salaries s 
     JOIN employees e ON s.employee_id = e.id 
+    JOIN users u ON e.user_id = u.id
     LEFT JOIN departments d ON e.department_id = d.id
   `;
 
@@ -155,23 +157,44 @@ export const getSalaryReport = async (req, res) => {
     whereClauses.push("s.year = :year");
     replacements.year = year;
   }
+  if (role) {
+    whereClauses.push("u.role = :role");
+    replacements.role = role;
+  }
+  if (status) {
+    whereClauses.push("s.status = :status");
+    replacements.status = status;
+  }
 
   if (whereClauses.length > 0) {
     baseQuery += " WHERE " + whereClauses.join(" AND ");
   }
 
   try {
+    // 1. Get total count for pagination
+    const [countResult] = await sequelize.query(
+      `SELECT COUNT(*) as total ${baseQuery}`,
+      { replacements, type: QueryTypes.SELECT }
+    );
+
+    // 2. Get paginated results
     const results = await sequelize.query(
-      `SELECT s.*, e.name, COALESCE(d.name, 'No Department') AS department
+      `SELECT s.*, e.name, u.role, COALESCE(d.name, 'No Department') AS department
        ${baseQuery}
-       ORDER BY e.name ASC`,
+       ORDER BY e.name ASC
+       LIMIT :limit OFFSET :offset`,
       {
-        replacements,
+        replacements: { ...replacements, limit: parseInt(limit), offset: parseInt(offset) },
         type: QueryTypes.SELECT
       }
     );
 
-    res.json(results);
+    res.json({
+      data: results,
+      total: countResult.total,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Database error" });
@@ -355,20 +378,40 @@ export const getPayrollSummary = async (req, res) => {
     try {
         let empQuery = "SELECT COUNT(*) as total FROM employees";
         let salQuery = "SELECT COUNT(*) as processed FROM salaries WHERE month = :month AND year = :year";
+        let totalsQuery = `
+            SELECT 
+                SUM(basic_salary) as total_basic,
+                SUM(allowance) as total_allowance,
+                SUM(bonus) as total_bonus,
+                SUM(deduction) as total_deduction,
+                SUM(final_salary) as total_net
+            FROM salaries 
+            WHERE month = :month AND year = :year
+        `;
         let replacements = { month, year };
 
         if (actor_role === "hr") {
-            empQuery += " WHERE hr_id = :actor_id OR manager_id = :actor_id OR id = :actor_id";
-            salQuery += " AND employee_id IN (SELECT id FROM employees WHERE hr_id = :actor_id OR manager_id = :actor_id OR id = :actor_id)";
+            const hrCondition = " WHERE hr_id = :actor_id OR manager_id = :actor_id OR id = :actor_id";
+            empQuery += hrCondition;
+            salQuery += " AND employee_id IN (SELECT id FROM employees" + hrCondition + ")";
+            totalsQuery += " AND employee_id IN (SELECT id FROM employees" + hrCondition + ")";
             replacements.actor_id = actor_id;
         }
 
         const [totalRes] = await sequelize.query(empQuery, { replacements, type: QueryTypes.SELECT });
         const [processedRes] = await sequelize.query(salQuery, { replacements, type: QueryTypes.SELECT });
+        const [totalsRes] = await sequelize.query(totalsQuery, { replacements, type: QueryTypes.SELECT });
 
         res.json({
             totalEmployees: totalRes.total,
             processedCount: processedRes.processed,
+            totals: {
+                basic: parseFloat(totalsRes.total_basic || 0),
+                allowance: parseFloat(totalsRes.total_allowance || 0),
+                bonus: parseFloat(totalsRes.total_bonus || 0),
+                deduction: parseFloat(totalsRes.total_deduction || 0),
+                net: parseFloat(totalsRes.total_net || 0)
+            },
             month,
             year
         });

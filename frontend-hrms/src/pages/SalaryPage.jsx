@@ -119,6 +119,7 @@ const SalaryPage = () => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   const [statusFilter, setStatusFilter] = useState("");
   useEffect(() => {
@@ -132,26 +133,11 @@ const SalaryPage = () => {
   }, []);
 
   useEffect(() => {
-    setPage(0);
-  }, [roleFilter]);
-
-  useEffect(() => {
     if (isAdminOrHR) {
       fetchReport();
       fetchPayrollSummary();
     }
-  }, [reportMonth, reportYear, isAdminOrHR]);
-
-
-  const filteredReport = report.filter(rec =>
-    (!roleFilter || rec.role === roleFilter) &&
-    (!statusFilter || rec.status === statusFilter)
-  );
-
-  const paginatedReport = filteredReport.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  }, [reportMonth, reportYear, isAdminOrHR, page, rowsPerPage, roleFilter, statusFilter]);
 
   const fetchEmployees = async () => {
     try {
@@ -170,8 +156,18 @@ const SalaryPage = () => {
   const fetchReport = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/salary/report?month=${reportMonth}&year=${reportYear}`);
-      setReport(res.data);
+      const res = await api.get(`/salary/report`, {
+        params: {
+          month: reportMonth,
+          year: reportYear,
+          page: page + 1,
+          limit: rowsPerPage,
+          role: roleFilter || undefined,
+          status: statusFilter || undefined
+        }
+      });
+      setReport(res.data.data);
+      setTotalRecords(res.data.total);
     } catch (err) { showSnackbar("Failed to fetch report", "error"); }
     finally { setLoading(false); }
   };
@@ -248,7 +244,7 @@ const SalaryPage = () => {
       if (historyEmployeeId) fetchHistory();
     } catch (err) { showSnackbar("Failed to update status", "error"); }
   };
-  const totalCount = data.length === paginatedReport.length ? filteredReport.length : data.length;
+  // const totalCount = data.length === paginatedReport.length ? filteredReport.length : data.length;
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
     label: new Date(0, i).toLocaleString('default', { month: 'long' })
@@ -256,13 +252,7 @@ const SalaryPage = () => {
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
   // Financial Summary Calculation
-  const totals = report.reduce((acc, rec) => ({
-    basic: acc.basic + parseFloat(rec.basic_salary || 0),
-    allowance: acc.allowance + parseFloat(rec.allowance || 0),
-    bonus: acc.bonus + parseFloat(rec.bonus || 0),
-    deduction: acc.deduction + parseFloat(rec.deduction || 0),
-    net: acc.net + parseFloat(rec.final_salary || 0)
-  }), { basic: 0, allowance: 0, bonus: 0, deduction: 0, net: 0 });
+  const totals = payrollSummary.totals || { basic: 0, allowance: 0, bonus: 0, deduction: 0, net: 0 };
 
   const renderTable = (data, totalCount, isHistory = false) => (
     <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
@@ -420,19 +410,19 @@ const SalaryPage = () => {
 
             {/* Filter Bar */}
             <Paper sx={{ p: 2, mb: 3, display: "flex", alignItems: "center", gap: 3, borderRadius: 2 }}>
-                <TextField select label="Target Month" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} size="small" sx={{ minWidth: 150 }}>
+                <TextField select label="Target Month" value={reportMonth} onChange={(e) => { setReportMonth(e.target.value); setPage(0); }} size="small" sx={{ minWidth: 150 }}>
                     {months.map(m => <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>)}
                 </TextField>
-                <TextField select label="Target Year" value={reportYear} onChange={(e) => setReportYear(e.target.value)} size="small" sx={{ minWidth: 120 }}>
+                <TextField select label="Target Year" value={reportYear} onChange={(e) => { setReportYear(e.target.value); setPage(0); }} size="small" sx={{ minWidth: 120 }}>
                     {years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
                 </TextField>
                 <Divider orientation="vertical" flexItem />
-                <Typography variant="body2" color="text.secondary">Showing Report for <b>{months.find(m => m.value == reportMonth).label} {reportYear}</b></Typography>
+                <Typography variant="body2" color="text.secondary">Showing Report for <b>{months.find(m => m.value == reportMonth)?.label} {reportYear}</b></Typography>
                 <TextField
                   select
                   label="Role"
                   value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
+                  onChange={(e) => { setRoleFilter(e.target.value); setPage(0); }}
                   size="small"
                   sx={{ minWidth: 150 }}
                 >
@@ -443,7 +433,7 @@ const SalaryPage = () => {
                   <MenuItem value="developer">Developer</MenuItem>
                   <MenuItem value="intern">Intern</MenuItem>
                 </TextField>
-                <TextField select label="Status" value={statusFilter} sx={{ minWidth: 150 }} size="small" onChange={(e) => setStatusFilter(e.target.value)}>
+                <TextField select label="Status" value={statusFilter} sx={{ minWidth: 150 }} size="small" onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}>
                   <MenuItem value="">All</MenuItem>
                   <MenuItem value="Generated">Generated</MenuItem>
                   <MenuItem value="Paid">Paid</MenuItem>
@@ -461,7 +451,7 @@ const SalaryPage = () => {
                 <Tab label="Search Employee History" />
             </Tabs>
 
-            {activeTab === 0 && (loading ? <Box sx={{ textAlign: "center", py: 5 }}><CircularProgress /></Box> : renderTable(paginatedReport, filteredReport.length))}
+            {activeTab === 0 && (loading ? <Box sx={{ textAlign: "center", py: 5 }}><CircularProgress /></Box> : renderTable(report, totalRecords))}
             {activeTab === 1 && (
                 <Box>
                     <Paper sx={{ p: 2, mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
