@@ -33,10 +33,14 @@ connectDB();
 const app = express();
 
 app.use(cors({
-  origin: "*",
-  // methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: "https://eq-hrms.eqserver.net",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
+app.options("*", cors());
+app.get("/",(req,res)=>{res.send("hello ")})
 app.use(express.json());
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
