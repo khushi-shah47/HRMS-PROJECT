@@ -11,7 +11,12 @@ module.exports = {
       },
       employee_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'employees',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
       },
       date: {
         type: Sequelize.DATEONLY,
@@ -37,18 +42,6 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    });
-
-    // Step 2: Add foreign key constraint separately
-    await queryInterface.addConstraint('attendance', {
-      fields: ['employee_id'],
-      type: 'foreign key',
-      name: 'attendance_ibfk_1',
-      references: {
-        table: 'employees',
-        field: 'id'
-      },
-      onDelete: 'CASCADE'
     });
 
     // Step 3: Add UNIQUE constraint

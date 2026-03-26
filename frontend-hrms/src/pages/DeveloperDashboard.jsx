@@ -5,6 +5,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PersonIcon from "@mui/icons-material/Person";
 import CodeIcon from "@mui/icons-material/Code";
 import TimerIcon from "@mui/icons-material/Timer";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -282,8 +283,70 @@ export default function DeveloperDashboard() {
         {/* Left column (70%) */}
         <Grid size={{ xs: 12, lg: 8.5 }}>
           <Stack spacing={3}>
-            {/* My Profile - Standardized */}
-            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
+ {/* My Profile - Standardized */}
+            {/* <ProfileCard user={user} leaveBalance={stats.leaveBalance} /> */}
+
+            <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+
+                {/* Header */}
+                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                  <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
+                    <PersonIcon />
+                  </Avatar>
+
+                  <Typography variant="h6" fontWeight="bold">
+                    My Profile
+                  </Typography>
+                </Box>
+
+                {/* Profile Details */}
+                <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+
+                  {/* Name */}
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" color="text.secondary">
+                      Name
+                    </Typography>
+                    <Typography variant="h6">
+                      {(user && user.name) ? user.name : "-"}
+                    </Typography>
+                  </Grid>
+
+                  {/* Email */}
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" color="text.secondary">
+                      Email
+                    </Typography>
+                    <Typography variant="h6">
+                      {(user && user.email) ? user.email : "-"}
+                    </Typography>
+                  </Grid>
+
+                  {/* Role */}
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" color="text.secondary">
+                      Role
+                    </Typography>
+                    <Typography variant="h6">
+                      {(user && user.role) ? user.role : "-"}
+                    </Typography>
+                  </Grid>
+
+                  {/* Leave Balance */}
+                  <Grid item xs={12} md={3}>
+                    <Typography variant="body2" color="text.secondary">
+                      Leave Balance
+                    </Typography>
+                    <Typography variant="h6" color="primary">
+                      {(typeof leaveBalance === "number" ? leaveBalance : 0)} Days
+                    </Typography>
+                  </Grid>
+
+                </Grid>
+
+              </CardContent>
+            </Card>
 
             {/* My Tasks - FOCUS AREA */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>

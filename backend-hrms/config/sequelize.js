@@ -1,9 +1,10 @@
-// config/sequelize.js
 import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import config from "./config.js";
+import rawConfig from "./config.cjs";
+
+const config = rawConfig.default || rawConfig;
 
 dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".env") });
 

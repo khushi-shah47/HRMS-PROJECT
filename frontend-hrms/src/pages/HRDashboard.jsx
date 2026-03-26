@@ -6,7 +6,9 @@ import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useNavigate } from "react-router-dom";
+import BusinessIcon from "@mui/icons-material/Business";
 import api from "../services/api";
+import PersonIcon from "@mui/icons-material/Person";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
@@ -115,6 +117,18 @@ export default function HRDashboard() {
         presentToday: data.presentToday || 0,
         wfhToday: data.wfhToday || 0
       }));
+      
+      // Fetch departments count for stat card
+      try {
+        const deptsRes = await api.get("/departments/all");
+        setStats(prev => ({
+          ...prev,
+          totalDepartments: Array.isArray(deptsRes.data) ? deptsRes.data.length : 0
+        }));
+      } catch (deptError) {
+        console.error("Error fetching departments count:", deptError);
+        setStats(prev => ({ ...prev, totalDepartments: 0 }));
+      }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
     }
@@ -268,7 +282,69 @@ export default function HRDashboard() {
         <Grid size={{ xs: 12, lg: 8.5 }}>
           <Stack spacing={3}>
             {/* My Profile - Standardized */}
-            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
+            {/* <ProfileCard user={user} leaveBalance={stats.leaveBalance} /> */}
+
+             <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
+            <CardContent>
+
+          {/* Header */}
+        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+          <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
+            <PersonIcon />
+          </Avatar>
+
+          <Typography variant="h6" fontWeight="bold">
+            My Profile
+          </Typography>
+        </Box>
+
+        {/* Profile Details */}
+        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+
+          {/* Name */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Name
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.name) ? user.name : "-"}
+            </Typography>
+          </Grid>
+
+          {/* Email */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Email
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.email) ? user.email : "-"}
+            </Typography>
+          </Grid>
+
+          {/* Role */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Role
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.role) ? user.role : "-"}
+            </Typography>
+          </Grid>
+
+          {/* Leave Balance */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Leave Balance
+            </Typography>
+            <Typography variant="h6" color="primary">
+              {(typeof leaveBalance === "number" ? leaveBalance : 0)} Days
+            </Typography>
+          </Grid>
+
+        </Grid>
+
+      </CardContent>
+    </Card>
 
             {/* Employee Directory */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>

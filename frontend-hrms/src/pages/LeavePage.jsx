@@ -334,7 +334,7 @@ function LeavePage() {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+
               <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
               {(canViewAll || isManager) && <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>}
               <TableCell sx={{ fontWeight: "bold" }}>Start Date</TableCell>
@@ -349,14 +349,14 @@ function LeavePage() {
           <TableBody>
             {!loading && leaves.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canApprove ? 9 : 8} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={canApprove ? 8 : 7} align="center" sx={{ py: 4 }}>
                   <Typography color="text.secondary">No leave records found</Typography>
                 </TableCell>
               </TableRow>
             ) : (
               leaves.map(leave => (
                 <TableRow key={leave.id} hover>
-                  <TableCell>{leave.id}</TableCell>
+
                   <TableCell sx={{ fontWeight: 500 }}>{leave.name}</TableCell>
                   {(canViewAll || isManager) && <TableCell>{leave.department || "-"}</TableCell>}
                   <TableCell>{leave.start_date?.split("T")[0]}</TableCell>

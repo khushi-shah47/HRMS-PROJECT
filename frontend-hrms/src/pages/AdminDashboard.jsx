@@ -10,6 +10,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import BusinessIcon from "@mui/icons-material/Business";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import PersonIcon from "@mui/icons-material/Person";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
@@ -263,9 +264,7 @@ export default function AdminDashboard() {
     { title: "Pending Tasks", value: stats.pendingTasks, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
     { title: "Departments", value: stats.totalDepartments, icon: <BusinessIcon />, color: "info.main", bg: "action.hover" }
   ];
-
-
-  return (
+return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
       <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
@@ -300,7 +299,69 @@ export default function AdminDashboard() {
         <Grid size={{ xs: 12, lg: 8.5 }}>
           <Stack spacing={3}>
             {/* My Profile - Standardized */}
-            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
+            {/* <ProfileCard user={user} leaveBalance={stats.leaveBalance} /> */}
+
+            <Card sx={{ borderRadius: 3, p: 2 }}>
+      <CardContent>
+
+    {/* Header inside card */}
+    <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+      <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
+        <PersonIcon />
+      </Avatar>
+
+      <Typography variant="h6" fontWeight="bold">
+        My Profile
+      </Typography>
+    </Box>
+    
+
+    {/* Profile Details */}
+        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+
+          {/* Name */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Name
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.name) ? user.name : "-"}
+            </Typography>
+          </Grid>
+
+          {/* Email */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Email
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.email) ? user.email : "-"}
+            </Typography>
+          </Grid>
+
+          {/* Role */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Role
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.role) ? user.role : "-"}
+            </Typography>
+          </Grid>
+
+          {/* Leave Balance */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary">
+              Leave Balance
+            </Typography>
+            <Typography variant="h6" color="primary">
+              {(typeof leaveBalance === "number" ? leaveBalance : 0)} Days
+            </Typography>
+          </Grid>
+
+        </Grid>
+            </CardContent>
+          </Card>
 
             {/* Recent Employees */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>

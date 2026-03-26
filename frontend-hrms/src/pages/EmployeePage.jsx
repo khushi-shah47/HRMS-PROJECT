@@ -559,7 +559,7 @@ const EmployeePage = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+
               <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
@@ -574,7 +574,7 @@ const EmployeePage = () => {
           <TableBody>
             {!loading && filteredEmployees.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={canManage ? 9 : 8} align="center" sx={{ py: 4 }}>
                   <Typography color="text.secondary">No employees found</Typography>
                 </TableCell>
               </TableRow>
@@ -583,7 +583,7 @@ const EmployeePage = () => {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((emp) => (
                   <TableRow key={emp.id} hover>
-                    <TableCell>{emp.id}</TableCell>
+
                     <TableCell sx={{ fontWeight: 500 }}>{emp.name}</TableCell>
                     <TableCell>{emp.email}</TableCell>
                     <TableCell>

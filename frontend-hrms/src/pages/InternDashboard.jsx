@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Chip, LinearProgress, CircularProgress, useTheme, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Chip,Avatar, LinearProgress, CircularProgress, useTheme, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SchoolIcon from "@mui/icons-material/School";
@@ -83,6 +83,7 @@ export default function InternDashboard() {
     completedTasks: 0,
     inProgressTasks: 0,
     pendingTasks: 0,
+    wfhToday: 0,
     leaveBalance: 0
   });
 
@@ -198,10 +199,29 @@ export default function InternDashboard() {
 
   const internStats = [
     { title: "Assigned Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "warning.main", bg: "action.hover" },
+    { title: "Total Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "primary.main", bg: "action.hover" },
+    { title: "WFH Today", value: stats.wfhToday || 0, icon: <HomeWorkIcon />, color: "info.main", bg: "action.hover" },
     { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
     { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "warning.dark", bg: "action.hover" },
     { title: "Leave Balance", value: stats.leaveBalance, icon: <BeachAccessIcon />, color: "secondary.main", bg: "action.hover" }
   ];
+
+  const fetchWFHToday = async () => {
+    try {
+      const userId = user?.employee_id || user?.id;
+      const today = new Date().toISOString().split('T')[0];
+      const res = await api.get("/wfh/my");
+      const wfh = res.data || [];
+      const todayWFH = wfh.filter(w => 
+        w.date?.startsWith(today) && 
+        (w.status === 'Approved' || w.status === 'approved')
+      ).length;
+      setStats(prev => ({ ...prev, wfhToday: todayWFH }));
+    } catch (error) {
+      console.error("Error fetching WFH today:", error);
+      setStats(prev => ({ ...prev, wfhToday: 0 }));
+    }
+  };
 
   const fetchInternData = async () => {
     try {
@@ -219,7 +239,6 @@ export default function InternDashboard() {
         task => Number(task.assigned_to) === Number(userId)
       );
 
-
       // 🧾 Stats
       const completed = filteredTasks.filter(
         t => t.status?.toLowerCase() === "completed"
@@ -236,6 +255,8 @@ export default function InternDashboard() {
 
       setMyTasks(filteredTasks);
 
+      // Fetch WFH today
+      await fetchWFHToday();
 
     } catch (error) {
       console.error("Intern dashboard error:", error);
@@ -264,7 +285,7 @@ export default function InternDashboard() {
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {internStats.map((stat, index) => (
-          <Box key={index} sx={{ width: 200 }}>
+          <Box key={index} sx={{ width: 197 }}>
             <StatCard {...stat} loading={loading} />
           </Box>
         ))}
@@ -276,7 +297,70 @@ export default function InternDashboard() {
         <Grid size={{ xs: 12, lg: 8.5 }}>
           <Stack spacing={3}>
             {/* My Profile - Standardized */}
-            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
+            {/* <ProfileCard user={user} leaveBalance={stats.leaveBalance} /> */}
+
+            <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
+           <CardContent>
+
+    {/* Header */}
+    <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
+          <PersonIcon />
+        </Avatar>
+
+        <Typography variant="h6" fontWeight="bold">
+          My Profile
+        </Typography>
+          </Box>
+
+          {/* Profile Details */}
+          <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+
+            {/* Name */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Name
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.name) ? user.name : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Email */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Email
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.email) ? user.email : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Role */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Role
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.role) ? user.role : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Leave Balance */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Leave Balance
+              </Typography>
+              <Typography variant="h6" color="primary">
+                {stats.leaveBalance || 0} Days
+              </Typography>
+            </Grid>
+
+          </Grid>
+
+        </CardContent>
+      </Card>
+
 
             {/* My Tasks Table - NEW for Interns */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>

@@ -314,7 +314,7 @@ const UserPage = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+
               <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
@@ -325,7 +325,7 @@ const UserPage = () => {
           <TableBody>
             {!loading && filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
                   <Typography color="text.secondary">No users found</Typography>
                 </TableCell>
               </TableRow>
@@ -334,7 +334,7 @@ const UserPage = () => {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user) => (
                   <TableRow key={user.id} hover>
-                    <TableCell>{user.id}</TableCell>
+
                     <TableCell sx={{ fontWeight: 500 }}>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{getRoleChip(user.role)}</TableCell>

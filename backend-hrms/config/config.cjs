@@ -1,33 +1,10 @@
-// export default {
-//   development: {
-//     username: "root",
-//     password: "Shyam@2003",
-//     database: "hrms_db",
-//     host: "localhost",
-//     dialect: "mysql"
-//   },
-//   test: {
-//     username: "root",
-//     password: null,
-//     database: "database_test",
-//     host: "127.0.0.1",
-//     dialect: "mysql"
-//   },
-//   production: {
-//     username: "root",
-//     password: null,
-//     database: "database_production",
-//     host: "127.0.0.1",
-//     dialect: "mysql"
-//   }
-// };
-
+require("dotenv").config();
 module.exports = {
   development: {
-    username: "root",
-    password: "Shyam@2003",
-    database: "hrms_test_1",
-    host: "localhost",
+    username: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "hrms_db",
+    host: process.env.DB_HOST || "127.0.0.1",
     dialect: "mysql"
   }
 };

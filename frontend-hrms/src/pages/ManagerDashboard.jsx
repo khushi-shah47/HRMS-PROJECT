@@ -10,6 +10,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import PersonIcon from "@mui/icons-material/Person";
 import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
@@ -69,6 +70,7 @@ export default function ManagerDashboard() {
     activeTasks: 0,
     wfhRequests: 0,
     completedTasks: 0,
+    teamMembers:0,
     leaveBalance: 0
   });
 
@@ -108,14 +110,25 @@ export default function ManagerDashboard() {
     }
   };
 
+  // const fetchTeamMembers = async () => {
+  //   try {
+  //     const res = await api.get("/employees/team");
+  //     setTeamMembers(res.data?.employees || res.data || []);
+  //   } catch (error) {
+  //     console.error("Error fetching team members:", error);
+  //   }
+  // };
+
   const fetchTeamMembers = async () => {
-    try {
-      const res = await api.get("/employees/team");
-      setTeamMembers(res.data?.employees || res.data || []);
-    } catch (error) {
-      console.error("Error fetching team members:", error);
-    }
-  };
+  try {
+    const res = await api.get("/employees/team");
+    const members = res.data?.employees || res.data || [];
+    setTeamMembers(members);
+    setStats(prev => ({ ...prev, teamMembers: members.length })); // <- Add this line
+  } catch (error) {
+    console.error("Error fetching team members:", error);
+  }
+};
 
   const fetchTasks = async () => {
     try {
@@ -276,11 +289,10 @@ export default function ManagerDashboard() {
           </Grid>
         </Grid>
       </Box>
-
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {managerStats.map((stat, index) => (
-          <Box key={index} sx={{ width: 200 }}>
+          <Box key={index} sx={{ width: 190 }}>
             <StatCard {...stat} loading={loading} />
           </Box>
         ))}
@@ -293,128 +305,204 @@ export default function ManagerDashboard() {
         <Grid size={{ xs: 12, lg: 8.5 }}>
           <Stack spacing={3}>
             {/* My Profile - Standardized */}
-            <ProfileCard user={user} leaveBalance={stats.leaveBalance} />
+            {/* <ProfileCard user={user} leaveBalance={stats.leaveBalance} /> */}
 
-            {/* CARD 1: TEAM OVERVIEW (Members + Tasks) */}
-            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+             <Card sx={{ p: 2, borderRadius: 3, boxShadow: 3 }}>
+           <CardContent>
+
+    {/* Header */}
+    <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+        <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
+          <PersonIcon />
+        </Avatar>
+
+        <Typography variant="h6" fontWeight="bold">
+          My Profile
+        </Typography>
+          </Box>
+
+          {/* Profile Details */}
+          <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+
+            {/* Name */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.mi">
+                Name
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.name) ? user.name : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Email */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Email
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.email) ? user.email : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Role */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Role
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.role) ? user.role : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Leave Balance */}
+            <Grid item xs={12} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                Leave Balance
+              </Typography>
+              <Typography variant="h6" color="primary">
+                {(typeof leaveBalance === "number" ? leaveBalance : 0)} Days
+              </Typography>
+            </Grid>
+
+          </Grid>
+
+        </CardContent>
+      </Card>
+
+            {/* CARD 1: TEAM MEMBERS */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", mb: 4 }}>
               <CardContent>
-                <Grid container spacing={4}>
-                  {/* Left Column: Team Members */}
-                  <Grid size={{ xs: 12, md: 6 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
-                        Team Members
-                      </Typography>
-                      <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
+                    Team Members
+                  </Typography>
+                  <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
+                </Box>
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                    <CircularProgress size={24} />
+                  </Box>
+                ) : teamMembers.length === 0 ? (
+                  <Typography variant="body2" color="textSecondary">No team members found</Typography>
+                ) : (
+                  teamMembers.slice(0, 5).map((member, i) => (
+                    <Box key={member.id || i} sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                      <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.light" }}>
+                        {member.name?.charAt(0)}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2" fontWeight="600">{member.name}</Typography>
+                        <Typography variant="caption" color="textSecondary">{member.position || member.role}</Typography>
+                      </Box>
                     </Box>
-                    {loading ? (
-                      <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}><CircularProgress size={24} /></Box>
-                    ) : teamMembers.length === 0 ? (
-                      <Typography variant="body2" color="textSecondary">No team members found</Typography>
-                    ) : (
-                      teamMembers.slice(0, 5).map((member, i) => (
-                        <Box key={member.id || i} sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                          <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.light" }}>
-                            {member.name?.charAt(0)}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="body2" fontWeight="600">{member.name}</Typography>
-                            <Typography variant="caption" color="textSecondary">{member.position || member.role}</Typography>
-                          </Box>
-                        </Box>
-                      ))
-                    )}
-                  </Grid>
-
-                  {/* Right Column: Team Tasks */}
-                  <Grid size={{ xs: 12, md: 6 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main" }}>
-                        Team Tasks
-                      </Typography>
-                      <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
-                    </Box>
-                    {loading ? (
-                      <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}><CircularProgress size={24} /></Box>
-                    ) : pendingTasks.length === 0 ? (
-                      <Typography variant="body2" color="textSecondary">No pending tasks</Typography>
-                    ) : (
-                      pendingTasks.slice(0, 3).map((task, i) => (
-                        <Box key={task.id || i} sx={{ p: 1.5, mb: 1.5, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}>
-                          <Typography variant="body2" fontWeight="600" noWrap>{task.title}</Typography>
-                          <Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
-                            {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "N/A"}
-                          </Typography>
-                        </Box>
-                      ))
-                    )}
-                  </Grid>
-                </Grid>
+                  ))
+                )}
               </CardContent>
             </Card>
 
-            {/* CARD 2: PENDING APPROVALS (Leave + WFH) */}
-            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-              <CardContent>
-                <Grid container spacing={4}>
-                  {/* Left Column: Leave Requests */}
-                  <Grid size={{ xs: 12, md: 6 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
-                        Leave Requests
-                      </Typography>
-                      <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
-                    </Box>
-                    {loading ? (
-                      <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}><CircularProgress size={24} color="warning" /></Box>
-                    ) : leaveRequests.length === 0 ? (
-                      <Typography variant="body2" color="textSecondary">No pending leaves</Typography>
-                    ) : (
-                      leaveRequests.map((leave, i) => (
-                        <Box key={leave.id || i} sx={{ p: 1.5, mb: 1, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
-                          <Typography variant="body2" fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
-                          <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-                            {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
-                          </Typography>
-                          <Box sx={{ display: "flex", gap: 1 }}>
-                            <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleApproveLeave(leave.id)}>Approve</Button>
-                            <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectLeave(leave.id)}>Reject</Button>
-                          </Box>
-                        </Box>
-                      ))
-                    )}
-                  </Grid>
+        {/* CARD 2: TEAM TASKS */}
+        <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+          <CardContent>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main" }}>
+                Team Tasks
+              </Typography>
+              <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
+            </Box>
+            {loading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : pendingTasks.length === 0 ? (
+              <Typography variant="body2" color="textSecondary">No pending tasks</Typography>
+            ) : (
+              pendingTasks.slice(0, 3).map((task, i) => (
+                <Box
+                  key={task.id || i}
+                  sx={{
+                    p: 1.5,
+                    mb: 1.5,
+                    borderRadius: 2,
+                    bgcolor: "background.default",
+                    border: "1px solid",
+                    borderColor: "divider"
+                  }}
+                >
+                  <Typography variant="body2" fontWeight="600" noWrap>{task.title}</Typography>
+                  <Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
+                    {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "N/A"}
+                  </Typography>
+                </Box>
+              ))
+            )}
+          </CardContent>
+        </Card>
 
-                  {/* Right Column: WFH Requests */}
-                  <Grid size={{ xs: 12, md: 6 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                      <Typography variant="h6" fontWeight="bold" sx={{ color: "info.main" }}>
-                        WFH Requests
-                      </Typography>
-                      <Button size="small" color="info" onClick={() => navigate("/wfh")}>View All</Button>
+           {/* CARD 1: LEAVE REQUESTS */}
+              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", mb: 4 }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
+                      Leave Requests
+                    </Typography>
+                    <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
+                  </Box>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                      <CircularProgress size={24} color="warning" />
                     </Box>
-                    {loading ? (
-                      <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}><CircularProgress size={24} color="info" /></Box>
-                    ) : wfhList.length === 0 ? (
-                      <Typography variant="body2" color="textSecondary">No pending WFH</Typography>
-                    ) : (
-                      wfhList.map((wfh, i) => (
-                        <Box key={wfh.id || i} sx={{ p: 1.5, mb: 1, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
-                          <Typography variant="body2" fontWeight="600">{wfh.name || getEmployeeName(wfh.employee_id)}</Typography>
-                          <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-                             {wfh.start_date?.split("T")[0]} to {wfh.end_date?.split("T")[0]}
-                          </Typography>
-                          <Box sx={{ display: "flex", gap: 1 }}>
-                            <Button size="small" variant="contained" color="info" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(wfh.id)}>Approve</Button>
-                            <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectWFH(wfh.id)}>Reject</Button>
-                          </Box>
+                  ) : leaveRequests.length === 0 ? (
+                    <Typography variant="body2" color="textSecondary">No pending leaves</Typography>
+                  ) : (
+                    leaveRequests.map((leave, i) => (
+                      <Box key={leave.id || i} sx={{ p: 1.5, mb: 1, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
+                        <Typography variant="body2" fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
+                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+                          {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleApproveLeave(leave.id)}>Approve</Button>
+                          <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectLeave(leave.id)}>Reject</Button>
                         </Box>
-                      ))
-                    )}
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
+                      </Box>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* CARD 2: WFH REQUESTS */}
+              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "info.main" }}>
+                      WFH Requests
+                    </Typography>
+                    <Button size="small" color="info" onClick={() => navigate("/wfh")}>View All</Button>
+                  </Box>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                      <CircularProgress size={24} color="info" />
+                    </Box>
+                  ) : wfhList.length === 0 ? (
+                    <Typography variant="body2" color="textSecondary">No pending WFH</Typography>
+                  ) : (
+                    wfhList.map((wfh, i) => (
+                      <Box key={wfh.id || i} sx={{ p: 1.5, mb: 1, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
+                        <Typography variant="body2" fontWeight="600">{wfh.name || getEmployeeName(wfh.employee_id)}</Typography>
+                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+                          {wfh.start_date?.split("T")[0]} to {wfh.end_date?.split("T")[0]}
+                        </Typography>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Button size="small" variant="contained" color="info" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(wfh.id)}>Approve</Button>
+                          <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectWFH(wfh.id)}>Reject</Button>
+                        </Box>
+                      </Box>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
           </Stack>
         </Grid>
 

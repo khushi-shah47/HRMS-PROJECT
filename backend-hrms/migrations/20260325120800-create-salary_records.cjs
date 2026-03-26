@@ -10,7 +10,12 @@ module.exports = {
       },
       employee_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        references: {
+          model: 'employees',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
       },
       month: {
         type: Sequelize.STRING(7),
@@ -41,14 +46,6 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    });
-
-    await queryInterface.addConstraint('salary_records', {
-      fields: ['employee_id'],
-      type: 'foreign key',
-      name: 'salary_records_ibfk_1',
-      references: { table: 'employees', field: 'id' },
-      onDelete: 'CASCADE'
     });
 
     await queryInterface.addConstraint('salary_records', {

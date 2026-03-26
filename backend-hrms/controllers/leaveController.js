@@ -1,7 +1,7 @@
 import { sequelize } from "../config/sequelize.js";
 import { QueryTypes } from "sequelize";
 import { createNotification } from "./notificationController.js";
-import { LEAVE_POLICY } from "../config/leavepolicy.js";
+import { LEAVE_POLICY } from "../config/leavePolicy.js";
 
 export const applyLeave = async (req, res) => {
   const { employee_id, start_date, end_date, reason , leave_type } = req.body;
