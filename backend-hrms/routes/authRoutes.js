@@ -4,7 +4,11 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 //Public Routes
-router.post("/login", login);
+
+router.get("/shyam",(req,res) => res.send("hello!"));
+router.post("/shyam",(req,res) => res.send("hello!"));
+
+// router.post("/login", login);
 router.post("/signup", signup);
 //Protected Routes
 router.get("/user/:id", verifyToken, getCurrentUser);
