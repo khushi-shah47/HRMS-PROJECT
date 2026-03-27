@@ -39,7 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/",(req,res) => res.send("hello!"));
+app.get("/shyam",(req,res) => res.send("hello!"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
