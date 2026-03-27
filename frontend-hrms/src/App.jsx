@@ -248,9 +248,7 @@ function App() {
             <Route
               path="/shyam"
               element={
-                <ProtectedRoutes>
-                  <ShyamPage />
-                </ProtectedRoutes>
+                <ShyamPage />
             }/>
             {/* Catch all - redirect to login */}
             <Route path="*" element={<Navigate to="/shyam" />} />
