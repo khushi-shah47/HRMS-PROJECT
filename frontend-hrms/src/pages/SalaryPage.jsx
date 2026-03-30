@@ -48,6 +48,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../services/api";
 
 const squareCardStyle = {
@@ -95,6 +96,7 @@ const SalaryPage = () => {
   const [defOtherDeduction, setDefOtherDeduction] = useState("0");
   const [selectedEmpIds, setSelectedEmpIds] = useState([]);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkRoleFilter, setBulkRoleFilter] = useState("");
 
   // Edit State
   const [editRecord, setEditRecord] = useState(null);
@@ -244,6 +246,17 @@ const SalaryPage = () => {
       if (historyEmployeeId) fetchHistory();
     } catch (err) { showSnackbar("Failed to update status", "error"); }
   };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this salary record?")) return;
+    try {
+      await api.delete(`/salary/${id}`);
+      showSnackbar("Record deleted successfully");
+      fetchReport();
+      if (historyEmployeeId) fetchHistory();
+      fetchPayrollSummary();
+    } catch (err) { showSnackbar("Failed to delete record", "error"); }
+  };
   // const totalCount = data.length === paginatedReport.length ? filteredReport.length : data.length;
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -313,6 +326,11 @@ const SalaryPage = () => {
                       <Tooltip title="Mark as Paid">
                         <IconButton size="small" color="success" onClick={() => updateStatus(rec.id, "Paid")}>
                             <PaymentsIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete Record">
+                        <IconButton size="small" color="error" onClick={() => handleDelete(rec.id)}>
+                            <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     </>
@@ -534,6 +552,22 @@ const SalaryPage = () => {
             <Grid item xs={12} md={4}>
               <TextField label="Other Deduction" type="number" fullWidth value={defOtherDeduction} onChange={(e) => setDefOtherDeduction(e.target.value)} />
             </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                select
+                fullWidth
+                label="Filter by Role"
+                value={bulkRoleFilter}
+                onChange={(e) => setBulkRoleFilter(e.target.value)}
+              >
+                <MenuItem value="">All Roles</MenuItem>
+                <MenuItem value="admin">Admin</MenuItem>
+                <MenuItem value="hr">HR</MenuItem>
+                <MenuItem value="manager">Manager</MenuItem>
+                <MenuItem value="developer">Developer</MenuItem>
+                <MenuItem value="intern">Intern</MenuItem>
+              </TextField>
+            </Grid>
           </Grid>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Selected Employees ({selectedEmpIds.length || 'All'})</Typography>
           <Paper variant="outlined" sx={{ maxHeight: 300, overflow: "auto" }}>
@@ -543,12 +577,14 @@ const SalaryPage = () => {
                 <TableCell>Name</TableCell><TableCell>Position</TableCell>
               </TableRow></TableHead>
               <TableBody>
-                {employees.map(emp => (
-                  <TableRow key={emp.id} hover onClick={() => setSelectedEmpIds(prev => prev.includes(emp.id) ? prev.filter(i => i !== emp.id) : [...prev, emp.id])} sx={{ cursor: "pointer" }}>
-                    <TableCell padding="checkbox"><Checkbox checked={selectedEmpIds.includes(emp.id)} /></TableCell>
-                    <TableCell>{emp.name}</TableCell><TableCell>{emp.position}</TableCell>
-                  </TableRow>
-                ))}
+                {employees
+                  .filter(emp => !bulkRoleFilter || emp.position?.toLowerCase().includes(bulkRoleFilter.toLowerCase()))
+                  .map(emp => (
+                    <TableRow key={emp.id} hover onClick={() => setSelectedEmpIds(prev => prev.includes(emp.id) ? prev.filter(i => i !== emp.id) : [...prev, emp.id])} sx={{ cursor: "pointer" }}>
+                      <TableCell padding="checkbox"><Checkbox checked={selectedEmpIds.includes(emp.id)} /></TableCell>
+                      <TableCell>{emp.name}</TableCell><TableCell>{emp.position}</TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </Paper>

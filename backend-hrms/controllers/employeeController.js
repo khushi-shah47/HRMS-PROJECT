@@ -123,7 +123,7 @@ export const getTeamEmployees = async (req, res) => {
   const search = req.query.search || "";
   const offset = (page - 1) * limit;
 
-  let where = "WHERE e.department_id = (SELECT department_id FROM employees WHERE id = :managerId)";
+  let where = "WHERE e.manager_id = :managerId";
   let replacements = { managerId, limit, offset };
 
   if (search) {

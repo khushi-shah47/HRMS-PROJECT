@@ -101,11 +101,9 @@ export default function AdminDashboard() {
         fetchEmployees(),
         fetchTasks(),
         fetchLeaves(),
-        fetchWFHRequests(),
         fetchDepartments(),
         fetchAnnouncements(),
-        fetchHolidays(),
-        fetchLeaveBalance()
+        fetchHolidays()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -183,16 +181,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchLeaveBalance = async () => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("user"));
-      const employeeId = userData?.employee_id || userData?.id;
-      const res = await api.get(`/employees/${employeeId}`);
-      setStats(prev => ({ ...prev, leaveBalance: res.data?.leave_balance || 0 }));
-    } catch (error) {
-      console.error("Error fetching leave balance:", error);
-    }
-  };
 
   const fetchDepartments = async () => {
     try {
@@ -320,7 +308,7 @@ return (
         <Grid container spacing={2} alignItems="center" justifyContent="space-between">
 
           {/* Name */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4}>
             <Typography variant="body2" color="text.secondary">
               Name
             </Typography>
@@ -330,7 +318,7 @@ return (
           </Grid>
 
           {/* Email */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4}>
             <Typography variant="body2" color="text.secondary">
               Email
             </Typography>
@@ -340,22 +328,12 @@ return (
           </Grid>
 
           {/* Role */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} md={4}>
             <Typography variant="body2" color="text.secondary">
               Role
             </Typography>
             <Typography variant="h6">
               {(user && user.role) ? user.role : "-"}
-            </Typography>
-          </Grid>
-
-          {/* Leave Balance */}
-          <Grid item xs={12} md={3}>
-            <Typography variant="body2" color="text.secondary">
-              Leave Balance
-            </Typography>
-            <Typography variant="h6" color="primary">
-              {(typeof leaveBalance === "number" ? leaveBalance : 0)} Days
             </Typography>
           </Grid>
 

@@ -107,11 +107,7 @@ export default function DeveloperDashboard() {
     setLoading(true);
     try {
       await Promise.all([
-        fetchTasks(),
-        fetchAttendance(),
-        fetchAnnouncements(),
-        fetchHolidays(),
-        fetchLeaveBalance(),
+        fetchHolidays()
         // fetchDeveloperChartData()
       ]);
     } catch (error) {
@@ -169,19 +165,6 @@ export default function DeveloperDashboard() {
     }
   };
 
-  const fetchLeaveBalance = async () => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("user"));
-      const employeeId = userData?.employee_id || userData?.id;
-
-      const res = await api.get(`/employees/${employeeId}`);
-      const employee = res.data;
-
-      setStats(prev => ({ ...prev, leaveBalance: employee?.leave_balance || 0 }));
-    } catch (error) {
-      console.error("Error fetching leave balance:", error);
-    }
-  };
 
   const fetchAnnouncements = async () => {
     try {
@@ -245,7 +228,6 @@ export default function DeveloperDashboard() {
     { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
     { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "warning.main", bg: "action.hover" },
     { title: "Pending", value: stats.pendingTasks, icon: <PendingActionsIcon />, color: "text.secondary", bg: "action.hover" },
-    { title: "Leave Balance", value: stats.leaveBalance, icon: <BeachAccessIcon />, color: "secondary.main", bg: "action.hover" },
     { title: "Hours (Week)", value: stats.totalHours, icon: <TimerIcon />, color: "primary.main", bg: "action.hover" }
   ];
 
@@ -304,7 +286,7 @@ export default function DeveloperDashboard() {
                 <Grid container spacing={2} alignItems="center" justifyContent="space-between">
 
                   {/* Name */}
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={4}>
                     <Typography variant="body2" color="text.secondary">
                       Name
                     </Typography>
@@ -314,7 +296,7 @@ export default function DeveloperDashboard() {
                   </Grid>
 
                   {/* Email */}
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={4}>
                     <Typography variant="body2" color="text.secondary">
                       Email
                     </Typography>
@@ -324,22 +306,12 @@ export default function DeveloperDashboard() {
                   </Grid>
 
                   {/* Role */}
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={4}>
                     <Typography variant="body2" color="text.secondary">
                       Role
                     </Typography>
                     <Typography variant="h6">
                       {(user && user.role) ? user.role : "-"}
-                    </Typography>
-                  </Grid>
-
-                  {/* Leave Balance */}
-                  <Grid item xs={12} md={3}>
-                    <Typography variant="body2" color="text.secondary">
-                      Leave Balance
-                    </Typography>
-                    <Typography variant="h6" color="primary">
-                      {(typeof leaveBalance === "number" ? leaveBalance : 0)} Days
                     </Typography>
                   </Grid>
 

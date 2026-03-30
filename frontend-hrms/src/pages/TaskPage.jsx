@@ -123,7 +123,8 @@ const TaskPage = () => {
   const fetchEmployees = async () => {
     if (!canCreateTask) return;
     try {
-      const res = await api.get("/employees");
+      const endpoint = userRole === "manager" ? "/employees/team?limit=100" : "/employees?limit=100";
+      const res = await api.get(endpoint);
       let employeesArray = [];
       if (Array.isArray(res.data)) {
         employeesArray = res.data;
@@ -522,7 +523,7 @@ const TaskPage = () => {
                                 size="small" 
                                 color="primary"
                                 onClick={() => updateStatus(task.id, "in_progress")}
-                                disabled={task.status === "completed"}
+                                disabled={task.status === "in_progress" || task.status === "completed"}
                               >
                                 <PlayArrowIcon fontSize="small" />
                               </IconButton>
@@ -532,15 +533,17 @@ const TaskPage = () => {
                                 size="small" 
                                 color="success"
                                 onClick={() => updateStatus(task.id, "completed")}
+                                disabled={task.status === "completed" || task.status === "pending" || !task.status}
                               >
                                 <CheckCircleIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Mark Pending">
+                            <Tooltip title="Reopen Task">
                               <IconButton 
                                 size="small" 
                                 color="warning"
                                 onClick={() => updateStatus(task.id, "pending")}
+                                disabled={task.status === "pending" || !task.status}
                               >
                                 <PauseIcon fontSize="small" />
                               </IconButton>

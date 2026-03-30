@@ -32,9 +32,9 @@ export const leaveReport = (req, res) => {
   SELECT 
   e.name,
   COUNT(l.id) AS total_leaves,
-  SUM(CASE WHEN l.status='Approved' THEN 1 ELSE 0 END) AS approved,
-  SUM(CASE WHEN l.status='Rejected' THEN 1 ELSE 0 END) AS rejected,
-  SUM(CASE WHEN l.status='Pending' THEN 1 ELSE 0 END) AS pending
+  SUM(CASE WHEN l.status IN ('approved', 'Approved') THEN 1 ELSE 0 END) AS approved,
+  SUM(CASE WHEN l.status IN ('rejected', 'Rejected') THEN 1 ELSE 0 END) AS rejected,
+  SUM(CASE WHEN l.status IN ('pending', 'Pending') THEN 1 ELSE 0 END) AS pending
   FROM employees e
   LEFT JOIN leaves l ON e.id = l.employee_id
   GROUP BY e.id

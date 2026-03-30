@@ -2,6 +2,18 @@ import { sequelize } from "../config/sequelize.js";
 import { QueryTypes } from "sequelize";
 import { createNotification } from "./notificationController.js";
 
+const calculateWorkingDays = (startDate, endDate) => {
+  let count = 0;
+  let curDate = new Date(startDate);
+  const lastDate = new Date(endDate);
+  while (curDate <= lastDate) {
+    const dayOfWeek = curDate.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+    curDate.setDate(curDate.getDate() + 1);
+  }
+  return count;
+};
+
 /* Get Attendance Stats for an employee in a specific month/year */
 export const getAttendanceStats = async (req, res) => {
   const { employee_id, month, year } = req.query;
@@ -27,21 +39,25 @@ export const getAttendanceStats = async (req, res) => {
        FROM attendance 
        WHERE employee_id = :employee_id 
        AND MONTH(date) = :month 
-       AND YEAR(date) = :year`,
+       AND YEAR(date) = :year
+       AND date NOT IN (SELECT holiday_date FROM holidays)`,
       { replacements: { employee_id, month, year }, type: QueryTypes.SELECT }
     );
 
-    // 3. Simple calculation for total working days in month (can be improved with holiday list)
-    // For now, we assume standard 22-26 days or use the month's total days
+    // 3. Simple calculation for total working days in month
     const totalDaysInMonth = new Date(year, month, 0).getDate();
+    const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
+    const monthEnd = `${year}-${String(month).padStart(2, '0')}-${totalDaysInMonth}`;
     
-    // Calculate weekends
+    /* [WEEKEND THING] - Old logic:
     let weekends = 0;
     for (let i = 1; i <= totalDaysInMonth; i++) {
       const day = new Date(year, month - 1, i).getDay();
       if (day === 0 || day === 6) weekends++;
     }
     const standardWorkingDays = totalDaysInMonth - weekends;
+    */
+    const standardWorkingDays = calculateWorkingDays(monthStart, monthEnd);
 
     res.json({
       basic_salary: employee.basic_salary,
@@ -298,8 +314,9 @@ export const bulkGenerateSalary = async (req, res) => {
 
       // 4. PRECISE LEAVE TRACKING Logic
       const monthStart = `${year}-${String(month).padStart(2, '0')}-01`;
-      const monthEnd = new Date(year, month, 0).toISOString().split('T')[0];
+      const monthEnd = `${year}-${String(month).padStart(2, '0')}-${new Date(year, month, 0).getDate()}`;
 
+      /* [WEEKEND THING] - Old logic:
       const [leaveStats] = await sequelize.query(
         `SELECT SUM(DATEDIFF(
             LEAST(end_date, :monthEnd),
@@ -314,17 +331,47 @@ export const bulkGenerateSalary = async (req, res) => {
       );
 
       const leave_days = parseInt(leaveStats.leave_days || 0);
+      */
+
+      const leaveRows = await sequelize.query(
+        `SELECT start_date, end_date, leave_type FROM leaves 
+         WHERE employee_id = :empId 
+         AND status IN ('approved', 'Approved', 'managerApproved')
+         AND start_date <= :monthEnd 
+         AND end_date >= :monthStart`,
+        { replacements: { empId, monthStart, monthEnd }, type: QueryTypes.SELECT }
+      );
+
+      let total_leave_days = 0;
+      let unpaid_leave_days = 0;
+      for (const leave of leaveRows) {
+        const start = leave.start_date > monthStart ? leave.start_date : monthStart;
+        const end = leave.end_date < monthEnd ? leave.end_date : monthEnd;
+        const days = calculateWorkingDays(start, end);
+        
+        total_leave_days += days;
+        // User wants Paid, Sick, Emergency, and Casual leaves to be deductible.
+        if (['Paid Leave', 'Sick Leave', 'Emergency Leave', 'Casual Leave'].includes(leave.leave_type)) {
+          unpaid_leave_days += days;
+        }
+      }
+      
+      const leave_days = total_leave_days; // Store total in DB column for tracking
+      const deductible_days = unpaid_leave_days; // Use this for calculation
 
       // 5. Standard Payout Calculation
       const totalDaysInMonth = new Date(year, month, 0).getDate();
+      /* [WEEKEND THING] - Old logic:
       let weekends = 0;
       for (let i = 1; i <= totalDaysInMonth; i++) {
         if ([0, 6].includes(new Date(year, month - 1, i).getDay())) weekends++;
       }
       const working_days = totalDaysInMonth - weekends;
+      */
+      const working_days = calculateWorkingDays(monthStart, monthEnd);
       const present_days = Math.max(0, working_days - leave_days);
       const per_day_salary = parseFloat(employee.basic_salary) / working_days;
-      const leave_deduction = leave_days * per_day_salary;
+      const leave_deduction = deductible_days * per_day_salary;
       const final_salary = parseFloat(employee.basic_salary) + allowance + bonus - (leave_deduction + parseFloat(otherDeduction));
 
       await sequelize.query(
@@ -418,5 +465,19 @@ export const getPayrollSummary = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Database error" });
+    }
+};
+
+export const deleteSalary = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await sequelize.query("DELETE FROM salaries WHERE id = :id", {
+            replacements: { id },
+            type: QueryTypes.DELETE
+        });
+        res.json({ message: "Salary record deleted successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Error deleting salary record" });
     }
 };

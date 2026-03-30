@@ -20,7 +20,7 @@ export const getDashboardStats = async (req, res) => {
         `SELECT COUNT(*) as leavesToday 
          FROM leaves l 
          JOIN employees e ON l.employee_id = e.id 
-         WHERE DATE(l.start_date) <= :today AND DATE(l.end_date) >= :today AND l.status IN ('Approved', 'Pending')`,
+         WHERE DATE(l.start_date) <= :today AND DATE(l.end_date) >= :today AND l.status IN ('approved', 'Approved', 'pending', 'Pending', 'managerApproved')`,
         { replacements: { today }, type: QueryTypes.SELECT }
       ),
       // WFH Today

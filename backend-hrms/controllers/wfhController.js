@@ -207,7 +207,7 @@ export const getTeamWFH = (req, res) => {
      JOIN employees e ON w.employee_id = e.id
      JOIN users u ON e.user_id = u.id
      LEFT JOIN departments d ON e.department_id = d.id
-     WHERE e.department_id = (SELECT department_id FROM employees WHERE id = ?)
+     WHERE e.manager_id = ?
      ORDER BY w.start_date DESC`,
     [managerId],
     (err, result) => {

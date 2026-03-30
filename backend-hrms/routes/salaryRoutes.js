@@ -8,7 +8,8 @@ import {
   updateSalaryStatus,
   bulkGenerateSalary,
   getPayrollSummary,
-  updateSalaryRecord
+  updateSalaryRecord,
+  deleteSalary
 } from "../controllers/salaryController.js";
 import { verifyToken } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -24,5 +25,6 @@ router.get("/summary", verifyToken, authorizeRoles("admin", "hr"), getPayrollSum
 router.post("/bulk-generate", verifyToken, authorizeRoles("admin", "hr"), bulkGenerateSalary);
 router.patch("/status/:id", verifyToken, authorizeRoles("admin", "hr"), updateSalaryStatus);
 router.put("/:id", verifyToken, authorizeRoles("admin", "hr"), updateSalaryRecord);
+router.delete("/:id", verifyToken, authorizeRoles("admin", "hr"), deleteSalary);
 
 export default router;

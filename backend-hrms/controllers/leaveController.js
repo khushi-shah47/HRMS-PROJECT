@@ -2,6 +2,17 @@ import { sequelize } from "../config/sequelize.js";
 import { QueryTypes } from "sequelize";
 import { createNotification } from "./notificationController.js";
 import { LEAVE_POLICY } from "../config/leavePolicy.js";
+const calculateWorkingDays = (startDate, endDate) => {
+  let count = 0;
+  let curDate = new Date(startDate);
+  const lastDate = new Date(endDate);
+  while (curDate <= lastDate) {
+    const dayOfWeek = curDate.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+    curDate.setDate(curDate.getDate() + 1);
+  }
+  return count;
+};
 
 export const applyLeave = async (req, res) => {
   const { employee_id, start_date, end_date, reason , leave_type } = req.body;
@@ -74,17 +85,22 @@ export const applyLeave = async (req, res) => {
         );
 
         const usedDays = usedLeaves.reduce((total, l) => {
+          /* [WEEKEND THING] - Old logic:
           const days =
             Math.ceil(
               (new Date(l.end_date) - new Date(l.start_date)) /
               (1000 * 60 * 60 * 24)
             ) + 1;
+          */
+          const days = calculateWorkingDays(l.start_date, l.end_date);
           return total + days;
         }, 0);
 
+        /* [WEEKEND THING] - Old logic:
         const requestedDays =
           Math.ceil((new Date(end_date) - new Date(start_date)) / (1000 * 60 * 60 * 24)) + 1;
-
+        */
+        const requestedDays = calculateWorkingDays(start_date, end_date);
       
 
         if (usedDays + requestedDays > limit) {
@@ -149,6 +165,7 @@ export const getLeaves = async (req, res) => {
   let baseQuery = `
     FROM leaves l
     JOIN employees e ON l.employee_id = e.id
+    JOIN users u ON e.user_id = u.id
     LEFT JOIN departments d ON e.department_id = d.id
   `;
 
@@ -166,7 +183,7 @@ export const getLeaves = async (req, res) => {
 
   try {
     const dataQuery = `
-      SELECT l.id, e.name, d.name AS department,
+      SELECT l.id, e.name, u.role AS owner_role, l.employee_id, d.name AS department,
              l.start_date, l.end_date, l.leave_type,
              l.reason, l.status
       ${baseQuery}
@@ -253,9 +270,12 @@ export const updateLeaveStatus = async (req, res) => {
 
     // 4. If FINAL Approval -> Deduct Balance
     if (nextStatus === "approved" && leave.status !== "approved") {
+      /* [WEEKEND THING] - Old logic:
       const start = new Date(leave.start_date);
       const end = new Date(leave.end_date);
       const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      */
+      const days = calculateWorkingDays(leave.start_date, leave.end_date);
 
       // Check if employee has enough balance
       const [employee] = await sequelize.query(
@@ -339,7 +359,7 @@ export const getTeamLeaves = async (req, res) => {
   const offset = (page - 1) * limit;
 
   let whereClauses = [
-    "e.department_id = (SELECT department_id FROM employees WHERE id = :managerId)"
+    "l.manager_id = :managerId"
   ];
   let replacements = { managerId, limit, offset };
 
@@ -350,9 +370,10 @@ export const getTeamLeaves = async (req, res) => {
 
   try {
     const leaves = await sequelize.query(
-      `SELECT l.id, e.name, d.name AS department, l.start_date, l.end_date, l.reason, l.status
+      `SELECT l.id, e.name, u.role AS owner_role, l.employee_id, d.name AS department, l.start_date, l.end_date, l.leave_type, l.reason, l.status
        FROM leaves l
        JOIN employees e ON l.employee_id = e.id
+       JOIN users u ON e.user_id = u.id
        LEFT JOIN departments d ON e.department_id = d.id
        WHERE ${whereClauses.join(" AND ")}
        ORDER BY l.created_at DESC
@@ -360,11 +381,11 @@ export const getTeamLeaves = async (req, res) => {
       { replacements, type: QueryTypes.SELECT }
     );
 
-    const countResult = await sequelize.query(
+     const countResult = await sequelize.query(
       `SELECT COUNT(*) as total
        FROM leaves l
        JOIN employees e ON l.employee_id = e.id
-       WHERE ${whereClauses.join(" AND ")}`,
+       WHERE l.manager_id = :managerId${status ? " AND l.status = :status" : ""}`,
       { replacements, type: QueryTypes.SELECT }
     );
 

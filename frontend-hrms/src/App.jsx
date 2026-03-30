@@ -44,56 +44,56 @@ function App() {
   return (
     <Router>
       <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage/>}/>
-          <Route path="/signup" element={<SignupPage/>}/>
-          <Route path="/forgot-password" element={<ForgetPassword/>}/>
-          <Route path="/shyam" element={<ShyamPage />}/>
-          <Route element={<ProtectedRoute><Layout/></ProtectedRoute>}>
-            {/* Role-specific Dashboard Routes */}
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager"]}>
-                  <ManagerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/hr" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "hr"]}>
-                  <HRDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/developer" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "developer"]}>
-                  <DeveloperDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/intern" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "intern"]}>
-                  <InternDashboard />
-                </ProtectedRoute>
-              } 
-            />
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgetPassword />} />
 
-            {/* Default Dashboard (redirects based on role) */}
-            {/* <Route 
+        <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          {/* Role-specific Dashboard Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manager"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <ManagerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                <HRDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/developer"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "developer"]}>
+                <DeveloperDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/intern"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "intern"]}>
+                <InternDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Default Dashboard (redirects based on role) */}
+          {/* <Route 
               path="/" 
               element={
                 <ProtectedRoute>
@@ -102,155 +102,155 @@ function App() {
               } 
             /> */}
 
-            {/* Protected Routes */}
-            <Route 
-              path="/employees" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "hr"]}>
-                  <EmployeePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/attendance" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <AttendancePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/all-attendance" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <AllAttendancePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/tasks" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <TaskPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employees/:id" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "hr"]}>
-                  <EmployeeDetailPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/tasks/:id" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <TaskDetailPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/reports" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
-                  <ReportsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/users" 
-              element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <UserPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/leave" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <LeavePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/salary" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "hr"]}>
-                  <SalaryPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/policies" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <PolicyPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/wfh" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <WFHPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/holidays" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <HolidayPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/departments" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "hr"]}>
-                  <DepartmentPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/announcements" 
-              element={
-                <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
-                  <AnnouncementsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <SettingsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-              path="/change-password"
-              element={
-                <ProtectedRoute>
-                  <ChangePasswordPage />
-                </ProtectedRoute>
-              }
-            />
+          {/* Protected Routes */}
+          <Route
+            path="/employees"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                <EmployeePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/attendance"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <AttendancePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/all-attendance"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <AllAttendancePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <TaskPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employees/:id"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                <EmployeeDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks/:id"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <TaskDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr"]}>
+                <ReportsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <UserPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leave"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <LeavePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/salary"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                <SalaryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/policies"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <PolicyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wfh"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <WFHPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/holidays"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <HolidayPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/departments"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "hr"]}>
+                <DepartmentPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/announcements"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
+                <AnnouncementsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Catch all - redirect to login */}
-            <Route path="*" element={<Navigate to="/shyam" />} />
-          </Route>
+          {/* Catch all - redirect to login */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Route>
       </Routes>
     </Router>
   );

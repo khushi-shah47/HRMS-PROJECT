@@ -268,7 +268,7 @@ export const getTeamAttendance = (req, res) => {
     FROM attendance a 
     JOIN employees e ON a.employee_id = e.id 
     JOIN users u ON e.id = u.employee_id
-    WHERE e.department_id = (SELECT department_id FROM employees WHERE id = ?)
+    WHERE e.manager_id = ?
   `;
   const params = [managerId];
 

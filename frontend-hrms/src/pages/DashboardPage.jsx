@@ -44,7 +44,6 @@ const roleStats = {
     { title: "My Tasks", value: 8, icon: <AssignmentIcon />, color: "primary.main", bg: "action.hover" },
     { title: "Completed", value: 5, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
     { title: "In Progress", value: 3, icon: <AccessTimeIcon />, color: "warning.main", bg: "action.hover" },
-    { title: "Leave Balance", value: 15, icon: <BeachAccessIcon />, color: "secondary.main", bg: "action.hover" }
   ],
   intern: [
     { title: "Assigned Tasks", value: 4, icon: <AssignmentIcon />, color: "primary.main", bg: "action.hover" },
