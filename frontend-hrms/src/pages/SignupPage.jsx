@@ -15,6 +15,35 @@ import api from "../services/api";
 
 const roles = ["admin", "manager", "hr", "developer", "intern"];
 
+const validateForm = () => {
+  const errors = {};
+
+  if (!name.trim()) {
+    errors.name = "Name is required";
+  } else if (name.length < 3) {
+    errors.name = "Name must be at least 3 characters";
+  }
+
+  if (!email.trim()) {
+    errors.email = "Email is required";
+  } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+    errors.email = "Invalid email format";
+  }
+
+  if (!password) {
+    errors.password = "Password is required";
+  } else if (password.length < 6) {
+    errors.password = "Password must be at least 6 characters";
+  }
+
+  if (!selectedRole) {
+    errors.role = "Please select a role";
+  }
+
+  setFormErrors(errors);
+  return Object.keys(errors).length === 0;
+};
+
 const SignupPage = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -23,8 +52,10 @@ const SignupPage = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   const handleSignup = async () => {
+    if (!validateForm()) return;
     if (!name || !email || !password || !selectedRole) {
       setError("Please fill in all fields!");
       return;
@@ -101,6 +132,8 @@ const SignupPage = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyPress={handleKeyPress}
+          error={!!formErrors.name}
+          helperText={formErrors.name}
         />
 
         <TextField
@@ -110,6 +143,8 @@ const SignupPage = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyPress={handleKeyPress}
+          error={!!formErrors.email}
+          helperText={formErrors.email}
         />
 
         <TextField
@@ -120,6 +155,8 @@ const SignupPage = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyPress={handleKeyPress}
+          error={!!formErrors.password}
+          helperText={formErrors.password}
         />
 
         <FormControl fullWidth margin="normal">

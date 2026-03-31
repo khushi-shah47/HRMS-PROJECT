@@ -294,7 +294,7 @@ const SalaryPage = () => {
               <TableCell>
                 {isHistory ? <Chip label={`${months.find(m => m.value == rec.month).label} ${rec.year}`} size="small" variant="outlined" /> : (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                    <Avatar sx={{ width: 30, height: 30, fontSize: "0.8rem", bgcolor: "primary.main" }}>{rec.name?.charAt(0)}</Avatar>
+                    {/* <Avatar sx={{ width: 30, height: 30, fontSize: "0.8rem", bgcolor: "primary.main" }}>{rec.name?.charAt(0)}</Avatar> */}
                     {rec.name}
                   </Box>
                 )}

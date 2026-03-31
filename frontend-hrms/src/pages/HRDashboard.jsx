@@ -281,70 +281,51 @@ export default function HRDashboard() {
             <PersonIcon />
           </Avatar>
 
-         <Typography
-            variant="h6"
-            fontWeight="bold"
-sx={{ color: "primary.main" }}
-          >
+          <Typography variant="h6" fontWeight="bold">
             My Profile
           </Typography>
-          </Box>
+        </Box>
 
-          {/* Profile Details */}
-          <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-            {/* Name */}
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Name
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={(theme) => ({
-                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                })}
-              >
-                {(user && user.name) ? user.name : "-"}
-              </Typography>
-            </Grid>
+        {/* Profile Details */}
+        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
 
-            {/* Email */}
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Email
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={(theme) => ({
-                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                })}
-              >
-                {(user && user.email) ? user.email : "-"}
-              </Typography>
-            </Grid>
-
-            {/* Role */}
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Role
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={(theme) => ({
-                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                })}
-              >
-                {(user && user.role) ? user.role : "-"}
-              </Typography>
-            </Grid>
+          {/* Name */}
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" color="text.secondary">
+              Name
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.name) ? user.name : "-"}
+            </Typography>
           </Grid>
 
+          {/* Email */}
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" color="text.secondary">
+              Email
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.email) ? user.email : "-"}
+            </Typography>
+          </Grid>
 
+          {/* Role */}
+          <Grid item xs={12} md={4}>
+            <Typography variant="body2" color="text.secondary">
+              Role
+            </Typography>
+            <Typography variant="h6">
+              {(user && user.role) ? user.role : "-"}
+            </Typography>
+          </Grid>
+
+        </Grid>
 
       </CardContent>
     </Card>
 
             {/* Employee Directory */}
-            {/* <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                   <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
@@ -376,9 +357,9 @@ sx={{ color: "primary.main" }}
                           <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
                             <TableCell>
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
+                                {/* <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
                                   {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
-                                </Avatar>
+                                </Avatar> */}
                                 <Typography fontWeight="500" variant="body2">{emp.name}</Typography>
                               </Box>
                             </TableCell>
@@ -393,109 +374,7 @@ sx={{ color: "primary.main" }}
                   </TableContainer>
                 )}
               </CardContent>
-            </Card> */}
-            <Card
-                sx={(theme) => ({
-                  borderRadius: 3,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  bgcolor: theme.palette.mode === "light" ? "#fff" : "#1E293B", // white in light, dark in dark
-                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8", // dark blue in light, sky blue in dark
-                })}
-              >
-                <CardContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      sx={(theme) => ({
-                        color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                      })}
-                    >
-                      Employee Directory
-                    </Typography>
-                    <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
-                  </Box>
-
-                  {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                      <CircularProgress />
-                    </Box>
-                  ) : employees.length === 0 ? (
-                    <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
-                      No employees found
-                    </Typography>
-                  ) : (
-                    <TableContainer>
-                      <Table>
-                        <TableHead>
-                          <TableRow
-                            sx={(theme) => ({
-                              background: theme.palette.mode === "light" ? "#F3F4F6" : "#334155", // light gray or dark gray
-                            })}
-                          >
-                            <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
-                            <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
-                            <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {employees.slice(0, 5).map((emp, i) => (
-                            <TableRow
-                              key={emp.id || i}
-                              sx={(theme) => ({
-                                "&:hover": {
-                                  background: theme.palette.mode === "light" ? "#E5E7EB" : "#475569",
-                                },
-                              })}
-                            >
-                              <TableCell>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                  <Avatar
-                                    sx={(theme) => ({
-                                      width: 32,
-                                      height: 32,
-                                      background: theme.palette.primary.main,
-                                      fontSize: "0.8rem",
-                                    })}
-                                  >
-                                    {emp.name?.split(" ").map((n) => n[0]).join("").substring(0, 2)}
-                                  </Avatar>
-                                  <Typography
-                                    fontWeight="500"
-                                    variant="body2"
-                                    sx={(theme) => ({
-                                      color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                                    })}
-                                  >
-                                    {emp.name}
-                                  </Typography>
-                                </Box>
-                              </TableCell>
-                              <TableCell
-                                sx={(theme) => ({
-                                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                                })}
-                              >
-                                {emp.position || "-"}
-                              </TableCell>
-                              <TableCell>
-                                <Chip
-                                  label={emp.department_name || "Not Assigned"}
-                                  size="small"
-                                  sx={(theme) => ({
-                                    background: theme.palette.action.selected,
-                                    color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                                  })}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  )}
-                </CardContent>
-              </Card>
+            </Card>
 
             {/* Leave Requests */}
             {leaveRequests.length > 0 && (
@@ -537,7 +416,7 @@ sx={{ color: "primary.main" }}
             )}
 
             {/* WFH Requests */}
-            {/* {wfhRequests.length > 0 && (
+            {wfhRequests.length > 0 && (
               <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
                 <CardContent>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
@@ -562,75 +441,6 @@ sx={{ color: "primary.main" }}
                         </Box>
                         <Box sx={{ display: "flex", gap: 1 }}>
                           <Button size="small" color="info">Manage</Button>
-                        </Box>
-                      </Box>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-            )} */}
-            {wfhRequests.length > 0 && (
-              <Card
-                sx={(theme) => ({
-                  borderRadius: 3,
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  bgcolor: theme.palette.mode === "light" ? "#fff" : "#1E293B", // white in light, dark in dark
-                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8", // text color
-                })}
-              >
-                <CardContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      sx={(theme) => ({
-                        color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                      })}
-                    >
-                      Recent WFH Requests
-                    </Typography>
-                    <Button size="small" color="primary" onClick={() => navigate("/wfh")}>
-                      View All
-                    </Button>
-                  </Box>
-
-                  {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                      <CircularProgress color="primary" />
-                    </Box>
-                  ) : (
-                    wfhRequests.map((request, i) => (
-                      <Box
-                        key={request.id || i}
-                        sx={(theme) => ({
-                          p: 2,
-                          mb: 1,
-                          borderRadius: 2,
-                          bgcolor: theme.palette.mode === "light" ? "#fff" : "#1E293B",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          border: "1px solid",
-                          borderColor: theme.palette.divider,
-                        })}
-                      >
-                        <Box>
-                          <Typography
-                            fontWeight="600"
-                            variant="body2"
-                            sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
-                          >
-                            {request.name || getEmployeeName(request.employee_id)}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
-                          >
-                            Applied for: {request.date?.split("T")[0]}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", gap: 1 }}>
-                          <Button size="small" color="primary">Manage</Button>
                         </Box>
                       </Box>
                     ))

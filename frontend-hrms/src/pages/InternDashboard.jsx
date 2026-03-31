@@ -250,7 +250,7 @@ export default function InternDashboard() {
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.warning.dark} 0%, ${theme.palette.warning.main} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -292,67 +292,49 @@ export default function InternDashboard() {
           <PersonIcon />
         </Avatar>
 
-                <Typography
-                   variant="h6"
-                   fontWeight="bold"
-       sx={{ color: "primary.main" }}
-                 >
-                   My Profile
-                 </Typography>
-                 </Box>
-       
-                 {/* Profile Details */}
-                 <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-                   {/* Name */}
-                   <Grid item xs={12} md={4}>
-                     <Typography variant="body2" color="text.secondary">
-                       Name
-                     </Typography>
-                     <Typography
-                       variant="h6"
-                       sx={(theme) => ({
-                         color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                       })}
-                     >
-                       {(user && user.name) ? user.name : "-"}
-                     </Typography>
-                   </Grid>
-       
-                   {/* Email */}
-                   <Grid item xs={12} md={4}>
-                     <Typography variant="body2" color="text.secondary">
-                       Email
-                     </Typography>
-                     <Typography
-                       variant="h6"
-                       sx={(theme) => ({
-                         color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                       })}
-                     >
-                       {(user && user.email) ? user.email : "-"}
-                     </Typography>
-                   </Grid>
-       
-                   {/* Role */}
-                   <Grid item xs={12} md={4}>
-                     <Typography variant="body2" color="text.secondary">
-                       Role
-                     </Typography>
-                     <Typography
-                       variant="h6"
-                       sx={(theme) => ({
-                         color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                       })}
-                     >
-                       {(user && user.role) ? user.role : "-"}
-                     </Typography>
-                   </Grid>
-                 </Grid>
-       
-       
-       
-             </CardContent>
-           </Card>
+        <Typography variant="h6" fontWeight="bold">
+          My Profile
+        </Typography>
+          </Box>
+
+          {/* Profile Details */}
+          <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+
+            {/* Name */}
+            <Grid item xs={12} md={4}>
+              <Typography variant="body2" color="text.secondary">
+                Name
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.name) ? user.name : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Email */}
+            <Grid item xs={12} md={4}>
+              <Typography variant="body2" color="text.secondary">
+                Email
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.email) ? user.email : "-"}
+              </Typography>
+            </Grid>
+
+            {/* Role */}
+            <Grid item xs={12} md={4}>
+              <Typography variant="body2" color="text.secondary">
+                Role
+              </Typography>
+              <Typography variant="h6">
+                {(user && user.role) ? user.role : "-"}
+              </Typography>
+            </Grid>
+
+          </Grid>
+
+        </CardContent>
+      </Card>
+
 
             {/* My Tasks Table - NEW for Interns */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
@@ -438,23 +420,11 @@ export default function InternDashboard() {
         <Grid size={{ xs: 12, lg: 3.5 }}>
           <Stack spacing={3}>
             <Box sx={{ p: 2, bgcolor: "background.paper", borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-               <Typography
-                variant="h6"
-                fontWeight="bold"
-                sx={{
-                  mb: 2,
-                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
-                  backgroundColor: theme.palette.mode === "light" ,
-                  padding: "8px 12px",
-                  borderRadius: "6px",
-                }}
-              >
-                Quick Shortcuts
-              </Typography>
+              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Quick Shortcuts</Typography>
               <Stack spacing={1}>
-                <Button variant="outlined" color="primary" onClick={() => navigate("/attendance")} startIcon={<AccessTimeIcon />}>Attendance</Button>
-                <Button variant="outlined" color="primary" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Leave</Button>
-                <Button variant="outlined" color="primary" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>WFH</Button>
+                <Button variant="outlined" color="warning" onClick={() => navigate("/attendance")} startIcon={<AccessTimeIcon />}>Attendance</Button>
+                <Button variant="outlined" color="warning" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Leave</Button>
+                <Button variant="outlined" color="warning" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>WFH</Button>
               </Stack>
             </Box>
             <AnnouncementCard announcements={announcements} loading={loading} />

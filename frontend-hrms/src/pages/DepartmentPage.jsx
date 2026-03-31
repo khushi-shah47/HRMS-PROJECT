@@ -202,7 +202,26 @@ const DepartmentPage = () => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddOpen}
-                sx={{ bgcolor: "background.paper", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
+                sx={(theme) => ({
+                  bgcolor: "background.paper",
+                  color: "primary.main",
+                  boxShadow: "none",
+
+                  "&:hover": {
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? theme.palette.common.white   // white in light mode
+                        : theme.palette.grey[900],     // dark in dark mode
+                    boxShadow: "none",
+                  },
+
+                  "&:active": {
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? theme.palette.common.white
+                        : theme.palette.grey[900],
+                  },
+                })}
               >
                 Add Department
               </Button>
