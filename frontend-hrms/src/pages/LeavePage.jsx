@@ -258,14 +258,41 @@ function LeavePage() {
                 sx={{ bgcolor: "background.paper", color: "primary.main", fontWeight: "bold" }}
               />
             )}
-            <Button
+            {/* <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleApplyOpen}
               sx={{ bgcolor: "background.paper", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
             >
               Apply Leave
-            </Button>
+            </Button> */}
+            <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleApplyOpen}
+                sx={(theme) => ({
+                  bgcolor: "background.paper",
+                  color: "primary.main",
+                  boxShadow: "none",
+
+                  "&:hover": {
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? theme.palette.common.white   // white in light mode
+                        : theme.palette.grey[900],     // dark in dark mode
+                    boxShadow: "none",
+                  },
+
+                  "&:active": {
+                    bgcolor:
+                      theme.palette.mode === "light"
+                        ? theme.palette.common.white
+                        : theme.palette.grey[900],
+                  },
+                })}
+              >
+                Apply Leave
+              </Button>
             <Tooltip title="Refresh">
               <IconButton onClick={fetchLeaves} sx={{ color: "white" }}>
                 <RefreshIcon />
@@ -374,7 +401,7 @@ function LeavePage() {
                               variant="contained"
                               color="info"
                               size="small"
-                              onClick={() => updateStatus(leave.id, "Approved")}
+                              onClick={() => updateStatus(leave.id, "approved")}
                             >
                               Approve
                             </Button>
@@ -386,7 +413,7 @@ function LeavePage() {
                               variant="contained"
                               color="success"
                               size="small"
-                              onClick={() => updateStatus(leave.id, "Approved")}
+                              onClick={() => updateStatus(leave.id, "approved")}
                             >
                               {leave.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
                             </Button>

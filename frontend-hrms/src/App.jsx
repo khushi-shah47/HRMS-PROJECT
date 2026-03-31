@@ -35,7 +35,7 @@ import ShyamPage from "./pages/ShyamPage";
 const roleRoutes = {
   admin: ["/admin", "/employees", "/attendance", "/all-attendance", "/tasks", "/reports", "/users", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments"],
   manager: ["/manager", "/attendance", "/tasks", "/reports", "/leave", "/wfh"],
-  hr: ["/hr", "/employees", "/attendance", "/all-attendance", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments", "/announcements"],
+  hr: ["/hr", "/employees", "/attendance", "/all-attendance", "/tasks", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments", "/announcements"],
   developer: ["/developer", "/attendance", "/all-attendance", "/leave", "/tasks", "/wfh", "/policies", "/holidays", "/announcements"],
   intern: ["/intern", "/attendance", "/all-attendance", "/tasks", "/policies", "/holidays", "/announcements"]
 };

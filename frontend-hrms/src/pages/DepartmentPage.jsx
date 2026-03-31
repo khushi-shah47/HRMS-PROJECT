@@ -235,7 +235,10 @@ const DepartmentPage = () => {
           />
           <Chip 
             label={`${filteredDepartments.length} departments`} 
-            sx={{ bgcolor: "primary.light", color: "primary.dark" }}
+            sx={{ 
+              color: theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8", // dark blue vs sky blue
+              borderColor: theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8" 
+            }}
           />
         </Stack>
       </Paper>

@@ -7,7 +7,8 @@ import {
   deleteTask,
   getMyTasks,
   updateTask,
-  getTaskById
+  getTaskById,
+  getGivenTasks
 } from "../controllers/taskController.js";
 import {
   getTaskComments,
@@ -26,14 +27,15 @@ import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", verifyToken, authorizeRoles("admin", "manager"), createTask);
+router.post("/", verifyToken, authorizeRoles("admin", "manager", "hr"), createTask);
 router.get("/", verifyToken, authorizeRoles("admin", "manager", "hr"), getAllTasks);
 router.get("/my", verifyToken, getMyTasks);
+router.get("/given", verifyToken, getGivenTasks);
 router.get("/:id", verifyToken, getTaskById);
 router.get("/employee/:employee_id", verifyToken, getEmployeeTasks);
-router.put("/:id", verifyToken, authorizeRoles("admin", "manager"), updateTask);
+router.put("/:id", verifyToken, authorizeRoles("admin", "manager", "hr"), updateTask);
 router.put("/:id/status", verifyToken, updateTaskStatus);
-router.delete("/:id", verifyToken, authorizeRoles("admin", "manager"), deleteTask);
+router.delete("/:id", verifyToken, authorizeRoles("admin", "manager", "hr"), deleteTask);
 
 // Comments
 router.get("/:id/comments", verifyToken, getTaskComments);

@@ -387,35 +387,35 @@ const SalaryPage = () => {
       {isAdminOrHR ? (
         <>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 3 }}>
-                <Box sx={{ width: 225 }}>
+                <Box sx={{ width: 240 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><AttachMoneyIcon sx={{ color: "primary.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Payout</Typography>
                         <Typography variant="h5" color="primary.main" sx={{ fontWeight: "bold" }}>₹{totals.net.toLocaleString()}</Typography>
                     </Card>
                 </Box>
-                <Box sx={{ width: 225 }}>
+                <Box sx={{ width: 240 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><TrendingUpIcon sx={{ color: "success.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Allowances</Typography>
                         <Typography variant="h5" sx={{ fontWeight: "bold" }}>₹{(totals.allowance + totals.bonus).toLocaleString()}</Typography>
                     </Card>
                 </Box>
-                <Box sx={{ width: 225 }}>
+                <Box sx={{ width: 240 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><SummarizeIcon sx={{ color: "error.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Total Deductions</Typography>
                         <Typography variant="h5" color="error.main" sx={{ fontWeight: "bold" }}>₹{totals.deduction.toLocaleString()}</Typography>
                     </Card>
                 </Box>
-                <Box sx={{ width: 225 }}>
+                <Box sx={{ width: 240 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><CheckCircleOutlineIcon sx={{ color: "info.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Payroll Status</Typography>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{payrollSummary.processedCount}/{payrollSummary.totalEmployees}</Typography>
                     </Card>
                 </Box>
-                <Box sx={{ width: 225 }}>
+                <Box sx={{ width: 240 }}>
                     <Card sx={squareCardStyle}>
                         <Box sx={{ ...iconCircle, background: "action.hover" }}><AssessmentIcon sx={{ color: "secondary.main" }} /></Box>
                         <Typography variant="overline" color="text.secondary" sx={{ fontSize: "0.65rem", fontWeight: "bold" }}>Efficiency</Typography>

@@ -194,20 +194,63 @@ const AnnouncementsPage = () => {
           </Box>
           <Box sx={{ display: "flex", gap: 2 }}>
             {canManage && (
+              // <Button
+              //   variant="contained"
+              //   startIcon={<AddIcon />}
+              //   onClick={handleCreateOpen}
+              //   sx={{
+              //     bgcolor: "background.paper",
+              //     color: "primary.main",
+              //     px: 2,
+              //     fontWeight: "bold",
+              //     "&:hover": { bgcolor: "action.hover" }
+              //   }}
+              // >
+              //   Create New
+              // </Button>
               <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleCreateOpen}
-                sx={{
-                  bgcolor: "background.paper",
-                  color: "primary.main",
-                  px: 2,
-                  fontWeight: "bold",
-                  "&:hover": { bgcolor: "action.hover" }
-                }}
-              >
-                Create New
-              </Button>
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleCreateOpen}
+                  sx={(theme) => ({
+                    // Base background
+                    bgcolor: theme.palette.mode === "light"
+                      ? theme.palette.common.white
+                      : theme.palette.grey[900],
+
+                    // Base text color
+                    color: theme.palette.mode === "light"
+                      ? "#0d47a1" // dark blue
+                      : "#38bdf8", // sky blue
+
+                    px: 2,
+                    fontWeight: "bold",
+                    boxShadow: "none", // remove default shadow
+
+                    "&:hover": {
+                      bgcolor: theme.palette.mode === "light"
+                        ? theme.palette.common.white
+                        : theme.palette.grey[900],
+                      color: theme.palette.mode === "light"
+                        ? "#0d47a1"
+                        : "#38bdf8",
+                      boxShadow: "none",
+                    },
+
+                    "&:active": {
+                      bgcolor: theme.palette.mode === "light"
+                        ? theme.palette.common.white
+                        : theme.palette.grey[900],
+                      color: theme.palette.mode === "light"
+                        ? "#0d47a1"
+                        : "#38bdf8",
+                      boxShadow: "none",
+                    },
+                  })}
+                >
+                  Create New
+                </Button>
+
             )}
             <Tooltip title="Reload">
               <IconButton onClick={fetchAnnouncements} sx={{ color: "white" }}>
@@ -361,7 +404,7 @@ const AnnouncementsPage = () => {
         </DialogTitle>
         <DialogContent sx={{ mt: 1 }}>
           <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
+            {/* <TextField
               label="Subject / Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -381,7 +424,63 @@ const AnnouncementsPage = () => {
               variant="filled"
               placeholder="Provide more details here..."
               InputProps={{ disableUnderline: true, sx: { borderRadius: 2, bgcolor: "background.default" } }}
-            />
+            /> */}
+            <TextField
+                label="Subject / Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                fullWidth
+                required
+                variant="outlined"
+                placeholder="E.g. Team Meeting Tomorrow"
+                InputProps={{
+                  sx: {
+                    borderRadius: 2,
+                    bgcolor: "background.default",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8",
+                    },
+                  },
+                }}
+              />
+
+              <TextField
+                label="Message Body"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                multiline
+                rows={5}
+                fullWidth
+                variant="outlined"
+                placeholder="Provide more details here..."
+                InputProps={{
+                  sx: {
+                    borderRadius: 2,
+                    bgcolor: "background.default",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8",
+                    },
+                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8",
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (theme) =>
+                        theme.palette.mode === "light" ? "#0d47a1" : "#38bdf8",
+                    },
+                  },
+                }}
+              />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 1 }}>

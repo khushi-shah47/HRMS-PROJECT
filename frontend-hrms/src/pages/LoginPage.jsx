@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   TextField,
@@ -7,18 +7,18 @@ import {
   IconButton, 
   InputAdornment,
   Alert,
-  Card,
-  CardContent,
-  Divider,
-  useTheme
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
-import WorkIcon from "@mui/icons-material/Work";
-import CodeIcon from "@mui/icons-material/Code";
-import SchoolIcon from "@mui/icons-material/School";
 import api from "../services/api.js";
 
 // Get dashboard route based on role
@@ -33,38 +33,38 @@ const getDashboardRoute = (role) => {
   return routes[role] || "/";
 };
 
-// // Get icon based on role
-// const getRoleIcon = (role) => {
-//   const icons = {
-//     admin: <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#1E3A8A" }} />,
-//     manager: <SupervisedUserCircleIcon sx={{ fontSize: 40, color: "#7C3AED" }} />,
-//     hr: <WorkIcon sx={{ fontSize: 40, color: "#059669" }} />,
-//     developer: <CodeIcon sx={{ fontSize: 40, color: "#DC2626" }} />,
-//     intern: <SchoolIcon sx={{ fontSize: 40, color: "#D97706" }} />
-//   };
-//   return icons[role] || icons.developer;
-// };
-
-// // Get color based on role
-// const getRoleColor = (role) => {
-//   const colors = {
-//     admin: "#1E3A8A",
-//     manager: "#7C3AED",
-//     hr: "#059669",
-//     developer: "#DC2626",
-//     intern: "#D97706"
-//   };
-//   return colors[role] || colors.developer;
-// };
-
 const LoginPage = () => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Saved accounts
+  const [savedAccounts, setSavedAccounts] = useState([]);
+  const [showSavedDropdown, setShowSavedDropdown] = useState(false);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [currentLogin, setCurrentLogin] = useState(null); // temporary storage for save popup
+
+  const emailRef = useRef();
+
+  useEffect(() => {
+    const accounts = JSON.parse(localStorage.getItem("savedAccounts") || "[]");
+    setSavedAccounts(accounts);
+  }, []);
+
+  const saveAccount = (email, password) => {
+    const accounts = [...savedAccounts];
+    const existingIndex = accounts.findIndex(acc => acc.email === email);
+    if (existingIndex !== -1) {
+      accounts[existingIndex].password = password; // update password
+    } else {
+      accounts.push({ email, password });
+    }
+    localStorage.setItem("savedAccounts", JSON.stringify(accounts));
+    setSavedAccounts(accounts);
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -76,45 +76,42 @@ const LoginPage = () => {
     setError("");
 
     try {
-
-      // Axios request using API service
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
-
+      const res = await api.post("/auth/login", { email, password });
       const data = res.data;
 
       // Save user data and token
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("token", data.token);
 
-      // Redirect to role-specific dashboard
-      const dashboardRoute = getDashboardRoute(data.user.role);
-      navigate(dashboardRoute);
-
-    } catch (err) {
-
-      console.error(err);
-
-      if (err.response) {
-        setError(err.response.data.message);
+      // Show save password popup only if account not already saved
+      const isSaved = savedAccounts.some(acc => acc.email === email);
+      if (!isSaved) {
+        setCurrentLogin({ email, password });
+        setShowSavePopup(true);
       } else {
-        setError("Connection error. Please try again.");
+        // Redirect directly
+        navigate(getDashboardRoute(data.user.role));
       }
 
+    } catch (err) {
+      console.error(err);
+      if (err.response) setError(err.response.data.message);
+      else setError("Connection error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleLogin();
-    }
+    if (e.key === "Enter") handleLogin();
   };
 
-  // Demo login function for testing
+  const handleSelectSavedAccount = (account) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    setShowSavedDropdown(false);
+  };
+
   const handleDemoLogin = (role) => {
     const demoUser = {
       id: 1,
@@ -125,6 +122,19 @@ const LoginPage = () => {
     localStorage.setItem("user", JSON.stringify(demoUser));
     localStorage.setItem("token", "demo_token");
     navigate(getDashboardRoute(role));
+  };
+
+  const handleSavePassword = () => {
+    if (currentLogin) {
+      saveAccount(currentLogin.email, currentLogin.password);
+      setShowSavePopup(false);
+      navigate(getDashboardRoute(JSON.parse(localStorage.getItem("user")).role));
+    }
+  };
+
+  const handleCancelSave = () => {
+    setShowSavePopup(false);
+    navigate(getDashboardRoute(JSON.parse(localStorage.getItem("user")).role));
   };
 
   return (
@@ -147,6 +157,7 @@ const LoginPage = () => {
           textAlign: "center",
           width: "100%",
           maxWidth: "450px",
+          position: "relative"
         }}
       >
         <Typography variant="h4" sx={{ color: "primary.main", fontWeight: "bold", mb: 1 }}>
@@ -163,14 +174,43 @@ const LoginPage = () => {
           </Alert>
         )}
 
-        <TextField
-          label="Email"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
+        {/* Email Field with saved accounts dropdown */}
+        <Box sx={{ position: "relative" }}>
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onFocus={() => setShowSavedDropdown(true)}
+            onBlur={() => setTimeout(() => setShowSavedDropdown(false), 150)}
+            onKeyPress={handleKeyPress}
+            inputRef={emailRef}
+          />
+          {showSavedDropdown && savedAccounts.length > 0 && (
+            <Paper
+              sx={{
+                position: "absolute",
+                width: "100%",
+                zIndex: 10,
+                mt: 0.5,
+                maxHeight: 150,
+                overflowY: "auto",
+                boxShadow: 3
+              }}
+            >
+              <List dense>
+                {savedAccounts.map((acc, idx) => (
+                  <ListItem key={idx} disablePadding>
+                    <ListItemButton onMouseDown={() => handleSelectSavedAccount(acc)}>
+                      <ListItemText primary={acc.email} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          )}
+        </Box>
 
         <TextField
           label="Password"
@@ -233,6 +273,18 @@ const LoginPage = () => {
             Create a New Account
           </Button>
         </Typography>
+
+        {/* Save password popup */}
+        <Dialog open={showSavePopup} onClose={handleCancelSave}>
+          <DialogTitle>Save Password?</DialogTitle>
+          <DialogContent>
+            Do you want to save the password for <strong>{currentLogin?.email}</strong>?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancelSave}>Cancel</Button>
+            <Button onClick={handleSavePassword} variant="contained">Save</Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

@@ -54,6 +54,7 @@ const TaskPage = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  const [tab, setTab] = useState(0);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -80,17 +81,19 @@ const TaskPage = () => {
   const [attachments, setAttachments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [uploadLoading, setUploadLoading] = useState(false);
-
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userRole = user?.role;
   const employeeId = user?.employee_id || user?.id;
   
-  const canCreateTask = ["admin", "manager"].includes(userRole);
-  const canDeleteTask = ["admin", "manager"].includes(userRole);
+  const canCreateTask = ["admin","hr", "manager"].includes(userRole);
+  const canDeleteTask = ["admin","hr", "manager"].includes(userRole);
   const canViewAll = ["admin", "manager", "hr"].includes(userRole);
-  const isMonitorOnly = ["admin", "manager"].includes(userRole);
+  // const isMonitorOnly = ["admin", "manager"].includes(userRole);
+  const canSeeTabs = ["admin", "hr", "manager"].includes(userRole);
 
   const priorityOptions = [
     { value: "high", label: "High", color: "error" },
@@ -106,10 +109,14 @@ const TaskPage = () => {
     setLoading(true);
     try {
       let res;
-      if (canViewAll) {
-        res = await api.get("/tasks");
+      if (canSeeTabs) {
+        if (tab === 0) {
+          res = await api.get("/tasks/my");
+        } else {
+          res = await api.get("/tasks/given");
+        }
       } else {
-        res = await api.get("/tasks/my");
+        res = await api.get("/tasks/my"); // dev/intern unchanged
       }
       setTasks(res.data || []);
     } catch (error) {
@@ -138,6 +145,17 @@ const TaskPage = () => {
       console.error("Error fetching employees:", error);
     }
   };
+
+  useEffect(() => {
+    if (canSeeTabs) {
+      fetchTasks();
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    setStatusFilter("");
+    setPriorityFilter("");
+  }, [tab]);
 
   useEffect(() => {
     fetchTasks();
@@ -374,11 +392,20 @@ const TaskPage = () => {
     }
   };
 
-  const filteredTasks = tasks.filter(task =>
-    task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.assigned_to_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    task.assigned_by_name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch =
+      task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.assigned_to_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.assigned_by_name?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      !statusFilter || task.status === statusFilter;
+
+    const matchesPriority =
+      !priorityFilter || task.priority === priorityFilter;
+
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
 
   const getPageSubtitle = () => {
     if (canViewAll) return "Manage and assign tasks";
@@ -428,28 +455,72 @@ const TaskPage = () => {
 
       {/* Search Bar */}
       <Paper sx={{ p: 2, mb: 3, bgcolor: "background.paper" }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        flexWrap="wrap"
+        gap={2}
+      >
+        {/* LEFT SIDE */}
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             placeholder="Search tasks..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             size="small"
-            sx={{ minWidth: 300 }}
+            sx={{ width: 250 }}   // 👈 fixed width
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon color="action" />
+                  <SearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <Chip 
-            label={`${filteredTasks.length} tasks`} 
-            color="secondary" 
-            variant="outlined" 
-          />
+
+          <Chip label={`${filteredTasks.length} tasks`} />
+
+          <TextField
+            select
+            size="small"
+            label="Status"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            sx={{ width: 130 }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="in_progress">In Progress</MenuItem>
+            <MenuItem value="completed">Completed</MenuItem>
+          </TextField>
+
+          <TextField
+            select
+            size="small"
+            label="Priority"
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            sx={{ width: 130 }}
+          >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="high">High</MenuItem>
+            <MenuItem value="medium">Medium</MenuItem>
+            <MenuItem value="low">Low</MenuItem>
+          </TextField>
         </Stack>
+
+        {/* RIGHT SIDE → TABS */}
+        {canSeeTabs && (
+          <Tabs value={tab} onChange={(e, val) => setTab(val)}>
+            <Tab label="My Tasks" />
+            <Tab label="Team Tasks" />
+          </Tabs>
+        )}
+      </Stack>
       </Paper>
+
+      
 
       {/* Data Table */}
       <Paper sx={{ overflow: "hidden", bgcolor: "background.paper" }}>
@@ -462,7 +533,7 @@ const TaskPage = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
+              {/* <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell> */}
               <TableCell sx={{ fontWeight: "bold" }}>Title</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Assigned To</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Assigned By</TableCell>
@@ -485,7 +556,7 @@ const TaskPage = () => {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(task => (
                   <TableRow key={task.id} hover>
-                    <TableCell>{task.id}</TableCell>
+                    {/* <TableCell>{task.id}</TableCell> */}
                     <TableCell sx={{ fontWeight: 500 }}>{task.title}</TableCell>
                     <TableCell>{task.assigned_to_name || "-"}</TableCell>
                     <TableCell>{task.assigned_by_name || "-"}</TableCell>
@@ -516,7 +587,7 @@ const TaskPage = () => {
                             <VisibilityIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        {!isMonitorOnly && (
+                        {tab === 0 && (
                           <>
                             <Tooltip title="Start Task">
                               <IconButton 
@@ -550,7 +621,7 @@ const TaskPage = () => {
                             </Tooltip>
                           </>
                         )}
-                        {canCreateTask && (
+                        {canCreateTask && (!canSeeTabs || tab === 1) && (
                           <>
                             <Tooltip title="Edit">
                               <IconButton 
@@ -658,7 +729,7 @@ const TaskPage = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>
           <Button onClick={handleAddClose} color="inherit">Cancel</Button>
-          <Button 
+          {/* <Button 
             variant="contained" 
             onClick={createTask}
             disabled={loading}
@@ -666,7 +737,40 @@ const TaskPage = () => {
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Create Task
-          </Button>
+          </Button> */}
+          <Button 
+              variant="contained" 
+              onClick={createTask}
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
+              sx={(theme) => ({
+                bgcolor: "secondary.main",
+                color: theme.palette.getContrastText(theme.palette.secondary.main),
+                boxShadow: "none",
+
+                "&:hover": {
+                  bgcolor: theme.palette.mode === "light"
+                    ? theme.palette.common.white  // hover white in light mode
+                    : theme.palette.grey[900],    // hover dark in dark mode
+                  color: theme.palette.mode === "light"
+                    ? theme.palette.secondary.main
+                    : theme.palette.common.white,
+                  boxShadow: "none",
+                },
+
+                "&:active": {
+                  bgcolor: theme.palette.mode === "light"
+                    ? theme.palette.common.white
+                    : theme.palette.grey[900],
+                  color: theme.palette.mode === "light"
+                    ? theme.palette.secondary.main
+                    : theme.palette.common.white,
+                  boxShadow: "none",
+                },
+              })}
+            >
+              Create Task
+            </Button>
         </DialogActions>
       </Dialog>
 

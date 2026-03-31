@@ -197,11 +197,52 @@ const PolicyPage = () => {
           </Box>
           <Box sx={{ display: "flex", gap: 2 }}>
             {canManage && (
-              <Button
+            //   <Button
+            //     variant="contained"
+            //     startIcon={<AddIcon />}
+            //     onClick={handleAddOpen}
+            //     sx={{ bgcolor: "white", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
+            //   >
+            //     Add Policy
+            //   </Button>
+            // )}
+            <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddOpen}
-                sx={{ bgcolor: "white", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
+                sx={(theme) => ({
+                  // Base background changes with theme
+                  bgcolor: theme.palette.mode === "light" 
+                    ? theme.palette.common.white 
+                    : theme.palette.grey[900],
+
+                  // Text color: dark blue in light, sky blue in dark
+                  color: theme.palette.mode === "light" 
+                    ? "#0d47a1"   // dark blue
+                    : "#38bdf8",  // sky blue
+
+                  boxShadow: "none",
+
+                  "&:hover": {
+                    bgcolor: theme.palette.mode === "light" 
+                      ? theme.palette.common.white 
+                      : theme.palette.grey[900],
+                    color: theme.palette.mode === "light" 
+                      ? "#0d47a1" 
+                      : "#38bdf8",
+                    boxShadow: "none",
+                  },
+
+                  "&:active": {
+                    bgcolor: theme.palette.mode === "light" 
+                      ? theme.palette.common.white 
+                      : theme.palette.grey[900],
+                    color: theme.palette.mode === "light" 
+                      ? "#0d47a1" 
+                      : "#38bdf8",
+                    boxShadow: "none",
+                  },
+                })}
               >
                 Add Policy
               </Button>

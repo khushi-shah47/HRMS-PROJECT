@@ -60,6 +60,7 @@ const roleMenuItems = {
     { text: "Employees", path: "/employees", icon: <PeopleIcon /> },
     { text: "Attendance", path: "/attendance", icon: <CheckCircleIcon /> },
     { text: "Leave", path: "/leave", icon: <BeachAccessIcon /> },
+    { text: "Tasks", path: "/tasks", icon: <AssignmentIcon /> },
     { text: "Salary", path: "/salary", icon: <CurrencyRupeeIcon /> },
     { text: "Policies", path: "/policies", icon: <PolicyIcon /> },
     { text: "WFH", path: "/wfh", icon: <HomeWorkIcon /> },

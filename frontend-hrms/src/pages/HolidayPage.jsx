@@ -237,13 +237,45 @@ const HolidayPage = () => {
           <Box sx={{ display: "flex", gap: 2 }}>
             {canManage && (
               <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleAddOpen}
-                sx={{ bgcolor: "white", color: "secondary.main", "&:hover": { bgcolor: "action.hover" } }}
-              >
-                Add Holiday
-              </Button>
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddOpen}
+                  sx={(theme) => ({
+                    // Base background
+                    bgcolor: theme.palette.mode === "light"
+                      ? theme.palette.common.white
+                      : theme.palette.grey[900],
+
+                    // Base text color
+                    color: theme.palette.mode === "light"
+                      ? "#0d47a1"  // dark blue
+                      : "#38bdf8", // sky blue
+
+                    boxShadow: "none", // remove default shadow
+
+                    "&:hover": {
+                      bgcolor: theme.palette.mode === "light"
+                        ? theme.palette.common.white
+                        : theme.palette.grey[900],
+                      color: theme.palette.mode === "light"
+                        ? "#0d47a1"
+                        : "#38bdf8",
+                      boxShadow: "none",
+                    },
+
+                    "&:active": {
+                      bgcolor: theme.palette.mode === "light"
+                        ? theme.palette.common.white
+                        : theme.palette.grey[900],
+                      color: theme.palette.mode === "light"
+                        ? "#0d47a1"
+                        : "#38bdf8",
+                      boxShadow: "none",
+                    },
+                  })}
+                >
+                  Add Holiday
+                </Button>
             )}
             <Tooltip title="Refresh">
               <IconButton onClick={fetchHolidays} sx={{ color: "white" }}>
@@ -270,11 +302,20 @@ const HolidayPage = () => {
                 </InputAdornment>
               ),
             }}
-          />
-          <Chip 
-            label={`${filteredHolidays.length} holidays`} 
-            sx={{ bgcolor: "secondary.light", color: "secondary.dark" }}
-          />
+          /> 
+          <Chip
+              label={`${filteredHolidays.length} holidays`}
+              variant="outlined" // outlined style
+              sx={(theme) => ({
+                color: theme.palette.mode === "light"
+                  ? "#0d47a1"   // dark blue
+                  : "#38bdf8",  // sky blue
+                borderColor: theme.palette.mode === "light"
+                  ? "#0d47a1"
+                  : "#38bdf8",
+                bgcolor: "transparent", // keep background transparent
+              })}
+            />
         </Stack>
       </Paper>
 

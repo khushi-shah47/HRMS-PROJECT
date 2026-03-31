@@ -234,7 +234,7 @@ export default function DeveloperDashboard() {
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.error.dark} 0%, ${theme.palette.error.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -277,45 +277,61 @@ export default function DeveloperDashboard() {
                     <PersonIcon />
                   </Avatar>
 
-                  <Typography variant="h6" fontWeight="bold">
+                  {/* <Typography variant="h6" fontWeight="bold">
+                    My Profile
+                  </Typography> */}
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    sx={{ color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                  >
                     My Profile
                   </Typography>
                 </Box>
 
                 {/* Profile Details */}
-                <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+                    <Grid container spacing={2} alignItems="center" justifyContent="space-between">
 
-                  {/* Name */}
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="body2" color="text.secondary">
-                      Name
-                    </Typography>
-                    <Typography variant="h6">
-                      {(user && user.name) ? user.name : "-"}
-                    </Typography>
-                  </Grid>
+                      {/* Name */}
+                      <Grid item xs={12} md={4}>
+                        <Typography variant="body2" color="text.secondary">
+                          Name
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                        >
+                          {(user && user.name) ? user.name : "-"}
+                        </Typography>
+                      </Grid>
 
-                  {/* Email */}
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="body2" color="text.secondary">
-                      Email
-                    </Typography>
-                    <Typography variant="h6">
-                      {(user && user.email) ? user.email : "-"}
-                    </Typography>
-                  </Grid>
+                      {/* Email */}
+                      <Grid item xs={12} md={4}>
+                        <Typography variant="body2" color="text.secondary">
+                          Email
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                        >
+                          {(user && user.email) ? user.email : "-"}
+                        </Typography>
+                      </Grid>
 
-                  {/* Role */}
-                  <Grid item xs={12} md={4}>
-                    <Typography variant="body2" color="text.secondary">
-                      Role
-                    </Typography>
-                    <Typography variant="h6">
-                      {(user && user.role) ? user.role : "-"}
-                    </Typography>
-                  </Grid>
+                      {/* Role */}
+                      <Grid item xs={12} md={4}>
+                        <Typography variant="body2" color="text.secondary">
+                          Role
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                        >
+                          {(user && user.role) ? user.role : "-"}
+                        </Typography>
+                      </Grid>
 
-                </Grid>
+                    </Grid>
 
               </CardContent>
             </Card>
@@ -391,11 +407,29 @@ export default function DeveloperDashboard() {
                   <TableContainer>
                     <Table>
                       <TableHead>
-                        <TableRow sx={{ background: "action.hover" }}>
+                        {/* <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
                           <TableCell sx={{ fontWeight: "bold" }}>Type</TableCell>
                           <TableCell sx={{ fontWeight: "bold" }}>Check In</TableCell>
                           <TableCell sx={{ fontWeight: "bold" }}>Check Out</TableCell>
+                        </TableRow> */}
+                        <TableRow
+                          sx={(theme) => ({
+                            background: theme.palette.mode === "light" ? "#F3F4F6" : "#1E293B", // light gray for light, dark for dark
+                          })}
+                        >
+                          <TableCell sx={{ fontWeight: "bold", color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                            Employee
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: "bold", color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                            Position
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: "bold", color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                            Department
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: "bold", color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                            Join Date
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -424,7 +458,7 @@ export default function DeveloperDashboard() {
             {/* PayslipCard Removed */}
 
             {/* Upcoming Deadlines */}
-            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+            {/* <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
                   <TimerIcon color="error" /> Upcoming Deadlines
@@ -458,6 +492,113 @@ export default function DeveloperDashboard() {
                 <Button variant="outlined" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>Request WFH</Button>
               </Stack>
             </Box>
+            <AnnouncementCard announcements={announcements} loading={loading} />
+            <HolidayCard holidays={holidays} loading={loading} /> */}
+            <Card
+              sx={(theme) => ({
+                borderRadius: 3,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                bgcolor: theme.palette.mode === "light" ? "#ffffff" : "#1E293B", // light/dark background
+              })}
+            >
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  sx={(theme) => ({
+                    mb: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8", // text color
+                  })}
+                >
+                  <TimerIcon color="error" /> Upcoming Deadlines
+                </Typography>
+
+                {upcomingDeadlines.length === 0 ? (
+                  <Typography
+                    variant="body2"
+                    sx={(theme) => ({
+                      color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
+                    })}
+                  >
+                    No immediate deadlines.
+                  </Typography>
+                ) : (
+                  <Stack spacing={2}>
+                    {upcomingDeadlines.map((deadline) => (
+                      <Box
+                        key={deadline.id}
+                        sx={(theme) => ({
+                          p: 1.5,
+                          borderRadius: 2,
+                          bgcolor: theme.palette.mode === "light" ? "#F9FAFB" : "#334155",
+                          borderLeft: "4px solid",
+                          borderColor: getDaysLeftColor(deadline.daysLeft),
+                        })}
+                      >
+                        <Typography
+                          variant="body2"
+                          fontWeight="bold"
+                          sx={(theme) => ({
+                            color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
+                          })}
+                        >
+                          {deadline.title}
+                        </Typography>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 0.5 }}>
+                          <Typography
+                            variant="caption"
+                            sx={(theme) => ({
+                              color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
+                            })}
+                          >
+                            Due: {deadline.due_date?.split("T")[0]}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            fontWeight="bold"
+                            sx={{ color: getDaysLeftColor(deadline.daysLeft) }}
+                          >
+                            {deadline.daysLeft <= 0 ? "OVERDUE" : `${deadline.daysLeft} days left`}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
+
+            <Box
+              sx={(theme) => ({
+                p: 2,
+                bgcolor: theme.palette.mode === "light" ? "#ffffff" : "#1E293B",
+                borderRadius: 3,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              })}
+            >
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={(theme) => ({
+                  mb: 2,
+                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
+                })}
+              >
+                Quick Shortcuts
+              </Typography>
+              <Stack spacing={1}>
+                <Button variant="outlined" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>
+                  Request Leave
+                </Button>
+                <Button variant="outlined" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>
+                  Request WFH
+                </Button>
+              </Stack>
+            </Box>
+
             <AnnouncementCard announcements={announcements} loading={loading} />
             <HolidayCard holidays={holidays} loading={loading} />
           </Stack>

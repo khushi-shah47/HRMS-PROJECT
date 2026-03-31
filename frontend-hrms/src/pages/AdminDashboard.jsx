@@ -298,21 +298,31 @@ return (
         <PersonIcon />
       </Avatar>
 
-      <Typography variant="h6" fontWeight="bold">
+      {/* <Typography variant="h6" fontWeight="bold">
+        My Profile
+      </Typography> */}
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+         sx={{ color: "primary.main" }}
+      >
         My Profile
       </Typography>
     </Box>
     
 
     {/* Profile Details */}
-        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+       <Grid container spacing={2} alignItems="center" justifyContent="space-between">
 
           {/* Name */}
           <Grid item xs={12} md={4}>
             <Typography variant="body2" color="text.secondary">
               Name
             </Typography>
-            <Typography variant="h6">
+            <Typography
+              variant="h6"
+sx={{ color: "primary.main" }}
+            >
               {(user && user.name) ? user.name : "-"}
             </Typography>
           </Grid>
@@ -322,7 +332,10 @@ return (
             <Typography variant="body2" color="text.secondary">
               Email
             </Typography>
-            <Typography variant="h6">
+            <Typography
+              variant="h6"
+sx={{ color: "primary.main" }}
+            >
               {(user && user.email) ? user.email : "-"}
             </Typography>
           </Grid>
@@ -332,17 +345,21 @@ return (
             <Typography variant="body2" color="text.secondary">
               Role
             </Typography>
-            <Typography variant="h6">
+            <Typography
+              variant="h6"
+              sx={{ color: "primary.main" }}
+            >
               {(user && user.role) ? user.role : "-"}
             </Typography>
+
           </Grid>
 
-        </Grid>
-            </CardContent>
+        </Grid>       
+     </CardContent>
           </Card>
 
             {/* Recent Employees */}
-            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+            {/* <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                   <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
@@ -393,10 +410,107 @@ return (
                   </TableContainer>
                 )}
               </CardContent>
-            </Card>
-
-            {/* Pending Tasks */}
+            </Card> */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                  >
+                    Recent Employees
+                  </Typography>
+                  <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
+                </Box>
+
+                {loading ? (
+                  <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : recentEmployees.length === 0 ? (
+                  <Typography
+                    color="text.secondary"
+                    textAlign="center"
+                    sx={{ py: 4 }}
+                  >
+                    No employees found
+                  </Typography>
+                ) : (
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        {/* <TableRow sx={{ background: "action.hover" }}>
+                          <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
+                          <TableCell sx={{ fontWeight: "bold" }}>Join Date</TableCell>
+                        </TableRow> */}
+                        <TableRow sx={{ background: "action.hover" }}>
+                          <TableCell sx={{ fontWeight: "bold", color: "primary.main" }}>
+                            Employee
+                          </TableCell>
+
+                          <TableCell sx={{ fontWeight: "bold", color: "primary.main" }}>
+                            Position
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: "bold", color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                            Department
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: "bold", color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                            Join Date
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {recentEmployees.map((emp, i) => (
+                          <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
+                            <TableCell>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                <Avatar
+                                  sx={{
+                                    width: 32,
+                                    height: 32,
+                                    background: theme.palette.primary.main,
+                                    fontSize: "0.8rem"
+                                  }}
+                                >
+                                  {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
+                                </Avatar>
+                                <Typography
+                                  fontWeight="500"
+                                  sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                                >
+                                  {emp.name}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+                            <TableCell sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                              {emp.position || "-"}
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={emp.department_name || "Not Assigned"}
+                                size="small"
+                                sx={{
+                                  background: "action.selected",
+                                  color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8"
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}>
+                              {emp.join_date?.split("T")[0] || "-"}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </CardContent>
+            </Card>
+            {/* Pending Tasks */}
+            {/* <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                   <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
@@ -427,7 +541,76 @@ return (
                   ))
                 )}
               </CardContent>
-            </Card>
+            </Card> */}
+            <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                <CardContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                    <Typography 
+                      variant="h6" 
+                      fontWeight="bold" 
+                      sx={{ color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                    >
+                      Pending Tasks
+                    </Typography>
+                    <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
+                  </Box>
+
+                  {loading ? (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                      <CircularProgress />
+                    </Box>
+                  ) : pendingTasks.length === 0 ? (
+                    <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
+                      No pending tasks
+                    </Typography>
+                  ) : (
+                    // pendingTasks.map((task, i) => (
+                    //   <Box 
+                    //     key={task.id || i} 
+                    //     sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: "background.default", border: "1px solid", borderColor: "divider" }}
+                    //   >
+                    //     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    //       <Typography fontWeight="600">{task.title}</Typography>
+                    //       <Chip label={task.priority || "medium"} size="small" color={getPriorityColor(task.priority)} />
+                    //     </Box>
+                    //     {/* <Typography variant="caption" color="textSecondary">
+                    //       Assigned to: {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "Not set"}
+                    //     </Typography> */}
+                    //   </Box>
+                    // ))
+                    pendingTasks.map((task, i) => (
+                      <Box
+                        key={task.id || i}
+                        sx={{
+                          p: 2,
+                          mb: 2,
+                          borderRadius: 2,
+                          bgcolor: (theme) => theme.palette.mode === "light" ? "#FFFFFF" : "#1E293B",
+                          border: "1px solid",
+                          borderColor: "divider"
+                        }}
+                      >
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                          <Typography
+                            fontWeight="600"
+                            sx={{ color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                          >
+                            {task.title}
+                          </Typography>
+                          <Chip label={task.priority || "medium"} size="small" color={getPriorityColor(task.priority)} />
+                        </Box>
+
+                        <Typography
+                          variant="caption"
+                          sx={{ color: (theme) => theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8" }}
+                        >
+                          Assigned to: {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "Not set"}
+                        </Typography>
+                      </Box>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
 
             {/* Pending Leave Requests */}
             {leaveRequests.length > 0 && (

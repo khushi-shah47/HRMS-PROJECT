@@ -1,25 +1,25 @@
 import React from "react";
-import { Card, CardContent, Typography, Stack, Button, Box } from "@mui/material";
+import { Card, CardContent, Typography, Stack, Button, useTheme } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import GroupIcon from "@mui/icons-material/Group";
 import { useNavigate } from "react-router-dom";
 
 const QuickActions = ({ role }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const actions = {
     admin: [
       { label: "Add Employee", icon: <PersonAddIcon />, path: "/employees", color: "primary" },
-      { label: "Generate Report", icon: <AssessmentIcon />, path: "/reports", color: "secondary" },
-      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "info" }
+      { label: "Generate Report", icon: <AssessmentIcon />, path: "/reports", color: "primary" },
+      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "primary" }
     ],
     hr: [
-      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "info" },
-      { label: "View Reports", icon: <AssessmentIcon />, path: "/reports", color: "success" }
+      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "primary" },
+      { label: "View Reports", icon: <AssessmentIcon />, path: "/reports", color: "primary" }
     ],
     manager: [
       { label: "Assign Task", icon: <AssignmentIcon />, path: "/tasks", color: "primary" },
@@ -32,9 +32,22 @@ const QuickActions = ({ role }) => {
   if (roleActions.length === 0) return null;
 
   return (
-    <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+    <Card
+      sx={{
+        borderRadius: 3,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+        bgcolor: theme.palette.mode === "light" ? "#FFFFFF" : "#1E293B"
+      }}
+    >
       <CardContent>
-        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{
+            mb: 2,
+            color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8"
+          }}
+        >
           Quick Actions
         </Typography>
         <Stack spacing={1.5}>
@@ -46,7 +59,17 @@ const QuickActions = ({ role }) => {
               fullWidth
               startIcon={action.icon}
               onClick={() => navigate(action.path)}
-              sx={{ justifyContent: "flex-start", py: 1, borderRadius: 2 }}
+              sx={{
+                justifyContent: "flex-start",
+                py: 1,
+                borderRadius: 2,
+                color: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
+                borderColor: theme.palette.mode === "light" ? "#1E3A8A" : "#38BDF8",
+                "&:hover": {
+                  backgroundColor:
+                    theme.palette.mode === "light" ? "rgba(30,58,138,0.08)" : "rgba(56,189,248,0.15)"
+                }
+              }}
             >
               {action.label}
             </Button>

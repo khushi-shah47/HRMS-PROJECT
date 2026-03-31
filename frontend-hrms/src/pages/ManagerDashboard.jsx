@@ -305,48 +305,62 @@ export default function ManagerDashboard() {
           <PersonIcon />
         </Avatar>
 
-        <Typography variant="h6" fontWeight="bold">
-          My Profile
-        </Typography>
-          </Box>
-
-          {/* Profile Details */}
-          <Grid container spacing={2} alignItems="center" justifyContent="space-between">
-
-            {/* Name */}
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Name
-              </Typography>
-              <Typography variant="h6">
-                {(user && user.name) ? user.name : "-"}
-              </Typography>
-            </Grid>
-
-            {/* Email */}
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Email
-              </Typography>
-              <Typography variant="h6">
-                {(user && user.email) ? user.email : "-"}
-              </Typography>
-            </Grid>
-
-            {/* Role */}
-            <Grid item xs={12} md={4}>
-              <Typography variant="body2" color="text.secondary">
-                Role
-              </Typography>
-              <Typography variant="h6">
-                {(user && user.role) ? user.role : "-"}
-              </Typography>
-            </Grid>
-
-          </Grid>
-
-        </CardContent>
-      </Card>
+             <Typography
+               variant="h6"
+               fontWeight="bold"
+                sx={{ color: "primary.main" }}
+             >
+               My Profile
+             </Typography>
+           </Box>
+           
+       
+           {/* Profile Details */}
+              <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+       
+                 {/* Name */}
+                 <Grid item xs={12} md={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Name
+                   </Typography>
+                   <Typography
+                     variant="h6"
+       sx={{ color: "primary.main" }}
+                   >
+                     {(user && user.name) ? user.name : "-"}
+                   </Typography>
+                 </Grid>
+       
+                 {/* Email */}
+                 <Grid item xs={12} md={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Email
+                   </Typography>
+                   <Typography
+                     variant="h6"
+       sx={{ color: "primary.main" }}
+                   >
+                     {(user && user.email) ? user.email : "-"}
+                   </Typography>
+                 </Grid>
+       
+                 {/* Role */}
+                 <Grid item xs={12} md={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Role
+                   </Typography>
+                   <Typography
+                     variant="h6"
+                     sx={{ color: "primary.main" }}
+                   >
+                     {(user && user.role) ? user.role : "-"}
+                   </Typography>
+       
+                 </Grid>
+       
+               </Grid>       
+            </CardContent>
+                 </Card>
 
             {/* CARD 1: TEAM MEMBERS */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", mb: 4 }}>

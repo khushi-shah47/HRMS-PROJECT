@@ -73,6 +73,7 @@ const EmployeePage = () => {
   const [editDepartmentId, setEditDepartmentId] = useState("");
   const [editJoinDate, setEditJoinDate] = useState("");
   const [editSalary, setEditSalary] = useState("");
+  const [editRole, setEditRole] = useState("");
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -308,6 +309,7 @@ const EmployeePage = () => {
     setEditName(emp.name);
     setEditEmail(emp.email);
     setEditPhone(emp.phone || "");
+    setEditRole(emp.role); // ADD THIS
     setEditPosition(emp.position);
     setEditDepartmentId(emp.department_id || "");
     setEditJoinDate(emp.join_date);
@@ -321,6 +323,13 @@ const EmployeePage = () => {
   };
 
   const handleEditSave = async () => {
+    if (editRole === "admin") {
+      setEditPosition("Administrator");
+    }
+
+    if (editRole === "intern") {
+      setEditPosition("Intern");
+    }
     const error = validateEmployee({
       name: editName,
       email: editEmail,
@@ -444,11 +453,31 @@ const EmployeePage = () => {
           </Box>
           <Box sx={{ display: "flex", gap: 2 }}>
             {canManage && (
-              <Button
+            //   <Button
+            //     variant="contained"
+            //     startIcon={<AddIcon />}
+            //     onClick={handleAddOpen}
+            //     sx={{ bgcolor: "background.paper", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
+            //   >
+            //     Add Employee
+            //   </Button>
+            // )}
+            <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddOpen}
-                sx={{ bgcolor: "background.paper", color: "primary.main", "&:hover": { bgcolor: "action.hover" } }}
+                sx={(theme) => ({
+                  bgcolor: "background.paper",
+                  color: "primary.main",
+
+                  "&:hover": {
+                    bgcolor: theme.palette.mode === "light" ? "#ffffff" : "#121212",
+                  },
+
+                  "&:active": {
+                    bgcolor: theme.palette.mode === "light" ? "#ffffff" : "#121212",
+                  },
+                })}
               >
                 Add Employee
               </Button>
@@ -840,11 +869,11 @@ const EmployeePage = () => {
               required
             >
               <MenuItem value="">Select Position</MenuItem>
-              {positionsList.map((pos) => (
-                <MenuItem key={pos} value={pos}>
-                  {pos}
-                </MenuItem>
-              ))}
+                {(rolePositions[editRole] || []).map((pos) => (
+                  <MenuItem key={pos} value={pos}>
+                    {pos}
+                  </MenuItem>
+                ))}
             </TextField>
             <TextField
               select
@@ -852,11 +881,26 @@ const EmployeePage = () => {
               value={editDepartmentId}
               onChange={(e) => setEditDepartmentId(e.target.value)}
               fullWidth
+
+              disabled={
+                editRole === "admin" ||
+                editRole === "hr" ||
+                editRole === "developer" ||
+                editRole === "manager" ||
+                editRole === "intern"
+              }
             >
               <MenuItem value="">Select Department</MenuItem>
-              {departments.map((dept) => (
-                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
-              ))}
+              {departments.map((dept) => {
+                if (editRole === "hr" && dept.name !== "HR") return null;
+                if (editRole === "admin") return null;
+
+                return (
+                  <MenuItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </MenuItem>
+                );
+              })}
             </TextField>
             <TextField
               type="date"
