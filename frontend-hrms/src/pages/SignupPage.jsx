@@ -15,7 +15,19 @@ import api from "../services/api";
 
 const roles = ["admin", "manager", "hr", "developer", "intern"];
 
-const validateForm = () => {
+
+
+const SignupPage = () => {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+
+  const validateForm = () => {
   const errors = {};
 
   if (!name.trim()) {
@@ -41,18 +53,8 @@ const validateForm = () => {
   }
 
   setFormErrors(errors);
-  return Object.keys(errors).length === 0;
-};
-
-const SignupPage = () => {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSignup = async () => {
     if (!validateForm()) return;
