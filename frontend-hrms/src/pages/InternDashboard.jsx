@@ -107,6 +107,15 @@ export default function InternDashboard() {
     }
   }, [user]);
 
+  const [employee,setEmployee] = useState([]);
+  useEffect(() => {
+  if (user?.id) {
+      api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
@@ -250,7 +259,7 @@ export default function InternDashboard() {
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.warning.dark} 0%, ${theme.palette.warning.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -265,6 +274,7 @@ export default function InternDashboard() {
           </Grid>
         </Grid>
       </Box>
+
 
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
@@ -288,11 +298,23 @@ export default function InternDashboard() {
 
     {/* Header */}
     <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-        <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
-          <PersonIcon />
-        </Avatar>
+        <Avatar
+        sx={{
+          width: 50,
+          height: 50,
+          bgcolor: "primary.main",
+          mr : 1.5
+        }}
+        src={
+          employee?.profile_image
+            ? `http://localhost:5000/${employee.profile_image}`
+            : ""
+        }
+      >
+        {!employee?.profile_image && <PersonIcon />}
+      </Avatar>
 
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
           My Profile
         </Typography>
           </Box>
@@ -417,14 +439,21 @@ export default function InternDashboard() {
         </Grid>
 
         {/* Right column (30%) */}
-        <Grid size={{ xs: 12, lg: 3.5 }}>
+         <Grid size={{ xs: 12, lg: 3.5 }}>
           <Stack spacing={3}>
             <Box sx={{ p: 2, bgcolor: "background.paper", borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Quick Shortcuts</Typography>
+              {/* <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Quick Shortcuts</Typography> */}
+              <Typography 
+                  variant="h6" 
+                  fontWeight="bold" 
+                  sx={{ mb: 2, color: 'primary.main' }}
+                >
+                  Quick Shortcuts
+                </Typography>
               <Stack spacing={1}>
-                <Button variant="outlined" color="warning" onClick={() => navigate("/attendance")} startIcon={<AccessTimeIcon />}>Attendance</Button>
-                <Button variant="outlined" color="warning" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Leave</Button>
-                <Button variant="outlined" color="warning" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>WFH</Button>
+                <Button variant="outlined" color="primary" onClick={() => navigate("/attendance")} startIcon={<AccessTimeIcon />}>Attendance</Button>
+                <Button variant="outlined" color="primary" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Leave</Button>
+                <Button variant="outlined" color="primary" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>WFH</Button>
               </Stack>
             </Box>
             <AnnouncementCard announcements={announcements} loading={loading} />

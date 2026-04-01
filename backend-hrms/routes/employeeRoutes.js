@@ -56,6 +56,27 @@ router.post(
     }
   }
 );
+router.get("/user/:userId", verifyToken, async (req, res) => {
+  try {
+    const employee = await sequelize.query(
+      `SELECT * FROM employees WHERE user_id = :userId LIMIT 1`,
+      {
+        replacements: { userId: req.params.userId },
+        type: QueryTypes.SELECT
+      }
+    );
+
+    if (!employee || employee.length === 0) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.json(employee[0]);
+
+  } catch (err) {
+    console.error("Error fetching employee by user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 router.get("/", verifyToken, authorizeRoles("admin", "hr", "manager"), getEmployees);
 router.get("/team", verifyToken, authorizeRoles("manager"), getTeamEmployees);
 router.get("/:id", verifyToken, getEmployeeById);

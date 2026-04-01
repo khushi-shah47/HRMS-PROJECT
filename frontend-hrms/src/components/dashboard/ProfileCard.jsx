@@ -1,15 +1,36 @@
 import React from "react";
-import { Card, CardContent, Box, Typography, Grid, Chip, useTheme } from "@mui/material";
+import { Card, CardContent, Box, Typography, Grid, Chip, useTheme, Avatar } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
-
-const ProfileCard = ({ user, leaveBalance }) => {
+import { useEffect, useState } from "react";
+import api from "../../services/api";
+const ProfileCard = ({ user }) => {
   const theme = useTheme();
-  
+  const [employee,setEmployee] = useState([]);
+  useEffect(() => {
+  if (user?.id) {
+      api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
   return (
     <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
       <CardContent>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
-          <PersonIcon sx={{ color: theme.palette.primary.main }} />
+          <Avatar
+            sx={{
+              width: 50,
+              height: 50,
+              bgcolor: "primary.main"
+            }}
+            src={
+              employee?.profile_image
+                ? `http://localhost:5000/${employee.profile_image}`
+                : ""
+            }
+          >
+            {!employee?.profile_image && <PersonIcon />}
+          </Avatar>
           <Typography variant="h6" fontWeight="bold" sx={{ color: theme.palette.primary.main }}>
             My Profile
           </Typography>
@@ -44,10 +65,10 @@ const ProfileCard = ({ user, leaveBalance }) => {
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Box>
+              {/* <Box>
                 <Typography variant="caption" color="textSecondary">Leave Balance</Typography>
                 <Typography fontWeight="600" variant="body1" sx={{ color: "success.main" }}>{leaveBalance ?? "0"} Days</Typography>
-              </Box>
+              </Box> */}
             </Grid>
           </Grid>
         </Box>

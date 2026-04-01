@@ -102,6 +102,14 @@ export default function DeveloperDashboard() {
     fetchAllData();
   }, []);
 
+  const [employee,setEmployee] = useState([]);
+  useEffect(() => {
+  if (user?.id) {
+      api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -234,14 +242,14 @@ export default function DeveloperDashboard() {
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.error.dark} 0%, ${theme.palette.error.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
-              Hello, {user?.name || "Developer"}!
+              Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, {user?.name || "Manager"}!
             </Typography>
             <Typography variant="h6" sx={{ opacity: 0.9, mt: 1 }}>
-              Track your tasks and stay productive
+              Here's your team overview for today
             </Typography>
           </Grid>
           <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: "flex-start", md: "flex-end" }, gap: 2 }}>
@@ -273,11 +281,23 @@ export default function DeveloperDashboard() {
 
                 {/* Header */}
                 <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-                  <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
-                    <PersonIcon />
+                  <Avatar
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      bgcolor: "primary.main",
+                      mr : 1.5
+                    }}
+                    src={
+                      employee?.profile_image
+                        ? `http://localhost:5000/${employee.profile_image}`
+                        : ""
+                    }
+                  >
+                    {!employee?.profile_image && <PersonIcon />}
                   </Avatar>
 
-                  <Typography variant="h6" fontWeight="bold">
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
                     My Profile
                   </Typography>
                 </Box>
@@ -426,7 +446,7 @@ export default function DeveloperDashboard() {
             {/* Upcoming Deadlines */}
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
-                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1, color: "primary.main" }}>
                   <TimerIcon color="error" /> Upcoming Deadlines
                 </Typography>
                 {upcomingDeadlines.length === 0 ? (

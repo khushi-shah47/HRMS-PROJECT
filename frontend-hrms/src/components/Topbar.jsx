@@ -61,6 +61,7 @@ export default function Topbar({ onMenuClick }){
         return userData ? JSON.parse(userData) : { name: "Admin" };
     });
 
+    const [employee, setEmployee] = useState(null);
     // Notification State
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -97,6 +98,14 @@ export default function Topbar({ onMenuClick }){
         navigate("/login");
         handleProfileClose();
     };
+
+    useEffect(() => {
+    if (user?.id) {
+        api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+    }, [user]);
 
     useEffect(() => {
         fetchNotifications();
@@ -290,13 +299,13 @@ export default function Topbar({ onMenuClick }){
                         </Typography>
                         <Avatar
                             src={
-                                user?.profile_image
-                                    ? `http://localhost:5000/${user.profile_image}?t=${new Date().getTime()}`
+                                employee?.profile_image
+                                    ? `http://localhost:5000/${employee.profile_image}`
                                     : ""
                             }
                             sx={{ bgcolor: "primary.main", width: 35, height: 35 }}
                         >
-                            {!user?.profile_image && (user.name || user.username || "U").charAt(0).toUpperCase()}
+                            {!employee?.profile_image && (employee?.name || user?.username)?.charAt(0)}
                         </Avatar>
                     </Box>
                 </Box>

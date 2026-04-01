@@ -88,12 +88,22 @@ export default function HRDashboard() {
     fetchAllData();
   }, []);
 
+  const [employee,setEmployee] = useState([]);
+  useEffect(() => {
+  if (user?.id) {
+      api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
       await Promise.all([
         fetchDashboardStats(),
         fetchEmployees(),
+        fetchLeaves(),
         fetchWFH(),
         fetchAnnouncements(),
         fetchHolidays()
@@ -152,9 +162,14 @@ export default function HRDashboard() {
     try {
       const res = await api.get("/leaves");
       const leaves = res.data?.data || res.data || [];
-      setLeaveRequests(leaves.slice(0, 4));
-      const pending = leaves.filter(l => l.status === "Pending");
+
+      const pending = leaves.filter(
+        l => l.status?.toLowerCase() === "pending"
+      );
+
+      setLeaveRequests(pending.slice(0, 4));
       setStats(prev => ({ ...prev, leaveRequests: pending.length }));
+
     } catch (error) {
       console.error("Error fetching leaves:", error);
     }
@@ -163,9 +178,9 @@ export default function HRDashboard() {
   const fetchWFH = async () => {
     try {
       const res = await api.get("/wfh/all");
-      const wfh = res.data || [];
-      setWfhRequests(wfh.slice(0, 4));
-      const pending = wfh.filter(r => r.status === "pending");
+      const wfh = res.data?.data || res.data || [];
+      const pending = wfh.filter( r => r.status?.toLowerCase() === "pending");
+      setWfhRequests(pending.slice(0, 4));
       setStats(prev => ({ ...prev, wfhRequests: pending.length }));
     } catch (error) {
       console.error("Error fetching WFH requests:", error);
@@ -277,11 +292,23 @@ export default function HRDashboard() {
 
           {/* Header */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-          <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
-            <PersonIcon />
+          <Avatar
+            sx={{
+              width: 50,
+              height: 50,
+              bgcolor: "primary.main",
+              mr : 1.5
+            }}
+            src={
+              employee?.profile_image
+                ? `http://localhost:5000/${employee.profile_image}`
+                : ""
+            }
+          >
+            {!employee?.profile_image && <PersonIcon />}
           </Avatar>
 
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
             My Profile
           </Typography>
         </Box>
@@ -420,7 +447,7 @@ export default function HRDashboard() {
               <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
                 <CardContent>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                    <Typography variant="h6" fontWeight="bold" sx={{ color: "info.main" }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                       Recent WFH Requests
                     </Typography>
                     <Button size="small" color="info" onClick={() => navigate("/wfh")}>View All</Button>

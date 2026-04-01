@@ -418,7 +418,7 @@ const TaskPage = () => {
       <Paper sx={{ 
         p: 3, 
         mb: 3, 
-        background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`,
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
         color: "white"
       }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

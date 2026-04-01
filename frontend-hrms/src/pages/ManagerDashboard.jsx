@@ -90,6 +90,14 @@ export default function ManagerDashboard() {
     fetchAllData();
   }, []);
 
+  const [employee,setEmployee] = useState([]);
+  useEffect(() => {
+  if (user?.id) {
+      api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -263,7 +271,7 @@ export default function ManagerDashboard() {
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.secondary.dark} 0%, ${theme.palette.secondary.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -301,11 +309,23 @@ export default function ManagerDashboard() {
 
     {/* Header */}
     <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-        <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
-          <PersonIcon />
-        </Avatar>
+        <Avatar
+        sx={{
+          width: 50,
+          height: 50,
+          bgcolor: "primary.main",
+          mr : 1.5
+        }}
+        src={
+          employee?.profile_image
+            ? `http://localhost:5000/${employee.profile_image}`
+            : ""
+        }
+      >
+        {!employee?.profile_image && <PersonIcon />}
+      </Avatar>
 
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }}>
           My Profile
         </Typography>
           </Box>
@@ -352,7 +372,7 @@ export default function ManagerDashboard() {
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", mb: 4 }}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography variant="h6" fontWeight="bold" sx={{ color: "secondary.main" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                     Team Members
                   </Typography>
                   <Button size="small" onClick={() => navigate("/employees")}>View All</Button>
@@ -383,7 +403,7 @@ export default function ManagerDashboard() {
         <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
           <CardContent>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ color: "error.main" }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                 Team Tasks
               </Typography>
               <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
@@ -418,13 +438,13 @@ export default function ManagerDashboard() {
         </Card>
 
            {/* CARD 1: LEAVE REQUESTS */}
-              <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", mb: 4 }}>
+               <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", mb: 4 }}>
                 <CardContent>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                    <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                       Leave Requests
                     </Typography>
-                    <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
+                    <Button size="small" color="primary" onClick={() => navigate("/leave")}>View All</Button>
                   </Box>
 
                   {loading ? (
@@ -450,19 +470,20 @@ export default function ManagerDashboard() {
                 </CardContent>
               </Card>
 
+
               {/* CARD 2: WFH REQUESTS */}
               <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
                 <CardContent>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                    <Typography variant="h6" fontWeight="bold" sx={{ color: "info.main" }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                       WFH Requests
                     </Typography>
-                    <Button size="small" color="info" onClick={() => navigate("/wfh")}>View All</Button>
+                    <Button size="small" color="primary" onClick={() => navigate("/wfh")}>View All</Button>
                   </Box>
 
                   {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                      <CircularProgress size={24} color="info" />
+                      <CircularProgress size={24} color="primary" />
                     </Box>
                   ) : wfhList.length === 0 ? (
                     <Typography variant="body2" color="textSecondary">No pending WFH</Typography>
@@ -482,6 +503,7 @@ export default function ManagerDashboard() {
                   )}
                 </CardContent>
               </Card>
+
           </Stack>
         </Grid>
 

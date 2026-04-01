@@ -92,7 +92,14 @@ export default function AdminDashboard() {
     }
     fetchAllData();
   }, []);
-
+  const [employee,setEmployee] = useState([]);
+  useEffect(() => {
+  if (user?.id) {
+      api.get(`/employees/user/${user.id}`)
+        .then(res => setEmployee(res.data))
+        .catch(err => console.error(err));
+    }
+  }, [user]);
   const fetchAllData = async () => {
     setLoading(true);
     try {
@@ -294,11 +301,23 @@ return (
 
     {/* Header inside card */}
     <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-      <Avatar sx={{ bgcolor: "primary.main", mr: 1.5 }}>
-        <PersonIcon />
+      <Avatar
+        sx={{
+          width: 50,
+          height: 50,
+          bgcolor: "primary.main",
+          mr : 1.5
+        }}
+        src={
+          employee?.profile_image
+            ? `http://localhost:5000/${employee.profile_image}`
+            : ""
+        }
+      >
+        {!employee?.profile_image && <PersonIcon />}
       </Avatar>
 
-      <Typography variant="h6" fontWeight="bold">
+      <Typography variant="h6" fontWeight="bold" sx={{ color: 'primary.main' }} >
         My Profile
       </Typography>
     </Box>
@@ -399,7 +418,7 @@ return (
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                  <Typography variant="h6" fontWeight="bold" sx={{ color: "#1E3A8A" }}>
+                  <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                     Pending Tasks
                   </Typography>
                   <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
