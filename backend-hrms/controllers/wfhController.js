@@ -56,9 +56,22 @@ export const applyWFH = async (req, res) => {
     res.status(201).json({ message: "WFH request submitted", status: "pending" });
 
     // Notify Manager or HR
-    const notifyId = emp[0].manager_id || emp[0].hr_id;
-    if (notifyId) {
-      createNotification(notifyId, "New WFH Request", `A new WFH request has been submitted by an employee.`, "wfh").catch(console.error);
+    if (emp[0].manager_id) {
+      createNotification(
+        emp[0].manager_id,
+        "New WFH Request",
+        `A new WFH request has been submitted.`,
+        "wfh"
+      ).catch(console.error);
+    }
+
+    if (emp[0].hr_id) {
+      createNotification(
+        emp[0].hr_id,
+        "New WFH Request",
+        `A new WFH request has been submitted.`,
+        "wfh"
+      ).catch(console.error);
     }
 
   } catch (err) {
@@ -102,7 +115,19 @@ export const approveWFH = async (req, res) => {
     await db.promise().query("UPDATE wfh_requests SET status = ? WHERE id = ?", [nextStatus, id]);
     res.json({ message: `WFH status updated to ${nextStatus}` });
 
-    createNotification(request.owner_user_id, "WFH Request Updated", `Your WFH request has been moved to ${nextStatus}.`, "wfh").catch(console.error);
+    const message =
+      nextStatus === "managerApproved"
+        ? "Your WFH request has been approved by the manager and is awaiting HR approval."
+        : nextStatus === "approved"
+        ? "Your WFH request has been fully approved."
+        : "Your WFH request status has been updated.";
+
+    createNotification(
+      request.employee_id, // 🔥 IMPORTANT (use employee_id, not user_id)
+      "WFH Request Update",
+      message,
+      "wfh"
+    ).catch(console.error);
 
   } catch (err) {
     console.error(err);

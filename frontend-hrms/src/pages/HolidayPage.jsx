@@ -64,6 +64,16 @@ const HolidayPage = () => {
   const canManage = ["admin", "hr"].includes(user?.role);
   const isIntern = user?.role === "intern";
 
+  const formatDateSafe = (dateStr) => {
+    if (!dateStr) return "";
+
+    // handle both "YYYY-MM-DD" and "YYYY-MM-DDTHH:mm:ss"
+    const clean = dateStr.split("T")[0];
+
+    const [y, m, d] = clean.split("-");
+    return `${d}-${m}-${y}`; // 🔥 no timezone issue ever
+  };
+
   const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
   };
@@ -72,10 +82,20 @@ const HolidayPage = () => {
     setLoading(true);
     try {
       const res = await api.get("/holidays/all");
-      const formatted = res.data.map(h => ({
-        ...h,
-        holiday_date: h.holiday_date ? h.holiday_date.split('T')[0] : ''
-      }));
+      const formatted = res.data.map(h => {
+        let date = h.holiday_date;
+
+        if (date) {
+          // 🔥 force local date (no timezone shift)
+          const d = new Date(date);
+          date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+
+        return {
+          ...h,
+          holiday_date: date || ""
+        };
+      });
       setHolidays(formatted);
     } catch (error) {
       console.error("Error fetching holidays:", error);
@@ -332,7 +352,7 @@ const HolidayPage = () => {
                     <TableCell sx={{ fontWeight: 500 }}>{h.title}</TableCell>
                     <TableCell>
                       <Chip 
-                        label={h.holiday_date} 
+                        label={formatDateSafe(h.holiday_date)}
                         size="small" 
                         icon={<EventIcon fontSize="small" />}
                         variant="outlined"

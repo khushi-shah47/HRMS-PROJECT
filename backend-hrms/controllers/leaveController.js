@@ -144,9 +144,22 @@ export const applyLeave = async (req, res) => {
     res.status(201).json({ message: "Leave applied successfully", status: "pending" });
 
     // Notify Manager or HR
-    const notifyId = emp.manager_id || emp.hr_id;
-    if (notifyId) {
-      createNotification(notifyId, "New Leave Request", `A new leave request has been submitted by ${emp.name || 'an employee'}.`, "leave").catch(console.error);
+    if (emp.manager_id) {
+      createNotification(
+        emp.manager_id,
+        "New Leave Request",
+        `A new leave request has been submitted by ${emp.name || 'an employee'}.`,
+        "leave"
+      ).catch(console.error);
+    }
+
+    if (emp.hr_id) {
+      createNotification(
+        emp.hr_id,
+        "New Leave Request",
+        `A new leave request has been submitted by ${emp.name || 'an employee'}.`,
+        "leave"
+      ).catch(console.error);
     }
 
   } catch (err) {
@@ -302,7 +315,21 @@ export const updateLeaveStatus = async (req, res) => {
     res.json({ message: `Leave status updated to ${nextStatus}` });
 
     // Notify the employee
-    createNotification(leave.owner_user_id, "Leave Request Updated", `Your leave request has been ${nextStatus.toLowerCase()}.`, "leave").catch(console.error);
+    const message =
+      nextStatus === "managerApproved"
+        ? "Your leave request has been approved by the manager and is awaiting HR approval."
+        : nextStatus === "approved"
+        ? "Your leave request has been fully approved."
+        : nextStatus === "Rejected"
+        ? "Your leave request has been rejected."
+        : "Your leave request status has been updated.";
+
+    createNotification(
+      leave.employee_id, // 🔥 IMPORTANT FIX
+      "Leave Request Update",
+      message,
+      "leave"
+    ).catch(console.error);
 
   } catch (err) {
     console.error(err);

@@ -73,7 +73,22 @@ const WFHPage = () => {
       } else {
         res = await api.get("/wfh/my");
       }
-      setHistory(res.data || []);
+      const formatted = (res.data || []).map(rec => {
+        const format = (date) => {
+          if (!date) return "";
+          const d = new Date(date);
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        };
+
+        return {
+          ...rec,
+          start_date: format(rec.start_date),
+          end_date: format(rec.end_date),
+          wfh_date: format(rec.wfh_date)
+        };
+      });
+
+      setHistory(formatted);
     } catch (error) {
       console.error("Error fetching WFH data:", error);
       showSnackbar("Failed to load WFH requests", "error");
@@ -183,12 +198,13 @@ const WFHPage = () => {
   };
 
   const displayDateRange = (rec) => {
-    const start = rec.start_date?.split("T")[0];
-    const end = rec.end_date?.split("T")[0];
+    const start = rec.start_date;
+    const end = rec.end_date;
+
     if (start && end) {
       return `${start} to ${end}`;
     }
-    return rec.wfh_date?.split("T")[0] || start || "-";
+    return rec.wfh_date || start || "-";
   };
 
   const filteredHistory = history.filter(rec =>
