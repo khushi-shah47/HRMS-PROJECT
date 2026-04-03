@@ -179,7 +179,7 @@ export default function HRDashboard() {
     try {
       const res = await api.get("/wfh/all");
       const wfh = res.data?.data || res.data || [];
-      const pending = wfh.filter( r => r.status?.toLowerCase() === "pending");
+      const pending = wfh.filter( r => r.status?.toLowerCase() === "pending" );
       setWfhRequests(pending.slice(0, 4));
       setStats(prev => ({ ...prev, wfhRequests: pending.length }));
     } catch (error) {
@@ -408,10 +408,10 @@ export default function HRDashboard() {
               <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
                 <CardContent>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                    <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                       Recent Leave Requests
                     </Typography>
-                    <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
+                    <Button size="small" color="primary" onClick={() => navigate("/leave")}>View All</Button>
                   </Box>
 
                   {loading ? (

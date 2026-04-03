@@ -528,6 +528,7 @@ const UserPage = () => {
             />
             <TextField
               label="Reset Password"
+              helperText="Enter new password only if you want to change it"
               type="password"
               value={editPassword}
               onChange={(e) => setEditPassword(e.target.value)}

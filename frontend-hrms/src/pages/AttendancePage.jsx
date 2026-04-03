@@ -621,19 +621,19 @@ const AttendancePage = () => {
                 variant="outlined"
                 startIcon={<HomeIcon />}
                 onClick={() => handleAutoCheckIn("wfh")}
-                disabled={actionLoading}
+                disabled={actionLoading || !isWFHApproved}
                 sx={{
                   py: 2,
                   fontSize: 18,
                   fontWeight: 700,
                   borderRadius: 3,
                   border: "2px solid",
-                  borderColor: actionLoading ? "action.disabled" : "primary.main",
-                  color: actionLoading ? "text.disabled" : "primary.main",
-                  width: 380, // Fixed width
+                  borderColor: (actionLoading || !isWFHApproved) ? "action.disabled" : "primary.main",
+                  color: (actionLoading || !isWFHApproved) ? "text.disabled" : "primary.main",
+                  width: 380,
                 }}
               >
-                Work From Home
+                {!isWFHApproved ? "WFH Not Approved" : "Work From Home"}
               </Button>
             </Stack>
           </Box>

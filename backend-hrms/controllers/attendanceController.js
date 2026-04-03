@@ -34,6 +34,23 @@ export const checkIn = async (req, res) => {
       return res.status(400).json({ message: "You are on an approved leave today. Attendance not allowed." });
     }
 
+    // 🔥 Add after leave check
+    if (work_type === "wfh") {
+      const [wfh] = await db.promise().query(
+        `SELECT * FROM wfh_requests 
+        WHERE employee_id=? 
+        AND status IN ('approved', 'Approved') 
+        AND ? BETWEEN start_date AND end_date`,
+        [employee_id, today]
+      );
+
+      if (wfh.length === 0) {
+        return res.status(400).json({
+          message: "WFH not approved for today"
+        });
+      }
+    }
+
     // 3. Check if a record already exists for today
     const [attendance] = await db.promise().query("SELECT * FROM attendance WHERE employee_id=? AND date=?", [employee_id, today]);
 

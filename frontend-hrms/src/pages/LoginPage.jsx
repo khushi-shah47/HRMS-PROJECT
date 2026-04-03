@@ -84,14 +84,16 @@ const LoginPage = () => {
       localStorage.setItem("token", data.token);
 
       // Show save password popup only if account not already saved
-      const isSaved = savedAccounts.some(acc => acc.email === email);
-      if (!isSaved) {
+      const existingAccount = savedAccounts.find(acc => acc.email === email);
+
+      if (!existingAccount || existingAccount.password !== password) {
         setCurrentLogin({ email, password });
         setShowSavePopup(true);
       } else {
-        // Redirect directly
+        //Redirect Directly
         navigate(getDashboardRoute(data.user.role));
       }
+
 
     } catch (err) {
       console.error(err);
