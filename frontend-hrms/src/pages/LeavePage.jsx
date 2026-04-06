@@ -55,8 +55,8 @@ function LeavePage() {
 
   const leaveTypes = [ 
     "Paid Leave",
-    "Sick Leave",
     "Casual Leave",
+    "Sick Leave",
     "Emergency Leave",
     "Unpaid Leave"
   ];
@@ -155,17 +155,28 @@ function LeavePage() {
       return;
     }
 
-    const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
-
-    if (leaveBalance !== null && days > leaveBalance) {
-      showSnackbar(`Not enough leave balance. You have ${leaveBalance} days available.`, "error");
+    if (startDate && new Date(startDate) < new Date()) {
+      showSnackbar("You can't apply the leave of past date!", "error");
       return;
     }
+
+    const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
 
     if (!leaveType) {
       showSnackbar("Please select leave type", "error");
       return;
     }
+
+    if (leaveType !== "Unpaid Leave" && leaveBalance !== null && days > leaveBalance) {
+      showSnackbar(`Not enough leave balance`, "error");
+      return;
+    }
+
+    if ((leaveType === "Sick Leave" || leaveType === "Emergency Leave") && startDate > new Date()) {
+      showSnackbar("This Leave Type can only be applied for today", "error");
+      return;
+    }
+
     setLoading(true);
     try {
       await api.post("/leaves", {

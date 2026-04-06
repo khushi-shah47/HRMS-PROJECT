@@ -64,6 +64,11 @@ export const applyLeave = async (req, res) => {
     if (new Date(end_date) < new Date(start_date)) {
       return res.status(400).json({ message: "End date cannot be before start date" });
     }
+
+    if (start_date && new Date(start_date) < new Date()) {
+      return res.status(400).json({ message: "You can't apply the leave of past date!"});
+    }
+
     // add START
       if (leave_type !== "Unpaid Leave") {
 
@@ -110,6 +115,14 @@ export const applyLeave = async (req, res) => {
         }
       }
       // add END
+
+    //   if ((leaveType === "Sick Leave" || leaveType === "Emergency Leave") && startDate > new Date()) {
+    //   showSnackbar("This Leave Type can only be applied for today", "error");
+    //   return;
+    // }
+      if( leave_type === "Sick Leave" || leave_type === "Emergency Leave" && new Date(start_date) > new Date()){
+        return res.status(400).json({ message: "This Leave Type can only be applied for today" });
+      }
 
     const overlapWFH = await sequelize.query(
       `SELECT id FROM wfh_requests 

@@ -35,6 +35,14 @@ export const applyWFH = async (req, res) => {
       return res.status(400).json({ message: "You already have a WFH request for this date range" });
     }
 
+    if (new Date(end_date) < new Date(start_date)) {
+      return res.status(400).json({ message: "End date cannot be before start date" });
+    }
+
+    if (start_date && new Date(start_date) < new Date()) {
+      return res.status(400).json({ message: "You can't apply the wfh of past date!"});
+    }
+
     const [overlapLeave] = await db.promise().query(
       `SELECT id FROM leaves 
        WHERE employee_id = ? 
@@ -47,6 +55,7 @@ export const applyWFH = async (req, res) => {
       return res.status(400).json({ message: "You already have a leave request for this date range" });
     }
 
+    
     // 2. Insert with hierarchy
     await db.promise().query(
       "INSERT INTO wfh_requests (employee_id, start_date, end_date, reason, manager_id, hr_id, status) VALUES (?,?,?,?,?,?,?)",

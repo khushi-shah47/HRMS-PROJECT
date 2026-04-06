@@ -128,6 +128,11 @@ const WFHPage = () => {
       return;
     }
 
+    if (startDate && new Date(startDate) < new Date()) {
+      showSnackbar("You can't apply the wfh of past date!", "error");
+      return;
+    }
+
     setLoading(true);
     try {
       await api.post("/wfh/apply", {

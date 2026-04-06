@@ -210,7 +210,12 @@ const SalaryPage = () => {
       setBulkDialogOpen(false);
       fetchReport();
       fetchPayrollSummary();
-    } catch (err) { showSnackbar("Bulk generation failed", "error"); }
+    } catch (err) { 
+        const message =
+          err.response?.data?.message || "Bulk generation failed";
+
+        showSnackbar(message, "error");
+      }
     finally { setBulkLoading(false); }
   };
 

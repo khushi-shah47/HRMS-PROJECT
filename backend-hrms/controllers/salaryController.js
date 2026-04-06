@@ -266,6 +266,20 @@ export const bulkGenerateSalary = async (req, res) => {
 
   if (!month || !year) return res.status(400).json({ message: "Month and Year required" });
 
+  // 🔒 Block future salary generation
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+
+  if (
+    year > currentYear ||
+    (year === currentYear && month > currentMonth)
+  ) {
+    return res.status(400).json({
+      message: "Cannot generate salary for future month"
+    });
+  }
+
   try {
     let targets = [];
     if (employeeIds && employeeIds.length > 0) {
