@@ -602,8 +602,8 @@ const AttendancePage = () => {
                   fontWeight: 700,
                   borderRadius: 3,
                   border: "2px solid",
-                  borderColor: (actionLoading || isWFHApproved) ? "action.disabled" : "success.main",
-                  color: (actionLoading || isWFHApproved) ? "text.disabled" : "success.main",
+                  borderColor: (actionLoading || isWFHApproved) ? "action.disabled" : "primary.main",
+                  color: (actionLoading || isWFHApproved) ? "text.disabled" : "primary.main",
                   width: 380, // Fixed width
                   "&.Mui-disabled": {
                     border: "2px solid",

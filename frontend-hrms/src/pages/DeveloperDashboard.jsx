@@ -242,7 +242,7 @@ export default function DeveloperDashboard() {
   return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">
@@ -261,7 +261,7 @@ export default function DeveloperDashboard() {
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {developerStats.map((stat, index) => (
-          <Box key={index} sx={{ width: 197 }}>
+          <Box key={index} sx={{ width: 240 }}>
             <StatCard {...stat} loading={loading} />
           </Box>
         ))}
@@ -347,7 +347,7 @@ export default function DeveloperDashboard() {
                   <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                     My Tasks
                   </Typography>
-                  <Button variant="outlined" size="small" onClick={() => navigate("/tasks")}>View All</Button>
+                  <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
                 </Box>
 
                 {loading ? (
@@ -447,7 +447,7 @@ export default function DeveloperDashboard() {
             <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
               <CardContent>
                 <Typography variant="h6" fontWeight="bold" sx={{ mb: 2, display: "flex", alignItems: "center", gap: 1, color: "primary.main" }}>
-                  <TimerIcon color="error" /> Upcoming Deadlines
+                  <TimerIcon color="primary" /> Upcoming Deadlines
                 </Typography>
                 {upcomingDeadlines.length === 0 ? (
                   <Typography variant="body2" color="text.secondary">No immediate deadlines.</Typography>
@@ -472,7 +472,14 @@ export default function DeveloperDashboard() {
             </Card>
 
             <Box sx={{ p: 2, bgcolor: "background.paper", borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Quick Shortcuts</Typography>
+              {/* <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Quick Shortcuts</Typography> */}
+              <Typography 
+                variant="h6" 
+                fontWeight="bold" 
+                sx={{ mb: 2, color: 'primary.main' }}
+              >
+                Quick Shortcuts
+              </Typography>
               <Stack spacing={1}>
                 <Button variant="outlined" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Request Leave</Button>
                 <Button variant="outlined" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>Request WFH</Button>

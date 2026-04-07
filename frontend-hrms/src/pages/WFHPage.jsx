@@ -297,7 +297,7 @@ const WFHPage = () => {
           />
           <Chip
             label={`${filteredHistory.length} requests`}
-            color="info"
+            color="primary"
             variant="outlined"
           />
           {isManager && (
@@ -306,7 +306,7 @@ const WFHPage = () => {
                 variant={viewMode === "team" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => setViewMode("team")}
-                color="info"
+                color="primary"
               >
                 Team Requests
               </Button>
@@ -314,7 +314,7 @@ const WFHPage = () => {
                 variant={viewMode === "my" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => setViewMode("my")}
-                color="info"
+                color="primary"
               >
                 My Requests
               </Button>
@@ -327,7 +327,7 @@ const WFHPage = () => {
       <Paper sx={{ overflow: "hidden" }}>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
-            <CircularProgress color="info" />
+            <CircularProgress color="primary" />
           </Box>
         )}
 
@@ -422,7 +422,7 @@ const WFHPage = () => {
 
       {/* Apply WFH Dialog */}
       <Dialog open={applyDialogOpen} onClose={handleApplyClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "info.main", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <HomeWorkIcon />
             Apply Work From Home
@@ -467,7 +467,7 @@ const WFHPage = () => {
             variant="contained"
             onClick={applyWFH}
             disabled={loading}
-            sx={{ bgcolor: "info.main", "&:hover": { bgcolor: "info.dark" } }}
+            sx={{ bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Submit Request

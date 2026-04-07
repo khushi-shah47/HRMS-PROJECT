@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-const roles = ["admin"];
+const roles = ["admin","HR","Manager","Developer","Intern"];
 
 
 
@@ -190,6 +190,17 @@ const SignupPage = () => {
           {loading ? "Signing up..." : "Sign Up"}
         </Button>
 
+        <Box sx={{ mt: 2 }}>
+          <Button
+            fullWidth
+            variant="text"
+            onClick={() => navigate("/forgot-password")}
+            sx={{ color: "primary.main", fontWeight: "bold", textTransform: "none" }}
+          >
+            Forget Password?
+          </Button>
+        </Box>
+
         <Typography sx={{ mt: 3 }}>
           Already have an account?
           <Button
@@ -205,4 +216,5 @@ const SignupPage = () => {
 };
 
 export default SignupPage;
+
 

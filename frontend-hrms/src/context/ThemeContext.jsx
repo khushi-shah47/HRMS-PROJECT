@@ -48,27 +48,27 @@ export function CustomThemeProvider({ children }) {
           admin: { 
             main: mode === "light" ? "#1E3A8A" : "#60A5FA",
             bg: mode === "light" ? "#EEF2FF" : "#1E293B",
-            border: mode === "light" ? "#3B82F6" : "#2563EB"
+            border: mode === "light" ? "#1E3A8A" : "#60A5FA"
           },
           manager: { 
             main: mode === "light" ? "#1E3A8A" : "#60A5FA",
             bg: mode === "light" ? "#EEF2FF" : "#1E293B",
-            border: mode === "light" ? "#3B82F6" : "#2563EB"
+            border: mode === "light" ? "#1E3A8A" : "#60A5FA"
           },
           hr: { 
             main: mode === "light" ? "#1E3A8A" : "#60A5FA",
             bg: mode === "light" ? "#EEF2FF" : "#1E293B",
-            border: mode === "light" ? "#3B82F6" : "#2563EB"
+            border: mode === "light" ? "#1E3A8A" : "#60A5FA"
           },
           developer: { 
             main: mode === "light" ? "#1E3A8A" : "#60A5FA",
             bg: mode === "light" ? "#EEF2FF" : "#1E293B",
-            border: mode === "light" ? "#3B82F6" : "#2563EB"
+            border: mode === "light" ? "#1E3A8A" : "#60A5FA"
           },
           intern: { 
             main: mode === "light" ? "#1E3A8A" : "#60A5FA",
             bg: mode === "light" ? "#EEF2FF" : "#1E293B",
-            border: mode === "light" ? "#3B82F6" : "#2563EB"
+            border: mode === "light" ? "#1E3A8A" : "#60A5FA"
           }
         },
         typography: {

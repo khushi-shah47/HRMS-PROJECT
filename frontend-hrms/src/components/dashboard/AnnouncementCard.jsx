@@ -11,7 +11,7 @@ const AnnouncementCard = ({ announcements = [], loading = false }) => {
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CampaignIcon sx={{ color: "info.main" }} />
+            <CampaignIcon sx={{ color: "primary.main" }} />
             <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
               Announcements
             </Typography>
@@ -35,7 +35,7 @@ const AnnouncementCard = ({ announcements = [], loading = false }) => {
                 borderRadius: 2, 
                 bgcolor: "action.hover", 
                 borderLeft: "4px solid",
-                borderLeftColor: "info.main",
+                borderLeftColor: "primary.main",
                 transition: "transform 0.2s",
                 "&:hover": { transform: "translateX(4px)" }
               }}

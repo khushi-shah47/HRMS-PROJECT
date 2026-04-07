@@ -37,11 +37,16 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import BadgeIcon from "@mui/icons-material/Badge";
 import SchoolIcon from "@mui/icons-material/School";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
+
 const UserPage = () => {
+  const { user } = useAuth();
   const theme = useTheme();
   const [users, setUsers] = useState([]);
+  const [usersError, setUsersError] = useState(null);
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,13 +88,18 @@ const UserPage = () => {
   };
 
   const fetchUsers = async () => {
+// Backend middleware handles admin auth - always fetch
+
     setLoading(true);
+    setUsersError(null);
     try {
       const res = await api.get("/users/all");
-      setUsers(res.data);
+      setUsers(res.data || []);
     } catch (error) {
-      console.error("Error:", error);
-      showSnackbar("Failed to load users", "error");
+      console.error("Users fetch error:", error);
+      setUsersError(error.response?.data?.message || "Failed to load users");
+      showSnackbar("Failed to load users - Admin access required?", "error");
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -362,7 +372,14 @@ const UserPage = () => {
           </Box>
         )}
 
-        <Table>
+        {usersError ? (
+            <Box sx={{ p: 3, textAlign: "center" }}>
+              <Alert severity="error" sx={{ maxWidth: 600, mx: "auto" }}>
+                {usersError}
+              </Alert>
+            </Box>
+          ) : null}
+          <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
 
@@ -391,16 +408,26 @@ const UserPage = () => {
                     <TableCell>{getRoleChip(user.role)}</TableCell>
                     <TableCell>{user.department_name || "Not Assigned"}</TableCell>
                     <TableCell align="center">
-                      <Tooltip title="Edit">
-                        <IconButton color="primary" onClick={() => handleEditClick(user)} size="small">
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton color="error" onClick={() => handleDeleteClick(user)} size="small">
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
+                    {user?.role === "admin" ? (
+                          <>
+                            <Tooltip title="Edit">
+                              <IconButton color="primary" onClick={() => handleEditClick(user)} size="small">
+                                <EditIcon />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <IconButton color="error" onClick={() => handleDeleteClick(user)} size="small">
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        ) : (
+                          <Tooltip title="Admin only">
+                            <IconButton disabled size="small">
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                     </TableCell>
                   </TableRow>
                 ))

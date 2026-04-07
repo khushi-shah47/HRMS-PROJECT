@@ -32,6 +32,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import ShyamPage from "./pages/ShyamPage";
 // Role-based route access configuration
+
 const roleRoutes = {
   admin: ["/admin", "/employees", "/attendance", "/all-attendance", "/tasks", "/reports", "/users", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments"],
   manager: ["/manager", "/attendance", "/tasks", "/reports", "/leave", "/wfh"],
@@ -160,13 +161,16 @@ function App() {
             }
           />
           <Route
-            path="/users"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <UserPage />
-              </ProtectedRoute>
-            }
-          />
+path="/users"
+              element={
+                <ProtectedRoute>
+                  <UserPage />
+                </ProtectedRoute>
+              }
+            />
+
+
+
           <Route
             path="/leave"
             element={
@@ -252,7 +256,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Routes>
-    </Router>
+    </Router> 
+
   );
 }
 

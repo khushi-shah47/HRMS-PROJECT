@@ -336,7 +336,7 @@ function LeavePage() {
           </TextField>
           <Chip
             label={`${totalCount} requests`}
-            color="warning"
+            color="primary"
             variant="outlined"
           />
           {isManager && (
@@ -345,7 +345,7 @@ function LeavePage() {
                 variant={viewMode === "team" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => { setViewMode("team"); setPage(0); }}
-                color="warning"
+                color="primary"
               >
                 Team Requests
               </Button>
@@ -353,7 +353,7 @@ function LeavePage() {
                 variant={viewMode === "my" ? "contained" : "outlined"}
                 size="small"
                 onClick={() => { setViewMode("my"); setPage(0); }}
-                color="warning"
+                color="primary"
               >
                 My Requests
               </Button>

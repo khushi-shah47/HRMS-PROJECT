@@ -15,6 +15,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import PersonIcon from "@mui/icons-material/Person";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 
 export default function ProfilePage() {
@@ -35,24 +36,40 @@ export default function ProfilePage() {
     severity: "success"
   });
   const [errors, setErrors] = useState({});
+  const [error, setError] = useState(null);
+  const { user } = useAuth();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
   const fetchEmployee = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user?.id) return;
+      if (!user?.id) {
+        setError("User not authenticated");
+        return;
+      }
       const res = await api.get(`/profile/${user.id}`);
       const emp = res.data;
       setEmployee(emp);
       setFormData({
-        name: emp.name || "",
-        email: emp.email || "",
+        name: emp.name || user.username || "",
+        email: emp.email || user.email || "",
         phone: emp.phone || ""
       });
+      setError(null);
     } catch (err) {
-      console.error(err);
-      setNotification({ open: true, message: "Failed to load profile", severity: "error" });
+      console.error("Profile fetch error:", err);
+      // Fallback to cached user data
+      setFormData({
+        name: user?.username || "",
+        email: user?.email || "",
+        phone: ""
+      });
+      setError("Using cached profile data (server temporarily unavailable)");
+      setNotification({ 
+        open: true, 
+        message: "Using cached data - some details may be outdated", 
+        severity: "warning" 
+      });
     } finally {
       setLoading(false);
     }
@@ -70,7 +87,6 @@ export default function ProfilePage() {
   const saveProfile = async () => {
     if (!validateForm()) return;
     setSaving(true);
-    const user = JSON.parse(localStorage.getItem("user"));
     try {
       await api.put(`/profile/${user.id}`, formData);
       await fetchEmployee();
@@ -119,8 +135,15 @@ export default function ProfilePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const uploadProfileImage = async () => {
-    if (!selectedFile) return;
+      const uploadProfileImage = async () => {
+    if (!selectedFile || !employee?.id) {
+      setNotification({
+        open: true,
+        message: "No profile image or employee ID",
+        severity: "error"
+      });
+      return;
+    }
 
     const formDataUpload = new FormData();
     formDataUpload.append("profile", selectedFile);
@@ -139,20 +162,10 @@ export default function ProfilePage() {
       // ✅ Update local state
       setEmployee((prev) => {
         const updated = { ...prev, profile_image: res.data.path };
-
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (user) {
-          user.profile_image = res.data.path;
-          localStorage.setItem("user", JSON.stringify(user));
-        }
-
         return updated;
       });
 
-      // ✅ FORCE PROFILE REFRESH
-      await fetchEmployee();
-
-      // ✅ Notify Topbar
+      // Update auth context indirectly via event
       window.dispatchEvent(new Event("profileUpdated"));
 
       setNotification({
@@ -176,6 +189,23 @@ export default function ProfilePage() {
   };
   if (loading) return <CircularProgress sx={{ display: "block", m: "auto", mt: 4 }} />;
 
+  if (error && !employee) {
+    return (
+      <Box sx={{ p: 4, maxWidth: 800, mx: "auto", textAlign: "center" }}>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Paper sx={{ p: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Profile Data (Cached)
+          </Typography>
+          <Typography>Name: {user?.username || "N/A"}</Typography>
+          <Typography>Email: {user?.email || "N/A"}</Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
       <Typography variant="h4" fontWeight="bold" sx={{ mb: 4, color: "primary.main" }}>
@@ -197,7 +227,7 @@ export default function ProfilePage() {
                 preview
                   ? preview
                   : employee?.profile_image
-                    ? `http://localhost:5000/${employee.profile_image}?t=${new Date().getTime()}`
+                    ? `/api/${employee.profile_image}?t=${new Date().getTime()}`
                     : ""
               }
               sx={{ bgcolor: "primary.main", width: 48, height: 48 }}
@@ -250,8 +280,8 @@ export default function ProfilePage() {
           )}
           
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" fontWeight="bold">{formData.name}</Typography>
-            <Typography variant="body2" color="text.secondary">{employee?.position || employee?.role}</Typography>
+            <Typography variant="h6" fontWeight="bold">{formData.name || user?.username || "N/A"}</Typography>
+            <Typography variant="body2" color="text.secondary">{employee?.position || employee?.role || user?.role || "N/A"}</Typography>
           </Box>
         </Box>
 

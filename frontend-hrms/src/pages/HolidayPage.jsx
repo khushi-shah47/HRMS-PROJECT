@@ -308,10 +308,10 @@ const HolidayPage = () => {
               sx={(theme) => ({
                 color: theme.palette.mode === "light"
                   ? "#0d47a1"   // dark blue
-                  : "#38bdf8",  // sky blue
+                  : "#60A5FA",  // sky blue
                 borderColor: theme.palette.mode === "light"
                   ? "#0d47a1"
-                  : "#38bdf8",
+                  : "#60A5FA",
                 bgcolor: "transparent", // keep background transparent
               })}
             />

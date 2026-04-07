@@ -600,7 +600,7 @@ const TaskPage = () => {
                         <Tooltip title="View Details">
                           <IconButton 
                             size="small" 
-                            color="info"
+                            color="primary"
                             onClick={() => handleViewClick(task)}
                           >
                             <VisibilityIcon fontSize="small" />

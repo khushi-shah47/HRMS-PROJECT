@@ -37,11 +37,11 @@ const ForgetPassword = () => {
         }}
       >
         <Typography variant="h5" sx={{ color: "primary.main", fontWeight: "bold", mb: 1 }}>
-          Reset Your Password 🔐
+          Forget Password 
         </Typography>
 
-        <Typography sx={{ color: "text.secondary", mb: 3 }}>
-          Enter your registered email to receive reset password
+        <Typography sx={{ color: "primary.main", mb: 3, opacity: 0.8 }}>
+          Enter your email to receive reset password link
         </Typography>
 
         <TextField

@@ -262,7 +262,7 @@ export default function AdminDashboard() {
 return (
     <Box sx={{ p: 3, bgcolor: "background.default", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`, color: "white" }}>
+      <Box sx={{ mb: 4, p: 4, borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`, color: "white" }}>
         <Grid container alignItems="center" spacing={2}>
           <Grid size={{ xs: 12, md: 8 }}>
             <Typography variant="h3" fontWeight="bold">

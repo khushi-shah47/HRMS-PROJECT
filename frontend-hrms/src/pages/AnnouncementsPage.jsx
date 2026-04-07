@@ -175,7 +175,7 @@ const AnnouncementsPage = () => {
           p: 3,
           mb: 3,
           borderRadius: 2,
-          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

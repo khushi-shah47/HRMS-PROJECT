@@ -14,16 +14,16 @@ const QuickActions = ({ role }) => {
   const actions = {
     admin: [
       { label: "Add Employee", icon: <PersonAddIcon />, path: "/employees", color: "primary" },
-      { label: "Generate Report", icon: <AssessmentIcon />, path: "/reports", color: "secondary" },
-      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "info" }
+      { label: "Generate Report", icon: <AssessmentIcon />, path: "/reports", color: "primary" },
+      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "primary" }
     ],
     hr: [
-      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "info" },
-      { label: "View Reports", icon: <AssessmentIcon />, path: "/reports", color: "success" }
+      { label: "Manage Departments", icon: <BusinessIcon />, path: "/departments", color: "primary" },
+      { label: "View Reports", icon: <AssessmentIcon />, path: "/reports", color: "primary" }
     ],
     manager: [
       { label: "Assign Task", icon: <AssignmentIcon />, path: "/tasks", color: "primary" },
-      { label: "Approve Leave", icon: <CheckCircleIcon />, path: "/leave", color: "success" }
+      { label: "Approve Leave", icon: <CheckCircleIcon />, path: "/leave", color: "primary" }
     ]
   };
 
@@ -34,7 +34,14 @@ const QuickActions = ({ role }) => {
   return (
     <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
       <CardContent>
-        <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        {/* <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+          Quick Actions
+        </Typography> */}
+        <Typography 
+          variant="h6" 
+          fontWeight="bold" 
+          sx={{ mb: 2, color: 'primary.main' }}
+        >
           Quick Actions
         </Typography>
         <Stack spacing={1.5}>

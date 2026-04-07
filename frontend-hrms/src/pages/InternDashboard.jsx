@@ -279,7 +279,7 @@ export default function InternDashboard() {
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {internStats.map((stat, index) => (
-          <Box key={index} sx={{ width: 197 }}>
+          <Box key={index} sx={{ width: 240 }}>
             <StatCard {...stat} loading={loading} />
           </Box>
         ))}
@@ -365,7 +365,7 @@ export default function InternDashboard() {
                   <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                     My Assigned Tasks
                   </Typography>
-                  <Button variant="outlined" size="small" onClick={() => navigate("/tasks")}>View All</Button>
+                  <Button size="small" onClick={() => navigate("/tasks")}>View All</Button>
                 </Box>
                 {myTasks.length === 0 ? (
                   <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>

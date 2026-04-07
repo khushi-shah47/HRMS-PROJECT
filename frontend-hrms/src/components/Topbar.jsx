@@ -294,7 +294,7 @@ export default function Topbar({ onMenuClick }){
                         aria-haspopup="true"
                         aria-expanded={openProfileMenu ? 'true' : undefined}
                     >
-                        <Typography sx={{ fontWeight: 500, display: { xs: "none", sm: "block" }, color: mode === 'dark' ? '#0ea5e9' : '#1e3a8a' }}>
+                        <Typography sx={{ fontWeight: 500, display: { xs: "none", sm: "block" }, color: mode === 'dark' ? '#60A5FA' : '#1e3a8a' }}>
                             {user.name || user.username || "User"}
                         </Typography>
                         <Avatar
@@ -362,6 +362,12 @@ export default function Topbar({ onMenuClick }){
                     </ListItemIcon>
                     Change Password
                 </MenuItem>
+                <MenuItem onClick={() => handleMenuNavigation('/settings')}>
+                    <ListItemIcon>
+                        <SettingsIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    Settings
+                </MenuItem>
                 <Divider />
                 <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
                     <ListItemIcon>
@@ -369,6 +375,7 @@ export default function Topbar({ onMenuClick }){
                     </ListItemIcon>
                     Logout
                 </MenuItem>
+
             </Menu>
 
             {/* Notifications Popover */}
