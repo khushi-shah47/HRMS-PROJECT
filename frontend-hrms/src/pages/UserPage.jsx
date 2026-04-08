@@ -443,7 +443,7 @@ const UserPage = () => {
 
       {/* Add User Dialog */}
       <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AddIcon />
             Add New User
@@ -512,7 +512,7 @@ const UserPage = () => {
             variant="contained" 
             onClick={addUser}
             disabled={loading}
-            color="error"
+            color="primary"
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Add User
