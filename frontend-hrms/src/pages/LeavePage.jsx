@@ -545,7 +545,7 @@ function LeavePage() {
             variant="contained"
             onClick={handleApply}
             disabled={loading}
-            sx={{ bgcolor: "warning.main", "&:hover": { bgcolor: "warning.dark" } }}
+            sx={{ bgcolor: "primary.main", "&:hover": { bgcolor: "primary.dark" } }}
             startIcon={loading ? <CircularProgress size={20} /> : <AddIcon />}
           >
             Submit Request

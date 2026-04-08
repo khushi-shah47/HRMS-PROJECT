@@ -297,7 +297,7 @@ export default function InternDashboard() {
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {internStats.map((stat, index) => (
-          <Box key={index} sx={{ width: 240 }}>
+          <Box key={index} sx={{ width: 195 }}>
             <StatCard {...stat} loading={loading} />
           </Box>
         ))}

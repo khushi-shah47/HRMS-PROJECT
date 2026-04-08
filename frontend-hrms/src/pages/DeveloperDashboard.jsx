@@ -281,7 +281,7 @@ export default function DeveloperDashboard() {
       {/* Stats Cards */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
         {developerStats.map((stat, index) => (
-          <Box key={index} sx={{ width: 240 }}>
+          <Box key={index} sx={{ width: 195 }}>
             <StatCard {...stat} loading={loading} />
           </Box>
         ))}

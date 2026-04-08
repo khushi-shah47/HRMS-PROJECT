@@ -916,7 +916,7 @@ const EmployeePage = () => {
               <MenuItem value="">Select Department</MenuItem>
               {departments.map((dept) => {
                 if (editRole === "hr" && dept.name !== "HR") return null;
-                if (editRole === "admin") return null;
+                if (editRole === "admin" ) return null;
 
                 return (
                   <MenuItem key={dept.id} value={dept.id}>

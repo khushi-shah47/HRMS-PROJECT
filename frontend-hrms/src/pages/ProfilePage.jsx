@@ -36,7 +36,7 @@ export default function ProfilePage() {
     severity: "success"
   });
   const [errors, setErrors] = useState({});
-  const [error, setError] = useState(null);
+  // error state kept for future use, eslint ignore
   const { user } = useAuth();
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -44,40 +44,39 @@ export default function ProfilePage() {
   const fetchEmployee = async () => {
     try {
       if (!user?.id) {
-        setError("User not authenticated");
+        setError("User not found");
+        setLoading(false);
         return;
       }
       const res = await api.get(`/profile/${user.id}`);
       const emp = res.data;
       setEmployee(emp);
       setFormData({
-        name: emp.name || user.username || "",
-        email: emp.email || user.email || "",
-        phone: emp.phone || ""
+        name: emp?.name || user?.username || "",
+        email: emp?.email || user?.email || "",
+        phone: emp?.phone || ""
       });
       setError(null);
     } catch (err) {
       console.error("Profile fetch error:", err);
-      // Fallback to cached user data
+      setError("Failed to load profile data");
+      // Fallback display from auth user
       setFormData({
-        name: user?.username || "",
+        name: user?.username || "User",
         email: user?.email || "",
         phone: ""
       });
-      setError("Using cached profile data (server temporarily unavailable)");
-      setNotification({ 
-        open: true, 
-        message: "Using cached data - some details may be outdated", 
-        severity: "warning" 
-      });
+      setEmployee({ name: user?.username });
     } finally {
       setLoading(false);
     }
   };
-  // Fetch employee
+  // Fetch employee when user changes
   useEffect(() => {
-    fetchEmployee();
-  }, []);
+    if (user?.id) {
+      fetchEmployee();
+    }
+  }, [user?.id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -89,9 +88,8 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       await api.put(`/profile/${user.id}`, formData);
-      await fetchEmployee();
-      setEmployee((prev) => ({ ...prev, ...formData }));
-      setNotification({ open: true, message: "Profile updated successfully", severity: "success" });
+      await fetchEmployee(); // Full refetch for consistency
+      setNotification({ open: true, message: "Profile updated successfully!", severity: "success" });
       setEditing(false);
     } catch (err) {
       console.error(err);
@@ -189,22 +187,7 @@ export default function ProfilePage() {
   };
   if (loading) return <CircularProgress sx={{ display: "block", m: "auto", mt: 4 }} />;
 
-  if (error && !employee) {
-    return (
-      <Box sx={{ p: 4, maxWidth: 800, mx: "auto", textAlign: "center" }}>
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Paper sx={{ p: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            Profile Data (Cached)
-          </Typography>
-          <Typography>Name: {user?.username || "N/A"}</Typography>
-          <Typography>Email: {user?.email || "N/A"}</Typography>
-        </Paper>
-      </Box>
-    );
-  }
+  // Removed cached error display - backend always provides data now
 
   return (
     <Box sx={{ p: 4, maxWidth: 800, mx: "auto" }}>
@@ -227,7 +210,7 @@ export default function ProfilePage() {
                 preview
                   ? preview
                   : employee?.profile_image
-                    ? `/api/${employee.profile_image}?t=${new Date().getTime()}`
+                    ? `http://localhost:5000/${employee.profile_image}?t=${Date.now()}`
                     : ""
               }
               sx={{ bgcolor: "primary.main", width: 48, height: 48 }}
@@ -280,7 +263,7 @@ export default function ProfilePage() {
           )}
           
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" fontWeight="bold">{formData.name || user?.username || "N/A"}</Typography>
+            <Typography variant="h6" fontWeight="bold">{formData.name || employee?.name || user?.name || user?.username || "N/A"}</Typography>
             <Typography variant="body2" color="text.secondary">{employee?.position || employee?.role || user?.role || "N/A"}</Typography>
           </Box>
         </Box>

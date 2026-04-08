@@ -21,7 +21,26 @@ export const getEmployeeById = async (req, res) => {
         }
     );
 
-    if (!employee) return res.status(404).json({ message: "Employee not found" });
+    if (!employee) {
+      // Fallback to user data if no employee record
+      const [user] = await sequelize.query(
+        `SELECT id, username, email, role FROM users WHERE id = :id`,
+        { replacements: { id }, type: QueryTypes.SELECT }
+      );
+      if (!user) return res.status(404).json({ message: "User not found" });
+      
+      employee = {
+        id: null,
+        name: user.username,
+        email: user.email,
+        phone: null,
+        position: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+        department_name: null,
+        profile_image: null,
+        role: user.role,
+        ...user
+      };
+    }
 
     res.json(employee);
   } catch (err) {
@@ -54,22 +73,43 @@ export const updateProfile = async (req, res) => {
       }
     );
 
-    await sequelize.query(
-      `UPDATE employees
-       SET name = :name,
-           email = :email,
-           phone = :phone
-       WHERE user_id = :id`,
-      {
-        replacements: {
-          id,
-          name: name.trim(),
-          email: email.toLowerCase(),
-          phone: phone || null
-        },
-        type: QueryTypes.UPDATE
-      }
+    // Check if employee exists, if not create
+    const [existingEmp] = await sequelize.query(
+      `SELECT id FROM employees WHERE user_id = :id`,
+      { replacements: { id }, type: QueryTypes.SELECT }
     );
+    if (!existingEmp) {
+      await sequelize.query(
+        `INSERT INTO employees (name, email, phone, user_id, position) 
+         VALUES (:name, :email, :phone, :id, 'Staff')`,
+        {
+          replacements: {
+            id,
+            name: name.trim(),
+            email: email.toLowerCase(),
+            phone: phone || null
+          },
+          type: QueryTypes.INSERT
+        }
+      );
+    } else {
+      await sequelize.query(
+        `UPDATE employees
+         SET name = :name,
+             email = :email,
+             phone = :phone
+         WHERE user_id = :id`,
+        {
+          replacements: {
+            id,
+            name: name.trim(),
+            email: email.toLowerCase(),
+            phone: phone || null
+          },
+          type: QueryTypes.UPDATE
+        }
+      );
+    }
 
     res.json({ message: "Profile updated successfully" });
   } catch (err) {
