@@ -350,7 +350,7 @@ const UserPage = () => {
           />
           <Chip 
             label={`${filteredUsers.length} users`} 
-            color="error" 
+            color="primary" 
             variant="outlined" 
           />
         </Stack>
@@ -360,7 +360,7 @@ const UserPage = () => {
       <Paper sx={{ overflow: "hidden", bgcolor: "background.paper" }}>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
-            <CircularProgress color="error" />
+            <CircularProgress color="primary" />
           </Box>
         )}
 
