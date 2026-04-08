@@ -116,10 +116,27 @@ export default function InternDashboard() {
     }
   }, [user]);
 
+  const fetchDashboardStats = async () => {
+    try {
+      const res = await api.get("/dashboard/stats");
+      const data = res.data || {};
+      setStats(prev => ({
+        ...prev,
+        presentToday: data.presentToday || 0,
+        wfhToday: data.wfhToday || 0,
+        leavesToday: data.leavesToday || data.onLeave || 0,
+        totalEmployees: data.totalEmployees || 0
+      }));
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    }
+  };
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
       await Promise.all([
+        fetchDashboardStats(),
         fetchAnnouncements(),
         fetchHolidays(),
       ]);
@@ -192,11 +209,12 @@ export default function InternDashboard() {
     : 0;
 
   const internStats = [
+    { title: "Present Today", value: stats.presentToday || 0, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "WFH Today", value: stats.wfhToday || 0, icon: <HomeWorkIcon />, color: "secondary.main", bg: "action.hover" },
     { title: "Assigned Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "warning.main", bg: "action.hover" },
-    { title: "Total Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "primary.main", bg: "action.hover" },
-    { title: "WFH Today", value: stats.wfhToday || 0, icon: <HomeWorkIcon />, color: "info.main", bg: "action.hover" },
     { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
-    { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "warning.dark", bg: "action.hover" },
+    { title: "Pending", value: stats.pendingTasks, icon: <PendingActionsIcon />, color: "error.main", bg: "action.hover" },
+    { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "warning.dark", bg: "action.hover" }
   ];
 
   const fetchWFHToday = async () => {

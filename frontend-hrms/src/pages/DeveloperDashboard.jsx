@@ -111,12 +111,31 @@ export default function DeveloperDashboard() {
     }
   }, [user]);
 
+  const fetchDashboardStats = async () => {
+    try {
+      const res = await api.get("/dashboard/stats");
+      const data = res.data || {};
+      setStats(prev => ({
+        ...prev,
+        presentToday: data.presentToday || 0,
+        wfhToday: data.wfhToday || 0,
+        leavesToday: data.leavesToday || data.onLeave || 0,
+        totalEmployees: data.totalEmployees || 0
+      }));
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    }
+  };
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
       await Promise.all([
+        fetchTasks(),
+        fetchAttendance(),
+        fetchDashboardStats(),
+        fetchAnnouncements(),
         fetchHolidays()
-        // fetchDeveloperChartData()
       ]);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -232,11 +251,12 @@ export default function DeveloperDashboard() {
 
 
   const developerStats = [
+    { title: "Present Today", value: stats.presentToday || 0, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
+    { title: "WFH Today", value: stats.wfhToday || 0, icon: <HomeWorkIcon />, color: "secondary.main", bg: "action.hover" },
     { title: "My Tasks", value: stats.totalTasks, icon: <AssignmentIcon />, color: "error.main", bg: "action.hover" },
     { title: "Completed", value: stats.completedTasks, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
     { title: "In Progress", value: stats.inProgressTasks, icon: <AccessTimeIcon />, color: "warning.main", bg: "action.hover" },
-    { title: "Pending", value: stats.pendingTasks, icon: <PendingActionsIcon />, color: "text.secondary", bg: "action.hover" },
-    { title: "Hours (Week)", value: stats.totalHours, icon: <TimerIcon />, color: "primary.main", bg: "action.hover" }
+    { title: "Pending", value: stats.pendingTasks, icon: <PendingActionsIcon />, color: "text.secondary", bg: "action.hover" }
   ];
 
   return (

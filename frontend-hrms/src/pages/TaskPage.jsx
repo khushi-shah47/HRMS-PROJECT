@@ -48,6 +48,7 @@ const TaskPage = () => {
   const theme = useTheme();
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [employeesLoading, setEmployeesLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -129,8 +130,9 @@ const TaskPage = () => {
 
   const fetchEmployees = async () => {
     if (!canCreateTask) return;
+    setEmployeesLoading(true);
     try {
-      const endpoint = userRole === "manager" ? "/employees/team?limit=100" : "/employees?limit=100";
+      const endpoint = "/employees?limit=100";
       const res = await api.get(endpoint);
       let employeesArray = [];
       if (Array.isArray(res.data)) {
@@ -143,6 +145,9 @@ const TaskPage = () => {
       setEmployees(employeesArray);
     } catch (error) {
       console.error("Error fetching employees:", error);
+      showSnackbar("No employees available. Contact admin.", "warning");
+    } finally {
+      setEmployeesLoading(false);
     }
   };
 
@@ -531,10 +536,22 @@ const TaskPage = () => {
 
         {/* RIGHT SIDE → TABS */}
         {canSeeTabs && (
-          <Tabs value={tab} onChange={(e, val) => setTab(val)}>
-            <Tab label="My Tasks" />
-            <Tab label="Team Tasks" />
-          </Tabs>
+          <Stack direction="row" spacing={1}>
+            <Button 
+              variant={tab === 0 ? "contained" : "outlined"} 
+              onClick={() => setTab(0)}
+              color="primary"
+            >
+              My Tasks
+            </Button>
+            <Button 
+              variant={tab === 1 ? "contained" : "outlined"} 
+              onClick={() => setTab(1)}
+              color="primary"
+            >
+              Team Tasks
+            </Button>
+          </Stack>
         )}
       </Stack>
       </Paper>

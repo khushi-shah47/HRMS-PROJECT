@@ -303,15 +303,7 @@ const UserPage = () => {
             </Box>
           </Box>
           <Box sx={{ display: "flex", gap: 2 }}>
-            {/* <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleAddOpen}
-              sx={{ bgcolor: "background.paper", color: "error.main", "&:hover": { bgcolor: "action.hover" } }}
-            >
-              Add User
-            </Button> */}
-            {/* <Button
+            <Button
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleAddOpen}
@@ -329,7 +321,7 @@ const UserPage = () => {
                 })}
             >
               Add User
-            </Button> */}
+            </Button>
             <Tooltip title="Refresh">
               <IconButton onClick={fetchUsers} sx={{ color: "white" }}>
                 <RefreshIcon />
@@ -450,7 +442,7 @@ const UserPage = () => {
       </Paper>
 
       {/* Add User Dialog */}
-      {/* <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
+      <Dialog open={addDialogOpen} onClose={handleAddClose} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ bgcolor: "error.main", color: "white" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <AddIcon />
@@ -526,7 +518,7 @@ const UserPage = () => {
             Add User
           </Button>
         </DialogActions>
-      </Dialog> */}
+      </Dialog>
 
       {/* Edit User Dialog */}
       <Dialog open={editOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
@@ -561,7 +553,7 @@ const UserPage = () => {
               onChange={(e) => setEditPassword(e.target.value)}
               fullWidth
             />
-            {/* <TextField
+            <TextField
               select
               label="Role"
               value={editRole}
@@ -589,7 +581,7 @@ const UserPage = () => {
               {departments.map((dept) => (
                 <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
               ))}
-            </TextField> */}
+            </TextField>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>

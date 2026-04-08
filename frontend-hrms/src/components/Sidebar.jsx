@@ -34,8 +34,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 const roleMenuItems = {
   admin: [
     { text: "Dashboard", path: "/admin", icon: <DashboardIcon /> },
+
     { text: "Employees", path: "/employees", icon: <PeopleIcon /> },
-    { text: "Attendance", path: "/attendance", icon: <CheckCircleIcon /> },
     { text: "Leave", path: "/leave", icon: <BeachAccessIcon /> },
     { text: "Salary", path: "/salary", icon: <CurrencyRupeeIcon /> },
     { text: "Tasks", path: "/tasks", icon: <AssignmentIcon /> },
