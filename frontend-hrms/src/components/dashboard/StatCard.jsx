@@ -44,7 +44,4 @@ function StatCard({ title, value, icon, color, bg, loading }) {
 }
 
 export default StatCard;
-</xai:function_call >
 
-<xai:function_call name="edit_file">
-<parameter name="path">frontend-hrms/src/components/AttendanceSummary.jsx
