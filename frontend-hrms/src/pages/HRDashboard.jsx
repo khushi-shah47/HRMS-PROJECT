@@ -464,19 +464,19 @@ export default function HRDashboard() {
             )}
 
             {/* WFH Requests */}
-            {wfhRequests.length > 0 && (
+            {/* {wfhRequests.length > 0 && (
               <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
                 <CardContent>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                     <Typography variant="h6" fontWeight="bold" sx={{ color: "primary.main" }}>
                       Recent WFH Requests
                     </Typography>
-                    <Button size="small" color="info" onClick={() => navigate("/wfh")}>View All</Button>
+                    <Button size="small" color="primary" onClick={() => navigate("/wfh")}>View All</Button>
                   </Box>
 
                   {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                      <CircularProgress color="info" />
+                      <CircularProgress color="primary" />
                     </Box>
                   ) : (
                     wfhRequests.map((request, i) => (
@@ -488,7 +488,7 @@ export default function HRDashboard() {
                           </Typography>
                         </Box>
                         <Box sx={{ display: "flex", gap: 1 }}>
-                          <Button size="small" variant="contained" color="info" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(request.id)}>Approve</Button>
+                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(request.id)}>Approve</Button>
                           <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectWFH(request.id)}>Reject</Button>
                         </Box>
                       </Box>
@@ -496,7 +496,89 @@ export default function HRDashboard() {
                   )}
                 </CardContent>
               </Card>
-            )}
+            )} */}
+            {wfhRequests.length > 0 && (
+                <Card sx={{ borderRadius: 3, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 3,
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        sx={{ color: "primary.main" }}
+                      >
+                        Recent WFH Requests
+                      </Typography>
+                      <Button
+                        size="small"
+                        color="primary"
+                        onClick={() => navigate("/wfh")}
+                      >
+                        View All
+                      </Button>
+                    </Box>
+
+                    {loading ? (
+                      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+                        <CircularProgress color="warning" />
+                      </Box>
+                    ) : (
+                      wfhRequests.map((request, i) => (
+                        <Box
+                          key={request.id || i}
+                          sx={{
+                            p: 2,
+                            mb: 1,
+                            borderRadius: 2,
+                            bgcolor: "background.default",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Box>
+                            <Typography fontWeight="600" variant="body2">
+                              {request.name || getEmployeeName(request.employee_id)}
+                            </Typography>
+
+                            <Typography variant="caption" color="textSecondary">
+                              {request.date?.split("T")[0]}
+                            </Typography>
+                          </Box>
+
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="success"
+                              onClick={() => handleApproveWFH(request.id)}
+                            >
+                              Approve
+                            </Button>
+
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() => handleRejectWFH(request.id)}
+                            >
+                              Reject
+                            </Button>
+                          </Box>
+                        </Box>
+                      ))
+                    )}
+                  </CardContent>
+                </Card>
+              )}
           </Stack>
         </Grid>
 
