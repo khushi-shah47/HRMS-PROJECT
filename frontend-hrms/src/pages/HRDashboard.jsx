@@ -391,7 +391,7 @@ export default function HRDashboard() {
                 ) : (
                   <TableContainer>
                     <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table>
+                   <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
@@ -418,7 +418,7 @@ export default function HRDashboard() {
                         ))}
                       </TableBody>
                     </Table>
-        </TableContainer>
+                    </TableContainer>
                   </TableContainer>
                 )}
               </CardContent>
@@ -437,7 +437,7 @@ export default function HRDashboard() {
 
                   {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                      <CircularProgress color="warning" />
+                      <CircularProgress color="primary" />
                     </Box>
                   ) : (
                     leaveRequests.map((leave, i) => (
@@ -526,7 +526,7 @@ export default function HRDashboard() {
 
                     {loading ? (
                       <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                        <CircularProgress color="warning" />
+                        <CircularProgress color="primary" />
                       </Box>
                     ) : (
                       wfhRequests.map((request, i) => (

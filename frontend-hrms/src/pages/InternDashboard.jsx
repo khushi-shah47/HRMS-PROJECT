@@ -202,7 +202,7 @@ export default function InternDashboard() {
   };
 
   const getPriorityColor = (priority) => {
-    return priority === "high" ? "error" : priority === "medium" ? "warning" : "info";
+    return priority === "high" ? "error" : priority === "medium" ? "warning" : "Success";
   };
 
   const taskCompletionRate = stats.totalTasks > 0

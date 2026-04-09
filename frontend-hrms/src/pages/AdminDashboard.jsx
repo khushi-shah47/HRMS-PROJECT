@@ -247,7 +247,7 @@ export default function AdminDashboard() {
     switch (priority?.toLowerCase()) {
       case "high": return "error";
       case "medium": return "warning";
-      default: return "info";
+      default: return "success";
     }
   };
 
@@ -382,7 +382,7 @@ return (
                 ) : (
                   <TableContainer>
                     <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table>
+                   <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
@@ -459,12 +459,12 @@ return (
                     <Typography variant="h6" fontWeight="bold" sx={{ color: "warning.main" }}>
                       Pending Leave Requests
                     </Typography>
-                    <Button size="small" color="warning" onClick={() => navigate("/leave")}>View All</Button>
+                    <Button size="small" color="primary" onClick={() => navigate("/leave")}>View All</Button>
                   </Box>
 
                   {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                      <CircularProgress color="warning" />
+                      <CircularProgress color="primary" />
                     </Box>
                   ) : (
                     leaveRequests.map((leave, i) => (

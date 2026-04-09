@@ -224,7 +224,7 @@ export default function DeveloperDashboard() {
   };
 
   const getPriorityColor = (priority) => {
-    return priority === "high" ? "error" : priority === "medium" ? "warning" : "info";
+    return priority === "high" ? "error" : priority === "medium" ? "warning" : "success";
   };
 
   const getUpcomingDeadlines = () => {
@@ -380,7 +380,7 @@ export default function DeveloperDashboard() {
                 ) : (
                   <TableContainer>
                     <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table>
+                    <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Task Title</TableCell>
@@ -412,7 +412,7 @@ export default function DeveloperDashboard() {
                         ))}
                       </TableBody>
                     </Table>
-        </TableContainer>
+                  </TableContainer>
                   </TableContainer>
                 )}
               </CardContent>
@@ -431,7 +431,7 @@ export default function DeveloperDashboard() {
                 ) : (
                   <TableContainer>
                     <TableContainer sx={{ overflowX: 'auto' }}>
-          <Table>
+                   <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>

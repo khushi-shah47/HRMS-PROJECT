@@ -256,7 +256,7 @@ export default function ManagerDashboard() {
   };
 
   const getPriorityColor = (priority) => {
-    return priority === "high" ? "error" : priority === "medium" ? "warning" : "info";
+    return priority === "high" ? "error" : priority === "medium" ? "warning" : "Success";
   };
 
   const managerStats = [
@@ -450,7 +450,7 @@ export default function ManagerDashboard() {
 
                   {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
-                      <CircularProgress size={24} color="warning" />
+                      <CircularProgress size={24} color="Primary" />
                     </Box>
                   ) : leaveRequests.length === 0 ? (
                     <Typography variant="body2" color="textSecondary">No pending leaves</Typography>
@@ -496,7 +496,7 @@ export default function ManagerDashboard() {
                           {wfh.start_date?.split("T")[0]} to {wfh.end_date?.split("T")[0]}
                         </Typography>
                         <Box sx={{ display: "flex", gap: 1 }}>
-                          <Button size="small" variant="contained" color="info" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(wfh.id)}>Approve</Button>
+                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(wfh.id)}>Approve</Button>
                           <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectWFH(wfh.id)}>Reject</Button>
                         </Box>
                       </Box>

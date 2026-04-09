@@ -7,17 +7,17 @@ export const getEmployeeById = async (req, res) => {
   try {
     const [employee] = await sequelize.query(
         `SELECT 
-            e.*,
-            u.email,
-            u.role,
-            d.name AS department_name
+        e.*,
+        u.email,
+        u.role,
+        d.name AS department_name
         FROM employees e
         LEFT JOIN users u ON e.user_id = u.id
         LEFT JOIN departments d ON e.department_id = d.id
         WHERE u.id = :id`,
         {
-            replacements: { id },
-            type: QueryTypes.SELECT
+          replacements: { id },
+          type: QueryTypes.SELECT
         }
     );
 
@@ -61,7 +61,7 @@ export const updateProfile = async (req, res) => {
     await sequelize.query(
       `UPDATE users
        SET username = :name,
-           email = :email
+       email = :email
        WHERE id = :id`,
       {
         replacements: {
@@ -96,8 +96,8 @@ export const updateProfile = async (req, res) => {
       await sequelize.query(
         `UPDATE employees
          SET name = :name,
-             email = :email,
-             phone = :phone
+         email = :email,
+         phone = :phone
          WHERE user_id = :id`,
         {
           replacements: {
