@@ -23,7 +23,8 @@ import {
   CircularProgress,
   IconButton,
   Tooltip,
-  InputAdornment
+  InputAdornment,
+  TableContainer
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -331,80 +332,82 @@ const WFHPage = () => {
           </Box>
         )}
 
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "action.hover" }}>
-              {(canViewAll || (isManager && viewMode === "team")) && <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>}
-              <TableCell sx={{ fontWeight: "bold" }}>Date Range</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Reason</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-              {canApprove && <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {!loading && filteredHistory.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={canApprove ? 5 : 4} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No WFH requests found</Typography>
-                </TableCell>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "action.hover" }}>
+                {(canViewAll || (isManager && viewMode === "team")) && <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>}
+                <TableCell sx={{ fontWeight: "bold" }}>Date Range</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Reason</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                {canApprove && <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>}
               </TableRow>
-            ) : (
-              filteredHistory
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((rec) => (
-                  <TableRow key={rec.id} hover>
-                    {(canViewAll || (isManager && viewMode === "team")) && <TableCell sx={{ fontWeight: 500 }}>{rec.name}</TableCell>}
-                    <TableCell>{displayDateRange(rec)}</TableCell>
-                    <TableCell>{rec.reason || "-"}</TableCell>
-                    <TableCell>{getStatusChip(rec.status)}</TableCell>
-                    {canApprove && (
-                      <TableCell align="center">
-                        {String(rec.employee_id) !== String(employeeId) && (
-                          <Stack direction="row" spacing={1} justifyContent="center">
-                            {/* Manager Rule: Stage 1 (not for HR requests) */}
-                            {userRole === "manager" && rec.status?.toLowerCase() === "pending" && rec.owner_role !== "hr" && (
-                              <Button
-                                variant="contained"
-                                color="info"
-                                size="small"
-                                onClick={() => handleApprove(rec.id)}
-                              >
-                                Approve
-                              </Button>
-                            )}
+            </TableHead>
 
-                            {/* HR/Admin Rule: Stage 2 or Override */}
-                            {(userRole === "hr" || userRole === "admin") && (rec.status?.toLowerCase() === "pending" || rec.status?.toLowerCase() === "managerapproved") && (
-                              <Button
-                                variant="contained"
-                                color="success"
-                                size="small"
-                                onClick={() => handleApprove(rec.id)}
-                              >
-                                {rec.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
-                              </Button>
-                            )}
+            <TableBody>
+              {!loading && filteredHistory.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={canApprove ? 5 : 4} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">No WFH requests found</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredHistory
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((rec) => (
+                    <TableRow key={rec.id} hover>
+                      {(canViewAll || (isManager && viewMode === "team")) && <TableCell sx={{ fontWeight: 500 }}>{rec.name}</TableCell>}
+                      <TableCell>{displayDateRange(rec)}</TableCell>
+                      <TableCell>{rec.reason || "-"}</TableCell>
+                      <TableCell>{getStatusChip(rec.status)}</TableCell>
+                      {canApprove && (
+                        <TableCell align="center">
+                          {String(rec.employee_id) !== String(employeeId) && (
+                            <Stack direction="row" spacing={1} justifyContent="center">
+                              {/* Manager Rule: Stage 1 (not for HR requests) */}
+                              {userRole === "manager" && rec.status?.toLowerCase() === "pending" && rec.owner_role !== "hr" && (
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  size="small"
+                                  onClick={() => handleApprove(rec.id)}
+                                >
+                                  Approve
+                                </Button>
+                              )}
 
-                            {(rec.status?.toLowerCase() === "pending" || rec.status?.toLowerCase() === "managerapproved") && (
-                              <Button
-                                variant="outlined"
-                                color="error"
-                                size="small"
-                                onClick={() => handleReject(rec.id)}
-                              >
-                                Reject
-                              </Button>
-                            )}
-                          </Stack>
-                        )}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
+                              {/* HR/Admin Rule: Stage 2 or Override */}
+                              {(userRole === "hr" || userRole === "admin") && (rec.status?.toLowerCase() === "pending" || rec.status?.toLowerCase() === "managerapproved") && (
+                                <Button
+                                  variant="contained"
+                                  color="success"
+                                  size="small"
+                                  onClick={() => handleApprove(rec.id)}
+                                >
+                                  {rec.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
+                                </Button>
+                              )}
+
+                              {(rec.status?.toLowerCase() === "pending" || rec.status?.toLowerCase() === "managerapproved") && (
+                                <Button
+                                  variant="outlined"
+                                  color="error"
+                                  size="small"
+                                  onClick={() => handleReject(rec.id)}
+                                >
+                                  Reject
+                                </Button>
+                              )}
+                            </Stack>
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}

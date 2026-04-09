@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, LinearProgress, Divider, CircularProgress, useTheme, Avatar } from "@mui/material";
+import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Chip, LinearProgress, Divider, CircularProgress, useTheme, Avatar } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -169,14 +170,12 @@ export default function DeveloperDashboard() {
 
   const fetchAttendance = async () => {
     try {
-      const userData = JSON.parse(localStorage.getItem("user"));
-      const employeeId = userData?.employee_id || userData?.id;
-
-      const res = await api.get(`/attendance/history/${employeeId}`);
-      const attendance = Array.isArray(res.data) ? res.data : [];
+      const res = await api.get(`/attendance/my`);
+      const rawData = res.data?.data || res.data;
+      const attendance = Array.isArray(rawData) ? rawData : [];
 
       const formattedAttendance = attendance.slice(0, 7).map(att => ({
-        date: att.date?.split("T")[0],
+        date: att.time_in ? att.time_in.split("T")[0] : att.date?.split("T")[0] || "-",
         status: att.work_type === "present" ? "Present" : att.work_type === "wfh" ? "WFH" : "Leave",
         checkIn: att.time_in ? new Date(att.time_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-",
         checkOut: att.time_out ? new Date(att.time_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-",
@@ -380,7 +379,8 @@ export default function DeveloperDashboard() {
                   </Typography>
                 ) : (
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Task Title</TableCell>
@@ -412,6 +412,7 @@ export default function DeveloperDashboard() {
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 )}
               </CardContent>
@@ -429,7 +430,8 @@ export default function DeveloperDashboard() {
                   </Box>
                 ) : (
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
@@ -449,6 +451,7 @@ export default function DeveloperDashboard() {
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 )}
               </CardContent>

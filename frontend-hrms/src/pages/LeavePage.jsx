@@ -23,7 +23,8 @@ import {
   Alert,
   CircularProgress,
   IconButton,
-  Tooltip
+  Tooltip,
+  TableContainer
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -370,86 +371,88 @@ function LeavePage() {
           </Box>
         )}
 
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "action.hover" }}>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "action.hover" }}>
 
-              <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
-              {(canViewAll || isManager) && <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>}
-              <TableCell sx={{ fontWeight: "bold" }}>Start Date</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>End Date</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Leave Type</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Reason</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-              {canApprove && <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {!loading && leaves.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={canApprove ? 8 : 7} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No leave records found</Typography>
-                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
+                {(canViewAll || isManager) && <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>}
+                <TableCell sx={{ fontWeight: "bold" }}>Start Date</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>End Date</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Leave Type</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Reason</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                {canApprove && <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>}
               </TableRow>
-            ) : (
-              leaves.map(leave => (
-                <TableRow key={leave.id} hover>
+            </TableHead>
 
-                  <TableCell sx={{ fontWeight: 500 }}>{leave.name}</TableCell>
-                  {(canViewAll || isManager) && <TableCell>{leave.department || "-"}</TableCell>}
-                  <TableCell>{leave.start_date?.split("T")[0]}</TableCell>
-                  <TableCell>{leave.end_date?.split("T")[0]}</TableCell>
-                  <TableCell>{leave.leave_type}</TableCell>
-                  <TableCell>{leave.reason || "-"}</TableCell>
-                  <TableCell>{getStatusChip(leave.status)}</TableCell>
-                  {canApprove && (
-                    <TableCell align="center">
-                      {String(leave.employee_id) !== String(employeeId) && (
-                        <Stack direction="row" spacing={1} justifyContent="center">
-                          {/* Manager: Approve Stage 1 (only if not an HR request) */}
-                          {userRole === "manager" && leave.status?.toLowerCase() === "pending" && leave.owner_role !== "hr" && (
-                            <Button
-                              variant="contained"
-                              color="info"
-                              size="small"
-                              onClick={() => updateStatus(leave.id, "approved")}
-                            >
-                              Approve
-                            </Button>
-                          )}
-
-                          {/* HR/Admin: Final Approval or Override */}
-                          {(userRole === "hr" || userRole === "admin") && (leave.status?.toLowerCase() === "pending" || leave.status?.toLowerCase() === "managerapproved") && (
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              onClick={() => updateStatus(leave.id, "approved")}
-                            >
-                              {leave.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
-                            </Button>
-                          )}
-
-                          {(leave.status?.toLowerCase() === "pending" || leave.status?.toLowerCase() === "managerapproved") && (
-                            <Button
-                              variant="outlined"
-                              color="error"
-                              size="small"
-                              onClick={() => updateStatus(leave.id, "Rejected")}
-                            >
-                              Reject
-                            </Button>
-                          )}
-                        </Stack>
-                      )}
-                    </TableCell>
-                  )}
+            <TableBody>
+              {!loading && leaves.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={canApprove ? 8 : 7} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">No leave records found</Typography>
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                leaves.map(leave => (
+                  <TableRow key={leave.id} hover>
+
+                    <TableCell sx={{ fontWeight: 500 }}>{leave.name}</TableCell>
+                    {(canViewAll || isManager) && <TableCell>{leave.department || "-"}</TableCell>}
+                    <TableCell>{leave.start_date?.split("T")[0]}</TableCell>
+                    <TableCell>{leave.end_date?.split("T")[0]}</TableCell>
+                    <TableCell>{leave.leave_type}</TableCell>
+                    <TableCell>{leave.reason || "-"}</TableCell>
+                    <TableCell>{getStatusChip(leave.status)}</TableCell>
+                    {canApprove && (
+                      <TableCell align="center">
+                        {String(leave.employee_id) !== String(employeeId) && (
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            {/* Manager: Approve Stage 1 (only if not an HR request) */}
+                            {userRole === "manager" && leave.status?.toLowerCase() === "pending" && leave.owner_role !== "hr" && (
+                              <Button
+                                variant="contained"
+                                color="info"
+                                size="small"
+                                onClick={() => updateStatus(leave.id, "approved")}
+                              >
+                                Approve
+                              </Button>
+                            )}
+
+                            {/* HR/Admin: Final Approval or Override */}
+                            {(userRole === "hr" || userRole === "admin") && (leave.status?.toLowerCase() === "pending" || leave.status?.toLowerCase() === "managerapproved") && (
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                onClick={() => updateStatus(leave.id, "approved")}
+                              >
+                                {leave.status?.toLowerCase() === "managerapproved" ? "Final Approve" : "Override Approve"}
+                              </Button>
+                            )}
+
+                            {(leave.status?.toLowerCase() === "pending" || leave.status?.toLowerCase() === "managerapproved") && (
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                onClick={() => updateStatus(leave.id, "Rejected")}
+                              >
+                                Reject
+                              </Button>
+                            )}
+                          </Stack>
+                        )}
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}

@@ -5,6 +5,7 @@ import {
   Typography,
   Table,
   TableBody,
+  TableContainer,
   TableCell,
   TableHead,
   TableRow,
@@ -96,49 +97,51 @@ const AllAttendancePage = () => {
           </Typography>
         </Stack>
 
-        <Table size="small">
-          <TableHead>
-            <TableRow sx={{ bgcolor: "action.hover" }}>
-              <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Employee</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Time In</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Time Out</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Hours</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {paginatedData.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 4, color: "text.secondary" }}>
-                  No attendance records found
-                </TableCell>
+        <TableContainer sx={{ overflowX: "auto" }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow sx={{ bgcolor: "action.hover" }}>
+                <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Employee</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Time In</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Time Out</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Hours</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
               </TableRow>
-            ) : (
-              paginatedData.map((rec) => (
-                <TableRow key={rec.id} hover>
-                  {/* Date + Time */}
-                  <TableCell>
-                    {rec.time_in ? formatDateTime(rec.time_in) : "-"}
+            </TableHead>
+            <TableBody>
+              {paginatedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                    No attendance records found
                   </TableCell>
-                  <TableCell>{rec.name}</TableCell>
-                  {/* Time In */}
-                  <TableCell>
-                    {rec.time_in ? formatDateTime(rec.time_in) : "-"}
-                  </TableCell>
-                  {/* Time Out */}
-                  <TableCell>
-                    {rec.time_out ? formatDateTime(rec.time_out) : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {rec.total_hours ? Number(rec.total_hours).toFixed(2) : "-"}
-                  </TableCell>
-                  <TableCell>{getStatusChip(rec.work_type)}</TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                paginatedData.map((rec) => (
+                  <TableRow key={rec.id} hover>
+                    {/* Date + Time */}
+                    <TableCell>
+                      {rec.time_in ? formatDateTime(rec.time_in) : "-"}
+                    </TableCell>
+                    <TableCell>{rec.name}</TableCell>
+                    {/* Time In */}
+                    <TableCell>
+                      {rec.time_in ? formatDateTime(rec.time_in) : "-"}
+                    </TableCell>
+                    {/* Time Out */}
+                    <TableCell>
+                      {rec.time_out ? formatDateTime(rec.time_out) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {rec.total_hours ? Number(rec.total_hours).toFixed(2) : "-"}
+                    </TableCell>
+                    <TableCell>{getStatusChip(rec.work_type)}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
         
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50, 100]}

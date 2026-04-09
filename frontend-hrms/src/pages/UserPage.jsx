@@ -25,6 +25,7 @@ import {
   Chip,
   InputAdornment,
   TablePagination,
+  TableContainer,
   useTheme
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -94,7 +95,7 @@ const UserPage = () => {
     setUsersError(null);
     try {
       const res = await api.get("/users/all");
-      setUsers(res.data || []);
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Users fetch error:", error);
       setUsersError(error.response?.data?.message || "Failed to load users");
@@ -108,7 +109,7 @@ const UserPage = () => {
   const fetchDepartments = async () => {
     try {
       const res = await api.get("/departments/all");
-      setDepartments(res.data);
+      setDepartments(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -118,6 +119,10 @@ const UserPage = () => {
     fetchUsers();
     fetchDepartments();
   }, []);
+
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery]);
 
   const resetAddForm = () => {
     setUsername("");
@@ -276,9 +281,9 @@ const UserPage = () => {
   };
 
   const filteredUsers = users.filter(user =>
-    user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    (user.username || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.role || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -371,61 +376,63 @@ const UserPage = () => {
               </Alert>
             </Box>
           ) : null}
+          <TableContainer sx={{ overflowX: 'auto' }}>
           <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "action.hover" }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "action.hover" }}>
 
-              <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {!loading && filteredUsers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No users found</Typography>
-                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
               </TableRow>
-            ) : (
-              filteredUsers
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user) => (
-                  <TableRow key={user.id} hover>
+            </TableHead>
+            <TableBody>
+              {!loading && filteredUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">No users found</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredUsers
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((user) => (
+                    <TableRow key={user.id} hover>
 
-                    <TableCell sx={{ fontWeight: 500 }}>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{getRoleChip(user.role)}</TableCell>
-                    <TableCell>{user.department_name || "Not Assigned"}</TableCell>
-                    <TableCell align="center">
-                    {user?.role === "admin" ? (
-                          <>
-                            <Tooltip title="Edit">
-                              <IconButton color="primary" onClick={() => handleEditClick(user)} size="small">
+                      <TableCell sx={{ fontWeight: 500 }}>{user.username}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{getRoleChip(user.role)}</TableCell>
+                      <TableCell>{user.department_name || "Not Assigned"}</TableCell>
+                      <TableCell align="center">
+                      {user?.role === "admin" ? (
+                            <>
+                              <Tooltip title="Edit">
+                                <IconButton color="primary" onClick={() => handleEditClick(user)} size="small">
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton color="error" onClick={() => handleDeleteClick(user)} size="small">
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : (
+                            <Tooltip title="Admin only">
+                              <IconButton disabled size="small">
                                 <EditIcon />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton color="error" onClick={() => handleDeleteClick(user)} size="small">
-                                <DeleteIcon />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        ) : (
-                          <Tooltip title="Admin only">
-                            <IconButton disabled size="small">
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                    </TableCell>
-                  </TableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
+                          )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
         
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}

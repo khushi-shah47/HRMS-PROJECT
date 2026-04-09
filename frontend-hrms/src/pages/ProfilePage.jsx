@@ -44,22 +44,19 @@ export default function ProfilePage() {
   const fetchEmployee = async () => {
     try {
       if (!user?.id) {
-        setError("User not found");
         setLoading(false);
         return;
       }
       const res = await api.get(`/profile/${user.id}`);
-      const emp = res.data;
+      const emp = res.data?.employee || res.data; // adjust if it's nested
       setEmployee(emp);
       setFormData({
         name: emp?.name || user?.username || "",
         email: emp?.email || user?.email || "",
         phone: emp?.phone || ""
       });
-      setError(null);
     } catch (err) {
       console.error("Profile fetch error:", err);
-      setError("Failed to load profile data");
       // Fallback display from auth user
       setFormData({
         name: user?.username || "User",
@@ -263,8 +260,19 @@ export default function ProfilePage() {
           )}
           
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" fontWeight="bold">{formData.name || employee?.name || user?.name || user?.username || "N/A"}</Typography>
-            <Typography variant="body2" color="text.secondary">{employee?.position || employee?.role || user?.role || "N/A"}</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              {formData.name || employee?.name || user?.name || user?.username || "N/A"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {(() => {
+                const role = employee?.role || user?.role || "";
+                const position = employee?.position;
+                if (role.toLowerCase() === "admin") return "Admin";
+                if (role.toLowerCase() === "hr") return "HR";
+                if (position) return position;
+                return role ? role.charAt(0).toUpperCase() + role.slice(1) : "N/A";
+              })()}
+            </Typography>
           </Box>
         </Box>
 

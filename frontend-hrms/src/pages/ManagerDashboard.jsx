@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
+import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -161,7 +162,7 @@ export default function ManagerDashboard() {
       const res = await api.get("/leaves/team");
       const leaves = res.data?.data || res.data || [];
 
-      const pending = leaves.filter(l => l.status === "pending");
+      const pending = leaves.filter(l => l.status?.toLowerCase() === "pending");
       setLeaveRequests(pending.slice(0, 3));
       setStats(prev => ({ ...prev, pendingLeaves: pending.length }));
     } catch (error) {
@@ -174,7 +175,7 @@ export default function ManagerDashboard() {
       const res = await api.get("/wfh/team");
       const wfh = res.data || [];
 
-      const pending = wfh.filter(w => w.status === "pending");
+      const pending = wfh.filter(w => w.status?.toLowerCase() === "pending");
       setWfhList(pending.slice(0, 3));
       setStats(prev => ({ ...prev, wfhRequests: pending.length }));
     } catch (error) {

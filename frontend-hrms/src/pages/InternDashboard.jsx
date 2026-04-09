@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Chip,Avatar, LinearProgress, CircularProgress, useTheme, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Chip,Avatar, LinearProgress, CircularProgress, useTheme, Stack, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SchoolIcon from "@mui/icons-material/School";
@@ -255,12 +256,19 @@ export default function InternDashboard() {
         t => t.status?.toLowerCase() === "completed"
       ).length;
 
-      const pending = filteredTasks.length - completed;
+      const inProgress = filteredTasks.filter(
+        t => t.status?.toLowerCase() === "in_progress"
+      ).length;
+
+      const pending = filteredTasks.filter(
+        t => !t.status || t.status?.toLowerCase() === "pending"
+      ).length;
 
       setStats(prev => ({
         ...prev,
         totalTasks: filteredTasks.length,
         completedTasks: completed,
+        inProgressTasks: inProgress,
         pendingTasks: pending
       }));
 

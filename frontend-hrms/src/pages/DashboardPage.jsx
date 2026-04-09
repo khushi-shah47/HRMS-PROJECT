@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Avatar, LinearProgress, Divider, useTheme } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Chip, Avatar, LinearProgress, Divider, useTheme } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -272,7 +273,8 @@ export default function DashboardPage() {
                     Recent Employees
                   </Typography>
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow>
                           <TableCell>Name</TableCell>
@@ -292,6 +294,7 @@ export default function DashboardPage() {
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 </CardContent>
               </Card>
@@ -344,7 +347,8 @@ export default function DashboardPage() {
                     Team Attendance Today
                   </Typography>
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow>
                           <TableCell>Employee</TableCell>
@@ -368,6 +372,7 @@ export default function DashboardPage() {
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 </CardContent>
               </Card>
@@ -402,7 +407,8 @@ export default function DashboardPage() {
                     Recent Hires
                   </Typography>
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow>
                           <TableCell>Name</TableCell>
@@ -422,6 +428,7 @@ export default function DashboardPage() {
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 </CardContent>
               </Card>

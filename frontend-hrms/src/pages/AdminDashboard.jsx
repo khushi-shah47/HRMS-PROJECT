@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
+import { Stack, Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Chip, Avatar, LinearProgress, CircularProgress, useTheme } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -380,7 +381,8 @@ return (
                   </Typography>
                 ) : (
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
@@ -409,6 +411,7 @@ return (
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 )}
               </CardContent>

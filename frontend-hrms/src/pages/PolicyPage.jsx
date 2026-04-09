@@ -9,6 +9,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  TableContainer,
   Paper,
   Stack,
   IconButton,
@@ -278,7 +279,8 @@ const PolicyPage = () => {
           </Box>
         )}
 
-        <Table>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>Title</TableCell>
@@ -318,6 +320,7 @@ const PolicyPage = () => {
             )}
           </TableBody>
         </Table>
+        </TableContainer>
         
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}

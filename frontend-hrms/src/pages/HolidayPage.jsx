@@ -9,6 +9,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  TableContainer,
   Paper,
   Stack,
   IconButton,
@@ -326,7 +327,8 @@ const HolidayPage = () => {
           </Box>
         )}
 
-        <Table>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>Holiday</TableCell>
@@ -388,6 +390,7 @@ const HolidayPage = () => {
             )}
           </TableBody>
         </Table>
+        </TableContainer>
         
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}

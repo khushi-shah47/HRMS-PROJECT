@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Avatar, CircularProgress, useTheme, Stack } from "@mui/material";
+import { Box, Grid, Card, CardContent, Typography, Button, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Chip, Avatar, CircularProgress, useTheme, Stack } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -389,7 +390,8 @@ export default function HRDashboard() {
                   </Typography>
                 ) : (
                   <TableContainer>
-                    <Table>
+                    <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
                       <TableHead>
                         <TableRow sx={{ background: "action.hover" }}>
                           <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
@@ -416,6 +418,7 @@ export default function HRDashboard() {
                         ))}
                       </TableBody>
                     </Table>
+        </TableContainer>
                   </TableContainer>
                 )}
               </CardContent>

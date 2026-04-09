@@ -9,6 +9,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  TableContainer,
   Paper,
   Stack,
   Box,
@@ -275,7 +276,8 @@ const SalaryPage = () => {
 
   const renderTable = (data, totalCount, isHistory = false) => (
     <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
-      <Table>
+      <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
         <TableHead sx={{ bgcolor: "action.hover" }}>
           <TableRow>
             <TableCell sx={{ fontWeight: "bold" }}>{isHistory ? "Period" : "Employee"}</TableCell>
@@ -347,6 +349,7 @@ const SalaryPage = () => {
           ))}
         </TableBody>
       </Table>
+        </TableContainer>
       <TablePagination
         component="div"
         count={totalCount}
@@ -599,6 +602,7 @@ const SalaryPage = () => {
           </Grid>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>Selected Employees ({selectedEmpIds.length || 'All'})</Typography>
           <Paper variant="outlined" sx={{ maxHeight: 300, overflow: "auto" }}>
+          <TableContainer sx={{ overflowX: 'auto' }}>
             <Table size="small" stickyHeader>
               <TableHead><TableRow>
                 <TableCell padding="checkbox"><Checkbox checked={selectedEmpIds.length === employees.length} indeterminate={selectedEmpIds.length > 0 && selectedEmpIds.length < employees.length} onChange={(e) => setSelectedEmpIds(e.target.checked ? employees.map(emp => emp.id) : [])} /></TableCell>
@@ -615,6 +619,7 @@ const SalaryPage = () => {
                   ))}
               </TableBody>
             </Table>
+        </TableContainer>
           </Paper>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>

@@ -9,6 +9,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  TableContainer,
   Paper,
   Stack,
   IconButton,
@@ -270,7 +271,8 @@ const DepartmentPage = () => {
           </Box>
         )}
 
-        <Table>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "action.hover" }}>
               <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell>
@@ -318,6 +320,7 @@ const DepartmentPage = () => {
             )}
           </TableBody>
         </Table>
+        </TableContainer>
         
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}

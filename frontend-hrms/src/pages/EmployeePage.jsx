@@ -19,6 +19,7 @@ import {
   DialogActions,
   MenuItem,
   TablePagination,
+  TableContainer,
   Box,
   Chip,
   Snackbar,
@@ -142,22 +143,14 @@ const EmployeePage = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await api.get(`/employees?page=${page + 1}&limit=${rowsPerPage}`);
-      // const data = res.data;
-      // let employeesArray = [];
-      // if (Array.isArray(data)) {
-      //   employeesArray = data;
-      // } else if (data.employees) {
-      //   employeesArray = data.employees;
-      // }
-      const employeesArray = res.data.employees || [];
-      console.log(employeesArray);
+      const res = await api.get(`/employees?limit=1000`);
+      const employeesArray = res.data.employees || (Array.isArray(res.data) ? res.data : []);
       const formatted = employeesArray.map(emp => ({
         ...emp,
         join_date: emp.join_date ? emp.join_date.split("T")[0] : ""
       }));
       setEmployees(formatted);
-      setTotalEmployees(res.data.pagination?.totalEmployees || 0);
+      setTotalEmployees(res.data.pagination?.totalEmployees || formatted.length);
     } catch (error) {
       console.error("Error:", error);
       showSnackbar("Failed to load employees", "error");
@@ -401,7 +394,11 @@ const EmployeePage = () => {
 
   useEffect(() => {
     fetchEmployees();
-  }, [page, rowsPerPage]);
+  }, []);
+
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery, roleFilter, departmentFilter]);
 
   useEffect(() => {
     fetchDepartments();
@@ -410,10 +407,10 @@ const EmployeePage = () => {
 
   const filteredEmployees = employees.filter(emp => {
     const matchesSearch =
-      emp.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.position?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.role?.toLowerCase().includes(searchQuery.toLowerCase()) ;
+      (emp.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (emp.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (emp.position || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (emp.role || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesRole =
       !roleFilter || emp.role === roleFilter;
@@ -603,70 +600,72 @@ const EmployeePage = () => {
           </Box>
         )}
         
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "action.hover" }}>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "action.hover" }}>
 
-              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Join Date</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="right">Basic Salary</TableCell>
-              {canManage && <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {!loading && filteredEmployees.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={canManage ? 9 : 8} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No employees found</Typography>
-                </TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Join Date</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="right">Basic Salary</TableCell>
+                {canManage && <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>}
               </TableRow>
-            ) : (
-              filteredEmployees
-                // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((emp) => (
-                  <TableRow key={emp.id} hover>
+            </TableHead>
+            <TableBody>
+              {!loading && filteredEmployees.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={canManage ? 9 : 8} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">No employees found</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredEmployees
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((emp) => (
+                    <TableRow key={emp.id} hover>
 
-                    <TableCell sx={{ fontWeight: 500 }}>{emp.name}</TableCell>
-                    <TableCell>{emp.email}</TableCell>
-                    <TableCell>
-                      <Chip label={emp.role} size="small" color="secondary" />
-                    </TableCell>
-                    <TableCell>{emp.phone || "-"}</TableCell>
-                    <TableCell>
-                      <Chip label={emp.position} size="small" color="primary" variant="outlined" />
-                    </TableCell>
-                    <TableCell>{emp.department_name || "Not Assigned"}</TableCell>
-                    <TableCell>{emp.join_date}</TableCell>
-                    <TableCell align="right">₹{parseFloat(emp.basic_salary || 0).toLocaleString()}</TableCell>
-                    {canManage && (
-                      <TableCell align="center">
-                        <Tooltip title="Edit">
-                          <IconButton color="primary" onClick={() => handleEditClick(emp)} size="small">
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton color="error" onClick={() => handleDeleteClick(emp)} size="small">
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
+                      <TableCell sx={{ fontWeight: 500 }}>{emp.name}</TableCell>
+                      <TableCell>{emp.email}</TableCell>
+                      <TableCell>
+                        <Chip label={emp.role} size="small" color="secondary" />
                       </TableCell>
-                    )}
-                  </TableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
+                      <TableCell>{emp.phone || "-"}</TableCell>
+                      <TableCell>
+                        <Chip label={emp.position} size="small" color="primary" variant="outlined" />
+                      </TableCell>
+                      <TableCell>{emp.department_name || "Not Assigned"}</TableCell>
+                      <TableCell>{emp.join_date}</TableCell>
+                      <TableCell align="right">₹{parseFloat(emp.basic_salary || 0).toLocaleString()}</TableCell>
+                      {canManage && (
+                        <TableCell align="center">
+                          <Tooltip title="Edit">
+                            <IconButton color="primary" onClick={() => handleEditClick(emp)} size="small">
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton color="error" onClick={() => handleDeleteClick(emp)} size="small">
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
         
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
-          count={totalEmployees}
+          count={filteredEmployees.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(event, newPage) => setPage(newPage)}
@@ -786,10 +785,10 @@ const EmployeePage = () => {
               onChange={(e) => setPosition(e.target.value)}
               fullWidth
               required
-              disabled={role === "admin" || role === "intern"}
+              disabled={role === "admin" || role === "intern" || !role}
             >
               <MenuItem value="">Select Position</MenuItem>
-              {currentPositions.map((pos) => (
+              {(role ? currentPositions : positionsList).map((pos) => (
                 <MenuItem key={pos} value={pos}>{pos}</MenuItem>
               ))}
             </TextField>
@@ -901,23 +900,14 @@ const EmployeePage = () => {
             <TextField
               select
               label="Department"
-              value={editDepartmentId}
+              value={editDepartmentId || ""}
               onChange={(e) => setEditDepartmentId(e.target.value)}
               fullWidth
-
-              disabled={
-                editRole === "admin" ||
-                editRole === "hr" ||
-                editRole === "developer" ||
-                editRole === "manager" ||
-                editRole === "intern"
-              }
+              disabled={editRole === "admin"}
             >
               <MenuItem value="">Select Department</MenuItem>
               {departments.map((dept) => {
-                if (editRole === "hr" && dept.name !== "HR") return null;
-                if (editRole === "admin" ) return null;
-
+                if (editRole === "hr" && dept.name !== "HR" && editDepartmentId !== dept.id) return null;
                 return (
                   <MenuItem key={dept.id} value={dept.id}>
                     {dept.name}

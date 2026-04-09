@@ -12,8 +12,8 @@ import {
   Paper,
   Stack,
   MenuItem,
-  Chip,
   TablePagination,
+  TableContainer,
   Box,
   Dialog,
   DialogTitle,
@@ -25,7 +25,8 @@ import {
   IconButton,
   Tooltip,
   InputAdornment,
-  useTheme
+  useTheme,
+  Chip
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -163,9 +164,30 @@ const TaskPage = () => {
   }, [tab]);
 
   useEffect(() => {
+    setPage(0);
+  }, [searchQuery, statusFilter, priorityFilter, tab]);
+
+  useEffect(() => {
+    // If somehow table data gets smaller than current filtered page bounds
+    if (page > 0 && page * rowsPerPage >= filteredTasks.length) {
+      setPage(Math.max(0, Math.ceil(filteredTasks.length / rowsPerPage) - 1));
+    }
+  }, [filteredTasks.length, rowsPerPage, page]);
+
+  useEffect(() => {
     fetchTasks();
     fetchEmployees();
   }, []);
+
+  const formatDateLocal = (dateString) => {
+    if (!dateString) return "-";
+    const d = new Date(dateString);
+    if (isNaN(d)) return dateString.split("T")[0] || "-";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const resetAddForm = () => {
     setTitle("");
@@ -219,7 +241,7 @@ const TaskPage = () => {
     setEditDescription(task.description || "");
     setEditAssignedTo(task.assigned_to || "");
     setEditPriority(task.priority || "medium");
-    setEditDueDate(task.due_date?.split("T")[0] || "");
+    setEditDueDate(formatDateLocal(task.due_date));
     setEditDialogOpen(true);
   };
 
@@ -399,9 +421,9 @@ const TaskPage = () => {
 
   const filteredTasks = tasks.filter(task => {
     const matchesSearch =
-      task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.assigned_to_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.assigned_by_name?.toLowerCase().includes(searchQuery.toLowerCase());
+      (task.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.assigned_to_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.assigned_by_name || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus =
       !statusFilter || task.status === statusFilter;
@@ -566,126 +588,128 @@ const TaskPage = () => {
           </Box>
         )}
 
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "action.hover" }}>
-              {/* <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell> */}
-              <TableCell sx={{ fontWeight: "bold" }}>Title</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Assigned To</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Assigned By</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {!loading && filteredTasks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                  <Typography color="text.secondary">No tasks found</Typography>
-                </TableCell>
+        <TableContainer sx={{ overflowX: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "action.hover" }}>
+                {/* <TableCell sx={{ fontWeight: "bold" }}>ID</TableCell> */}
+                <TableCell sx={{ fontWeight: "bold" }}>Title</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Assigned To</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Assigned By</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Due Date</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
               </TableRow>
-            ) : (
-              filteredTasks
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map(task => (
-                  <TableRow key={task.id} hover>
-                    {/* <TableCell>{task.id}</TableCell> */}
-                    <TableCell sx={{ fontWeight: 500 }}>{task.title}</TableCell>
-                    <TableCell>{task.assigned_to_name || "-"}</TableCell>
-                    <TableCell>{task.assigned_by_name || "-"}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={task.status || "pending"} 
-                        color={getStatusColor(task.status)} 
-                        size="small" 
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={task.priority || "medium"} 
-                        color={getPriorityColor(task.priority)} 
-                        size="small" 
-                        variant="outlined"
-                      />
-                    </TableCell>
-                    <TableCell>{task.due_date?.split("T")[0] || "-"}</TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={0.5} justifyContent="center">
-                        <Tooltip title="View Details">
-                          <IconButton 
-                            size="small" 
-                            color="primary"
-                            onClick={() => handleViewClick(task)}
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        {tab === 0 && (
-                          <>
-                            <Tooltip title="Start Task">
-                              <IconButton 
-                                size="small" 
-                                color="primary"
-                                onClick={() => updateStatus(task.id, "in_progress")}
-                                disabled={task.status === "in_progress" || task.status === "completed"}
-                              >
-                                <PlayArrowIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Mark Complete">
-                              <IconButton 
-                                size="small" 
-                                color="success"
-                                onClick={() => updateStatus(task.id, "completed")}
-                                disabled={task.status === "completed" || task.status === "pending" || !task.status}
-                              >
-                                <CheckCircleIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Reopen Task">
-                              <IconButton 
-                                size="small" 
-                                color="warning"
-                                onClick={() => updateStatus(task.id, "pending")}
-                                disabled={task.status === "pending" || !task.status}
-                              >
-                                <PauseIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        )}
-                        {canCreateTask && (!canSeeTabs || tab === 1) && (
-                          <>
-                            <Tooltip title="Edit">
-                              <IconButton 
-                                size="small" 
-                                color="info"
-                                onClick={() => handleEditClick(task)}
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton 
-                                size="small" 
-                                color="error"
-                                onClick={() => handleDeleteClick(task)}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </>
-                        )}
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
+            </TableHead>
+
+            <TableBody>
+              {!loading && filteredTasks.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">No tasks found</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredTasks
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map(task => (
+                    <TableRow key={task.id} hover>
+                      {/* <TableCell>{task.id}</TableCell> */}
+                      <TableCell sx={{ fontWeight: 500 }}>{task.title}</TableCell>
+                      <TableCell>{task.assigned_to_name || "-"}</TableCell>
+                      <TableCell>{task.assigned_by_name || "-"}</TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={task.status || "pending"} 
+                          color={getStatusColor(task.status)} 
+                          size="small" 
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={task.priority || "medium"} 
+                          color={getPriorityColor(task.priority)} 
+                          size="small" 
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell>{formatDateLocal(task.due_date)}</TableCell>
+                      <TableCell>
+                        <Stack direction="row" spacing={0.5} justifyContent="center">
+                          <Tooltip title="View Details">
+                            <IconButton 
+                              size="small" 
+                              color="primary"
+                              onClick={() => handleViewClick(task)}
+                            >
+                              <VisibilityIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          {tab === 0 && (
+                            <>
+                              <Tooltip title="Start Task">
+                                <IconButton 
+                                  size="small" 
+                                  color="primary"
+                                  onClick={() => updateStatus(task.id, "in_progress")}
+                                  disabled={task.status === "in_progress" || task.status === "completed"}
+                                >
+                                  <PlayArrowIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Mark Complete">
+                                <IconButton 
+                                  size="small" 
+                                  color="success"
+                                  onClick={() => updateStatus(task.id, "completed")}
+                                  disabled={task.status === "completed" || task.status === "pending" || !task.status}
+                                >
+                                  <CheckCircleIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Reopen Task">
+                                <IconButton 
+                                  size="small" 
+                                  color="warning"
+                                  onClick={() => updateStatus(task.id, "pending")}
+                                  disabled={task.status === "pending" || !task.status}
+                                >
+                                  <PauseIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
+                          {canCreateTask && (!canSeeTabs || tab === 1) && (
+                            <>
+                              <Tooltip title="Edit">
+                                <IconButton 
+                                  size="small" 
+                                  color="info"
+                                  onClick={() => handleEditClick(task)}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton 
+                                  size="small" 
+                                  color="error"
+                                  onClick={() => handleDeleteClick(task)}
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
@@ -977,7 +1001,7 @@ const TaskPage = () => {
                   <Paper variant="outlined" sx={{ p: 2 }}>
                     <Typography variant="caption" color="text.secondary">Due Date</Typography>
                     <Typography variant="body1" fontWeight="500">
-                      {selectedTask?.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "-"}
+                      {formatDateLocal(selectedTask?.due_date)}
                     </Typography>
                   </Paper>
                 </Box>
