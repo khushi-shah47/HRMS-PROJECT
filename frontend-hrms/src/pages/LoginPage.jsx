@@ -18,7 +18,7 @@ import {
   DialogActions
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff, HighlightOff as HighlightOffIcon, WarningAmber as WarningAmberIcon } from "@mui/icons-material";
 import api from "../services/api.js";
 
 // Get dashboard route based on role
@@ -46,6 +46,8 @@ const LoginPage = () => {
   const [showSavedDropdown, setShowSavedDropdown] = useState(false);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [currentLogin, setCurrentLogin] = useState(null); // temporary storage for save popup
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
 
   const emailRef = useRef();
 
@@ -139,6 +141,21 @@ const LoginPage = () => {
     navigate(getDashboardRoute(JSON.parse(localStorage.getItem("user")).role));
   };
 
+  const confirmDeleteAccount = (account) => {
+    setAccountToDelete(account);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteAccount = () => {
+    if (accountToDelete) {
+      const updatedAccounts = savedAccounts.filter(acc => acc.email !== accountToDelete.email);
+      localStorage.setItem("savedAccounts", JSON.stringify(updatedAccounts));
+      setSavedAccounts(updatedAccounts);
+    }
+    setDeleteConfirmOpen(false);
+    setAccountToDelete(null);
+  };
+
   return (
     <Box
       sx={{
@@ -203,7 +220,19 @@ const LoginPage = () => {
             >
               <List dense>
                 {savedAccounts.map((acc, idx) => (
-                  <ListItem key={idx} disablePadding>
+                  <ListItem 
+                    key={idx} 
+                    disablePadding
+                    secondaryAction={
+                      <IconButton 
+                        edge="end" 
+                        size="small" 
+                        onMouseDown={(e) => { e.stopPropagation(); confirmDeleteAccount(acc); }}
+                      >
+                        <HighlightOffIcon fontSize="small" sx={{ color: "error.main" }} />
+                      </IconButton>
+                    }
+                  >
                     <ListItemButton onMouseDown={() => handleSelectSavedAccount(acc)}>
                       <ListItemText primary={acc.email} />
                     </ListItemButton>
@@ -272,6 +301,23 @@ const LoginPage = () => {
           <DialogActions>
             <Button onClick={handleCancelSave}>Cancel</Button>
             <Button onClick={handleSavePassword} variant="contained">Save</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'error.main' }}>
+            <WarningAmberIcon />
+            Remove Account
+          </DialogTitle>
+          <DialogContent>
+            Are you sure you want to remove the saved login for <strong>{accountToDelete?.email}</strong>?
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
+            <Button onClick={handleDeleteAccount} variant="contained" color="error">
+              Remove
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>

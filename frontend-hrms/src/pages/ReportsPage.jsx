@@ -151,8 +151,8 @@ const ReportsPage = () => {
     </Card>
   );
 console.log("RAW DATA:", data[0]);
-const chartDataA = data
-  .sort((a, b) => Number(b.completed) - Number(a.completed)) // descending
+const chartDataA = [...data]
+  .sort((a, b) => Number(b.attendance_days || 0) - Number(a.attendance_days || 0)) // descending
   .slice(0, 8)
   .map(d => ({
     ...d,
@@ -160,12 +160,12 @@ const chartDataA = data
 }));
 
 const chartDataB = [...data]
-  .sort((a, b) => Number(b.completed) - Number(a.completed)) // descending
+  .sort((a, b) => Number(b.completed || 0) - Number(a.completed || 0)) // descending
   .slice(0, 8)
   .map(d => ({
     name: d.name?.slice(0, 6),
-    completed: Number(d.completed),
-    pending: Number(d.pending)
+    completed: Number(d.completed || 0),
+    pending: Number(d.pending || 0)
   }));
 
 const renderAttendanceChart = () => (
@@ -252,7 +252,7 @@ const renderLeaveChart = () => {
 
 const renderTaskChart = () => (
   <ResponsiveContainer width="100%" height="100%">
-    <BarChart data={chartDataB} barSize={30}>
+    <BarChart data={chartDataB} barSize={30} margin={{ bottom: 40 }}>
     <CartesianGrid 
       stroke={theme.palette.divider}
       strokeDasharray="3 3"
@@ -262,6 +262,8 @@ const renderTaskChart = () => (
     <XAxis 
       dataKey="name"
       tick={{ fill: theme.palette.text.secondary }}
+      angle={-45}
+      textAnchor="end"
     />
 
     <YAxis tick={{ fill: theme.palette.text.secondary }} />
@@ -274,7 +276,7 @@ const renderTaskChart = () => (
         color: theme.palette.text.primary
       }}
     />
-      <Legend />
+      <Legend wrapperStyle={{ paddingTop: "20px" }} />
 
       <Bar 
         dataKey="completed" 
@@ -287,7 +289,7 @@ const renderTaskChart = () => (
       <Bar 
         dataKey="pending" 
         stackId="a"
-        fill={theme.palette.warning.main} 
+        fill={theme.palette.error.main} 
         isAnimationActive 
         animationDuration={800}
       />
@@ -395,23 +397,31 @@ const renderTaskChart = () => (
 
       {/* 🔥 Top & Needs Attention */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
-        <Paper sx={{ p: 2, width: "640px" }}>
+      <Grid item xs={12} md={6}>
+        <Paper sx={{ p: 2, width: "100%" }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
             Top Performers
           </Typography>
-          {data.sort((a, b) => Number(b.completed) - Number(a.completed)).slice(0, 3).map((emp, i) => (
+          {[...data].sort((a, b) => {
+            if (activeTab === 0) return Number(b.attendance_days || 0) - Number(a.attendance_days || 0);
+            if (activeTab === 1) return Number(a.pending || 0) - Number(b.pending || 0); // Less pending leaves == better
+            return Number(b.completed || 0) - Number(a.completed || 0);
+          }).slice(0, 3).map((emp, i) => (
             <Typography key={i}>🟢 {emp.name}</Typography>
           ))}
         </Paper>
       </Grid>
 
       <Grid item xs={12} md={6}>
-        <Paper sx={{ p: 2, width: "640px" }}>
+        <Paper sx={{ p: 2, width: "100%" }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
             Needs Attention
           </Typography>
-          {data.sort((a, b) => Number(b.completed) - Number(a.completed)).slice(-3).map((emp, i) => (
+          {[...data].sort((a, b) => {
+            if (activeTab === 0) return Number(a.attendance_days || 0) - Number(b.attendance_days || 0);
+            if (activeTab === 1) return Number(b.pending || 0) - Number(a.pending || 0); 
+            return Number(a.completed || 0) - Number(b.completed || 0);
+          }).slice(0, 3).map((emp, i) => (
             <Typography key={i} color="error.main">
               🔴 {emp.name}
             </Typography>
@@ -460,13 +470,13 @@ const renderTaskChart = () => (
             Visual Analysis
           </Typography>
 
-          {/* 🔥 FIXED SIZE 600x600 */}
+          {/* 🔥 RESPONSIVE WRAPPER */}
           <Paper
             variant="outlined"
             sx={{
-              p: 3,
-              width: 600,
-              height: 600,
+              p: { xs: 1, sm: 3 },
+              width: "100%",
+              height: { xs: 400, md: 600 },
               borderRadius: 4,
               display: "flex",
               flexDirection: "column",
@@ -501,13 +511,14 @@ const renderTaskChart = () => (
             Important Records
           </Typography>
 
-          {/* 🔥 FIXED SIZE 600x600 */}
+          {/* 🔥 RESPONSIVE WRAPPER */}
           <Paper
             variant="outlined"
             sx={{
-              height: 600,
-              width: 600,
+              height: { xs: 400, md: 600 },
+              width: "100%",
               overflowY: "auto",
+              overflowX: "auto",
               p: 1,
               margin: "0 auto"
             }}

@@ -69,11 +69,11 @@ export const markAsRead = (req, res) => {
   const userId = req.user.id;   // notifications.user_id → users.id
 
   db.query(
-    "UPDATE notifications SET is_read = TRUE WHERE id = ? AND user_id = ?",
+    "DELETE FROM notifications WHERE id = ? AND user_id = ?",
     [id, userId],
     (err, result) => {
       if (err) return res.status(500).json({ message: "Database error" });
-      res.json({ message: "Notification marked as read" });
+      res.json({ message: "Notification cleared" });
     }
   );
 };
@@ -82,11 +82,11 @@ export const markAllAsRead = (req, res) => {
   const userId = req.user.id;   // notifications.user_id → users.id
 
   db.query(
-    "UPDATE notifications SET is_read = TRUE WHERE user_id = ?",
+    "DELETE FROM notifications WHERE user_id = ?",
     [userId],
     (err, result) => {
       if (err) return res.status(500).json({ message: "Database error" });
-      res.json({ message: "All notifications marked as read" });
+      res.json({ message: "All notifications cleared" });
     }
   );
 };

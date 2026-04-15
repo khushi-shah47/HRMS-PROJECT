@@ -76,7 +76,7 @@ function LeavePage() {
 
   useEffect(() => {
     if (canViewAll) {
-      api.get("/employees?page=1&limit=100")
+      api.get("/employees?page=1&limit=10000")
         .then(res => res.data)
         .then(data => setEmployees(data.data || data.employees || []))
         .catch(err => console.error(err));
@@ -400,8 +400,8 @@ function LeavePage() {
 
                     <TableCell sx={{ fontWeight: 500 }}>{leave.name}</TableCell>
                     {(canViewAll || isManager) && <TableCell>{leave.department || "-"}</TableCell>}
-                    <TableCell>{leave.start_date?.split("T")[0]}</TableCell>
-                    <TableCell>{leave.end_date?.split("T")[0]}</TableCell>
+                    <TableCell>{leave.start_date ? new Date(leave.start_date).toLocaleDateString('en-GB').replace(/\//g, '-') : "-"}</TableCell>
+                    <TableCell>{leave.end_date ? new Date(leave.end_date).toLocaleDateString('en-GB').replace(/\//g, '-') : "-"}</TableCell>
                     <TableCell>{leave.leave_type}</TableCell>
                     <TableCell>{leave.reason || "-"}</TableCell>
                     <TableCell>{getStatusChip(leave.status)}</TableCell>

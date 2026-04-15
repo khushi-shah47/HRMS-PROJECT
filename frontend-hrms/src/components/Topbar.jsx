@@ -18,7 +18,8 @@ import {
   Menu,
   MenuItem,
   ListItemIcon,
-  Switch
+  Switch,
+  ListItemButton
 } from "@mui/material";
 import LightModeIcon from "@mui/icons-material/LightMode"; // ☀️ sun
 import DarkModeIcon from "@mui/icons-material/DarkMode";   // 🌙 moon
@@ -401,29 +402,30 @@ export default function Topbar({ onMenuClick }){
                     ) : (
                         notifications.map((notif) => (
                             <React.Fragment key={notif.id}>
-                                <ListItem 
-                                    button 
-                                    onClick={() => handleMarkRead(notif.id)}
-                                    sx={{ 
-                                        bgcolor: notif.is_read ? "transparent" : "action.hover", 
-                                        "&:hover": { bgcolor: "action.selected" },
-                                        transition: "background-color 0.2s"
-                                    }}
-                                >
-                                    <ListItemText 
-                                        primary={
-                                            <Typography variant="body2" fontWeight={notif.is_read ? "normal" : "bold"} color="text.primary">
-                                                {notif.title}
-                                            </Typography>
-                                        }
-                                        secondary={
-                                            <Typography variant="caption" color="text.secondary">
-                                                {notif.message}
-                                                <br />
-                                                {new Date(notif.created_at).toLocaleString()}
-                                            </Typography>
-                                        }
-                                    />
+                                <ListItem disablePadding>
+                                    <ListItemButton 
+                                        onClick={() => handleMarkRead(notif.id)}
+                                        sx={{ 
+                                            bgcolor: "action.hover", 
+                                            "&:hover": { bgcolor: "action.selected" },
+                                            transition: "background-color 0.2s"
+                                        }}
+                                    >
+                                        <ListItemText 
+                                            primary={
+                                                <Typography variant="body2" fontWeight="bold" color="text.primary">
+                                                    {notif.title}
+                                                </Typography>
+                                            }
+                                            secondary={
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {notif.message}
+                                                    <br />
+                                                    {new Date(notif.created_at).toLocaleString()}
+                                                </Typography>
+                                            }
+                                        />
+                                    </ListItemButton>
                                 </ListItem>
                                 <Divider component="li" />
                             </React.Fragment>
@@ -451,13 +453,11 @@ export default function Topbar({ onMenuClick }){
                                 <Typography variant="caption" fontWeight="bold" color="text.secondary">EMPLOYEES</Typography>
                             </Box>
                             {searchResults.employees.map(emp => (
-                                <ListItem 
-                                    button 
-                                    key={`emp-${emp.id}`} 
-                                    onClick={() => handleSearchResultClick(`/employees/${emp.id}`)}
-                                >
-                                    <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: 12, bgcolor: "primary.main" }}>{emp.name.charAt(0)}</Avatar>
-                                    <ListItemText primary={emp.name} secondary={emp.position} />
+                                <ListItem disablePadding key={`emp-${emp.id}`}>
+                                    <ListItemButton onClick={() => handleSearchResultClick(`/employees/${emp.id}`)}>
+                                        <Avatar sx={{ width: 24, height: 24, mr: 1, fontSize: 12, bgcolor: "primary.main" }}>{emp.name.charAt(0)}</Avatar>
+                                        <ListItemText primary={emp.name} secondary={emp.position} />
+                                    </ListItemButton>
                                 </ListItem>
                             ))}
                         </>
@@ -470,12 +470,10 @@ export default function Topbar({ onMenuClick }){
                                 <Typography variant="caption" fontWeight="bold" color="text.secondary">TASKS</Typography>
                             </Box>
                             {searchResults.tasks.map(task => (
-                                <ListItem 
-                                    button 
-                                    key={`task-${task.id}`} 
-                                    onClick={() => handleSearchResultClick(`/tasks/${task.id}`)}
-                                >
-                                    <ListItemText primary={task.title} secondary={`Status: ${task.status}`} />
+                                <ListItem disablePadding key={`task-${task.id}`}>
+                                    <ListItemButton onClick={() => handleSearchResultClick(`/tasks/${task.id}`)}>
+                                        <ListItemText primary={task.title} secondary={`Status: ${task.status}`} />
+                                    </ListItemButton>
                                 </ListItem>
                             ))}
                         </>
@@ -488,11 +486,13 @@ export default function Topbar({ onMenuClick }){
                                 <Typography variant="caption" fontWeight="bold" color="text.secondary">REQUESTS</Typography>
                             </Box>
                             {searchResults.requests.map(req => (
-                                <ListItem button key={`req-${req.type}-${req.id}`} onClick={() => handleSearchResultClick(req.type === 'leave' ? "/leave" : "/wfh")}>
-                                    <ListItemText 
-                                        primary={req.reason ? (req.reason.substring(0, 30) + (req.reason.length > 30 ? "..." : "")) : "No Reason"} 
-                                        secondary={`${req.type.toUpperCase()} - ${req.status}`} 
-                                    />
+                                <ListItem disablePadding key={`req-${req.type}-${req.id}`}>
+                                  <ListItemButton onClick={() => handleSearchResultClick(req.type === 'leave' ? "/leave" : "/wfh")}>
+                                      <ListItemText 
+                                          primary={req.reason ? (req.reason.substring(0, 30) + (req.reason.length > 30 ? "..." : "")) : "No Reason"} 
+                                          secondary={`${req.type.toUpperCase()} - ${req.status}`} 
+                                      />
+                                  </ListItemButton>
                                 </ListItem>
                             ))}
                         </>

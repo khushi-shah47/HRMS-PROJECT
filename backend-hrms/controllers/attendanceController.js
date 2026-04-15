@@ -250,7 +250,7 @@ export const getMyAttendance = (req, res) => {
   const offset = (page - 1) * limit;
 
   db.query(
-    "SELECT * FROM attendance WHERE employee_id=? ORDER BY date DESC LIMIT ? OFFSET ?",
+    "SELECT a.*, e.name FROM attendance a JOIN employees e ON a.employee_id = e.id WHERE a.employee_id=? ORDER BY a.date DESC LIMIT ? OFFSET ?",
     [employeeId, limit, offset],
     (err, result) => {
       if (err) return res.status(500).json(err);

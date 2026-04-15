@@ -24,7 +24,7 @@ export const getEmployees = async (req, res) => {
 
   try {
     const employees = await sequelize.query(
-      `SELECT e.id, e.name, e.email, u.role, e.phone, e.position, e.department_id, e.basic_salary, d.name AS department_name, e.join_date, e.created_at
+      `SELECT e.id, e.name, e.email, u.role, e.phone, e.position, e.department_id, e.basic_salary, d.name AS department_name, e.join_date, e.created_at, e.manager_id, e.hr_id
        ${baseQuery} ${where} ORDER BY e.id DESC LIMIT :limit OFFSET :offset`,
       { replacements: { ...replacements, limit, offset }, type: QueryTypes.SELECT }
     );
@@ -53,7 +53,7 @@ export const getEmployeeById = async (req, res) => {
   const { id } = req.params;
   try {
     const employee = await sequelize.query(
-      `SELECT e.id, e.name, e.email, e.phone, e.position, e.department_id, e.basic_salary, d.name AS department_name, e.join_date
+      `SELECT e.id, e.name, e.email, e.phone, e.position, e.department_id, e.basic_salary, d.name AS department_name, e.join_date, e.manager_id, e.hr_id
        FROM employees e LEFT JOIN departments d ON e.department_id = d.id WHERE e.id = :id`,
       { replacements: { id }, type: QueryTypes.SELECT }
     );

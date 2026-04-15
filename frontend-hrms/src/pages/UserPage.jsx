@@ -217,7 +217,9 @@ const UserPage = () => {
     try {
       const payload = {
         username: editUsername,
-        email: editEmail
+        email: editEmail,
+        role: editRole,
+        department_id: editDepartmentId || null
       };
 
       // only include password if entered
@@ -385,7 +387,7 @@ const UserPage = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
+                <TableCell sx={{ fontWeight: "bold", whiteSpace: "nowrap" }} align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -398,33 +400,33 @@ const UserPage = () => {
               ) : (
                 filteredUsers
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((user) => (
-                    <TableRow key={user.id} hover>
+                  .map((rowUser) => (
+                    <TableRow key={rowUser.id} hover>
 
-                      <TableCell sx={{ fontWeight: 500 }}>{user.username}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{getRoleChip(user.role)}</TableCell>
-                      <TableCell>{user.department_name || "Not Assigned"}</TableCell>
-                      <TableCell align="center">
-                      {user?.role === "admin" ? (
+                      <TableCell sx={{ fontWeight: 500 }}>{rowUser.username}</TableCell>
+                      <TableCell>{rowUser.email}</TableCell>
+                      <TableCell>{getRoleChip(rowUser.role)}</TableCell>
+                      <TableCell>{rowUser.department_name || "Not Assigned"}</TableCell>
+                      <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
+                      {user?.role !== "admin" && rowUser.role === "admin" ? (
+                            <Tooltip title="Admin only">
+                               <IconButton disabled size="small">
+                                 <EditIcon />
+                               </IconButton>
+                             </Tooltip>
+                          ) : (
                             <>
                               <Tooltip title="Edit">
-                                <IconButton color="primary" onClick={() => handleEditClick(user)} size="small">
+                                <IconButton color="primary" onClick={() => handleEditClick(rowUser)} size="small">
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Delete">
-                                <IconButton color="error" onClick={() => handleDeleteClick(user)} size="small">
+                                <IconButton color="error" onClick={() => handleDeleteClick(rowUser)} size="small">
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
                             </>
-                          ) : (
-                            <Tooltip title="Admin only">
-                              <IconButton disabled size="small">
-                                <EditIcon />
-                              </IconButton>
-                            </Tooltip>
                           )}
                       </TableCell>
                     </TableRow>
@@ -566,7 +568,6 @@ const UserPage = () => {
               value={editRole}
               onChange={(e) => setEditRole(e.target.value)}
               fullWidth
-              disabled
             >
               {roleOptions.map((r) => (
                 <MenuItem key={r.value} value={r.value}>
@@ -582,7 +583,6 @@ const UserPage = () => {
               label="Department"
               value={editDepartmentId}
               onChange={(e) => setEditDepartmentId(e.target.value)}
-              disabled
             >
               <MenuItem value="">Select Department</MenuItem>
               {departments.map((dept) => (

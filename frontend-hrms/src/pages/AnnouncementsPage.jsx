@@ -341,7 +341,7 @@ const AnnouncementsPage = () => {
                     </Box>
 
                     {canManage && (
-                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, flexShrink: 0 }}>
+                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "space-between", gap: 1, flexShrink: 0, minWidth: 120 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
                             {formatDate(announcement.created_at)}
@@ -357,9 +357,10 @@ const AnnouncementsPage = () => {
                             </IconButton>
                           </Tooltip>
                         </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: "auto" }}>
                           <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>
-                            {announcement.author_name || "System Admin"}
+                            {announcement.author_name || "System Admin"} 
+                            <span style={{ fontWeight: "normal", color: "#666" }}> ({announcement.author_role || "admin"})</span>
                           </Typography>
                           <PersonIcon sx={{ fontSize: 16, color: "text.secondary" }} />
                         </Box>

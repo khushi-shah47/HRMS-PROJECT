@@ -31,18 +31,18 @@ export const getHrs = async (req, res) => {
 ------------------------------------------------------- */
 export const getManagers = async (req, res) => {
   const { hrId } = req.query;
-  if (!hrId) {
-    return res.status(400).json({ message: "hrId query param is required" });
-  }
   try {
-    const managers = await sequelize.query(
-      `SELECT e.id, e.name, e.email
+    let query = `SELECT e.id, e.name, e.email
        FROM employees e
        INNER JOIN users u ON u.id = e.user_id
-       WHERE u.role = 'manager' AND e.hr_id = :hrId
-       ORDER BY e.name ASC`,
-      { replacements: { hrId }, type: QueryTypes.SELECT }
-    );
+       WHERE u.role = 'manager'`;
+    let replacements = {};
+    if (hrId) {
+       query += ` AND e.hr_id = :hrId`;
+       replacements.hrId = hrId;
+    }
+    query += ` ORDER BY e.name ASC`;
+    const managers = await sequelize.query(query, { replacements, type: QueryTypes.SELECT });
     res.json(managers);
   } catch (err) {
     console.error("getManagers error:", err);

@@ -131,8 +131,8 @@ const EmployeePage = () => {
       setPosition("Administrator");
     }
 
-    if (selectedRole === "manager") {
-      setDepartmentFilter(departmentFilter.filter(dept => dept ==! "HR"));
+    if (selectedRole === "manager" && departmentFilter === "HR") {
+      setDepartmentFilter("");
     }
   };
 
@@ -204,10 +204,10 @@ const EmployeePage = () => {
     }
   };
 
-  const fetchManagers = async (hrId) => {
-    if (!hrId) { setManagerList([]); return; }
+  const fetchManagers = async (hrId = "") => {
     try {
-      const res = await api.get(`/admin/managers?hrId=${hrId}`);
+      const url = hrId ? `/admin/managers?hrId=${hrId}` : `/admin/managers`;
+      const res = await api.get(url);
       setManagerList(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Failed to fetch manager list:", err);
@@ -217,6 +217,7 @@ const EmployeePage = () => {
   const handleAddOpen = () => {
     resetAddForm();
     fetchHrs();
+    fetchManagers();
     setAddDialogOpen(true);
   };
 
@@ -436,8 +437,8 @@ const EmployeePage = () => {
       setDepartmentFilter("HR"); // force HR dept
     }
 
-    if (value === "manager") {
-      setDepartmentFilter(departmentFilter.filter(dept => dept ==! "HR"));
+    if (value === "manager" && departmentFilter === "HR") {
+      setDepartmentFilter("");
     }
   };
 
@@ -642,17 +643,27 @@ const EmployeePage = () => {
                       <TableCell>{emp.join_date}</TableCell>
                       <TableCell align="right">₹{parseFloat(emp.basic_salary || 0).toLocaleString()}</TableCell>
                       {canManage && (
-                        <TableCell align="center">
-                          <Tooltip title="Edit">
-                            <IconButton color="primary" onClick={() => handleEditClick(emp)} size="small">
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton color="error" onClick={() => handleDeleteClick(emp)} size="small">
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
+                        <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
+                          {user?.role !== "admin" && emp.role === "admin" ? (
+                            <Tooltip title="Admin only">
+                               <IconButton disabled size="small">
+                                 <EditIcon />
+                               </IconButton>
+                             </Tooltip>
+                          ) : (
+                            <>
+                              <Tooltip title="Edit">
+                                <IconButton color="primary" onClick={() => handleEditClick(emp)} size="small">
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton color="error" onClick={() => handleDeleteClick(emp)} size="small">
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
                         </TableCell>
                       )}
                     </TableRow>
@@ -731,8 +742,8 @@ const EmployeePage = () => {
                 onChange={(e) => setSelectedManagerId(e.target.value)}
                 fullWidth
                 required
-                disabled={!selectedHrId || role === "admin"}
-                helperText={selectedHrId ? "Manager for this employee" : "Select HR first"}
+                disabled={role === "admin"}
+                helperText="Select a manager for this employee"
               >
                 <MenuItem value="">Select Manager</MenuItem>
                 {managerList.map((m) => (
@@ -785,7 +796,7 @@ const EmployeePage = () => {
               onChange={(e) => setPosition(e.target.value)}
               fullWidth
               required
-              disabled={role === "admin" || role === "intern" || !role}
+              disabled={role === "admin" || role === "intern"}
             >
               <MenuItem value="">Select Position</MenuItem>
               {(role ? currentPositions : positionsList).map((pos) => (
@@ -802,7 +813,7 @@ const EmployeePage = () => {
                 onChange={(e) => setDepartmentId(e.target.value)}
                 fullWidth
                 required={role !== "admin"}
-                disabled={role === "admin" || (role === "hr" && selectedDepartmentName === "HR")} // 🔥 remove hr from here
+                disabled={role === "admin" || !!departmentId}
               >
                 <MenuItem value="">Select Department</MenuItem>
 
@@ -889,9 +900,10 @@ const EmployeePage = () => {
               onChange={(e) => setEditPosition(e.target.value)}
               fullWidth
               required
+              disabled={editRole === "admin" || editRole === "intern"}
             >
               <MenuItem value="">Select Position</MenuItem>
-                {(rolePositions[editRole] || []).map((pos) => (
+                {positionsList.map((pos) => (
                   <MenuItem key={pos} value={pos}>
                     {pos}
                   </MenuItem>
@@ -903,7 +915,7 @@ const EmployeePage = () => {
               value={editDepartmentId || ""}
               onChange={(e) => setEditDepartmentId(e.target.value)}
               fullWidth
-              disabled={editRole === "admin"}
+              disabled={true}
             >
               <MenuItem value="">Select Department</MenuItem>
               {departments.map((dept) => {

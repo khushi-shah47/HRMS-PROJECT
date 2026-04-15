@@ -1,17 +1,26 @@
 import db from "../config/db.js";
 import bcrypt from "bcryptjs";
 export const addUser = async (req, res) => {
-  const { username, email, password, role } = req.body;
+  const { username, email, password, role, department_id } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    
     db.query(
       "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
       [username, email, hashedPassword, role],
       (err, result) => {
-        if (err) return res.status(500).json(err);
-        res.json({ message: "User added", id: result.insertId });
+        if (err) return res.status(500).json({message: "Failed to create user", error: err});
+        const userId = result.insertId;
+        
+        db.query(
+          "INSERT INTO employees (name, email, department_id, user_id) VALUES (?, ?, ?, ?)",
+          [username, email, department_id || null, userId],
+          (err2) => {
+            if (err2) console.error("Employee insert error in addUser:", err2);
+            res.json({ message: "User added successfully", id: userId });
+          }
+        );
       }
     );
   } catch (err) {
@@ -28,6 +37,7 @@ const sql = `
     u.email,
     u.role,
     e.name AS employee_name,
+    d.id AS department_id,
     d.name AS department_name
   FROM users u
   LEFT JOIN employees e ON e.user_id = u.id
@@ -46,7 +56,7 @@ const sql = `
 
 export const updateUser = async (req, res) => {
   const id = req.params.id;
-  const { username, email, password } = req.body;
+  const { username, email, password, role, department_id } = req.body;
   if (!username || username.trim().length < 3) {
     return res.status(400).json({ message: "Invalid username" });
   }
@@ -62,6 +72,11 @@ export const updateUser = async (req, res) => {
   try {
     let query = "UPDATE users SET username = ?, email = ?";
     let values = [username, email];
+
+    if (role && role.trim() !== "") {
+      query += ", role = ?";
+      values.push(role);
+    }
 
     // only update password if provided
     if (password && typeof password === "string" && password.trim() !== "") {
@@ -80,10 +95,18 @@ export const updateUser = async (req, res) => {
         return res.status(500).json(err);
       }
 
-      db.query(
-        "UPDATE employees SET name = ? WHERE user_id = ?",
-        [username, id],
-        (err2) => {
+      let empQuery = "UPDATE employees SET name = ?";
+      let empValues = [username];
+
+      if (department_id !== undefined) {
+        empQuery += ", department_id = ?";
+        empValues.push(department_id || null);
+      }
+      
+      empQuery += " WHERE user_id = ?";
+      empValues.push(id);
+
+      db.query(empQuery, empValues, (err2) => {
           if (err2) {
             console.error("EMPLOYEE ERROR:", err2); // 🔥 IMPORTANT
           }
@@ -99,21 +122,34 @@ export const updateUser = async (req, res) => {
 };
 
 export const deleteUser = (req, res) => {
-
   const id = req.params.id;
 
-  db.query(
-    "DELETE FROM users WHERE id = ?",
-    [id],
-    (err) => {
-
-      if (err) return res.status(500).json(err);
-
-      res.json({
-        message: "User deleted"
+  // First fetch employee id to delete related records
+  db.query("SELECT id FROM employees WHERE user_id = ?", [id], (err, empResults) => {
+    if (err) return res.status(500).json(err);
+    
+    const empId = empResults[0]?.id;
+    
+    // We should rely on cascading if set, but if not set we should delete from employees first.
+    // To be safe against foreign key errors, we delete from tables that reference employee_id
+    if (empId) {
+      db.query("DELETE FROM attendance WHERE employee_id = ?", [empId], () => {});
+      db.query("DELETE FROM leaves WHERE employee_id = ?", [empId], () => {});
+      db.query("DELETE FROM salary WHERE employee_id = ?", [empId], () => {});
+      db.query("DELETE FROM wfh_requests WHERE employee_id = ?", [empId], () => {});
+      db.query("DELETE FROM tasks WHERE assigned_to = ?", [empId], () => {});
+      db.query("DELETE FROM employees WHERE id = ?", [empId], (errEmp) => {
+         if (errEmp) console.error("Employee delete error", errEmp);
+         db.query("DELETE FROM users WHERE id = ?", [id], (errUser) => {
+            if (errUser) return res.status(500).json(errUser);
+            res.json({ message: "User deleted" });
+         });
       });
-
+    } else {
+       db.query("DELETE FROM users WHERE id = ?", [id], (errUser) => {
+          if (errUser) return res.status(500).json(errUser);
+          res.json({ message: "User deleted" });
+       });
     }
-  );
-
+  });
 };

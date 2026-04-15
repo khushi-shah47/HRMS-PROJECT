@@ -6,6 +6,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import GroupIcon from "@mui/icons-material/Group";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import { useNavigate } from "react-router-dom";
 
 const QuickActions = ({ role }) => {
@@ -23,7 +24,8 @@ const QuickActions = ({ role }) => {
     ],
     manager: [
       { label: "Assign Task", icon: <AssignmentIcon />, path: "/tasks", color: "primary" },
-      { label: "Approve Leave", icon: <CheckCircleIcon />, path: "/leave", color: "primary" }
+      { label: "Approve Leave", icon: <CheckCircleIcon />, path: "/leave", color: "primary" },
+      { label: "View Salary", icon: <CurrencyRupeeIcon />, path: "/salary", color: "primary" }
     ]
   };
 

@@ -36,10 +36,10 @@ import RoleRedirect from "./components/RoleRedirect";
 
 const roleRoutes = {
   admin: ["/admin", "/employees", "/attendance", "/all-attendance", "/tasks", "/reports", "/users", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments"],
-  manager: ["/manager", "/attendance", "/tasks", "/reports", "/leave", "/wfh"],
+  manager: ["/manager", "/attendance", "/tasks", "/reports", "/leave", "/salary", "/wfh"],
   hr: ["/hr", "/employees", "/attendance", "/all-attendance", "/tasks", "/leave", "/salary", "/policies", "/wfh", "/holidays", "/departments", "/announcements"],
-  developer: ["/developer", "/attendance", "/all-attendance", "/leave", "/tasks", "/wfh", "/policies", "/holidays", "/announcements"],
-  intern: ["/intern", "/attendance", "/all-attendance", "/tasks", "/policies", "/holidays", "/announcements"]
+  developer: ["/developer", "/attendance", "/all-attendance", "/leave", "/salary", "/tasks", "/wfh", "/policies", "/holidays", "/announcements"],
+  intern: ["/intern", "/attendance", "/all-attendance", "/tasks", "/salary", "/policies", "/holidays", "/announcements"]
 };
 
 function App() {
@@ -183,7 +183,7 @@ function App() {
           <Route
             path="/salary"
             element={
-              <ProtectedRoute allowedRoles={["admin", "hr"]}>
+              <ProtectedRoute allowedRoles={["admin", "manager", "hr", "developer", "intern"]}>
                 <SalaryPage />
               </ProtectedRoute>
             }

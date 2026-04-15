@@ -17,6 +17,7 @@ import RealTimeClock from "../components/dashboard/RealTimeClock";
 import AnnouncementCard from "../components/dashboard/AnnouncementCard";
 import HolidayCard from "../components/dashboard/HolidayCard";
 import ProfileCard from "../components/dashboard/ProfileCard";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 
 function StatCard({ title, value, icon, color, bg, loading }) {
   return (
@@ -110,11 +111,16 @@ export default function InternDashboard() {
 
   const [employee,setEmployee] = useState([]);
   useEffect(() => {
-  if (user?.id) {
+    if (user?.id) {
       api.get(`/employees/user/${user.id}`)
         .then(res => setEmployee(res.data))
         .catch(err => console.error(err));
     }
+    const interval = setInterval(() => {
+      if (user) fetchInternData();
+      fetchAllData(false);
+    }, 10000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const fetchDashboardStats = async () => {
@@ -133,8 +139,8 @@ export default function InternDashboard() {
     }
   };
 
-  const fetchAllData = async () => {
-    setLoading(true);
+  const fetchAllData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       await Promise.all([
         fetchDashboardStats(),
@@ -144,7 +150,7 @@ export default function InternDashboard() {
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -193,9 +199,9 @@ export default function InternDashboard() {
 
   const getStatusChip = (status) => {
     const colors = {
-      "in_progress": { bg: "warning.light", color: "warning.dark", label: "In Progress" },
-      "completed": { bg: "success.light", color: "success.dark", label: "Completed" },
-      "pending": { bg: "action.hover", color: "text.secondary", label: "Pending" }
+      "in_progress": { bg: "warning.main", color: "warning.contrastText", label: "In Progress" },
+      "completed": { bg: "success.main", color: "success.contrastText", label: "Completed" },
+      "pending": { bg: "grey.300", color: "text.primary", label: "Pending" }
     };
     const style = colors[status] || colors.pending;
     return <Chip label={style.label || status} size="small" sx={{ bgcolor: style.bg, color: style.color, fontWeight: "bold" }} />;
@@ -374,7 +380,7 @@ export default function InternDashboard() {
                 Role
               </Typography>
               <Typography variant="h6">
-                {(user && user.role) ? user.role : "-"}
+                {(user && user.role) ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "-"}
               </Typography>
             </Grid>
 
@@ -480,6 +486,7 @@ export default function InternDashboard() {
                 <Button variant="outlined" color="primary" onClick={() => navigate("/attendance")} startIcon={<AccessTimeIcon />}>Attendance</Button>
                 <Button variant="outlined" color="primary" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Leave</Button>
                 <Button variant="outlined" color="primary" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>WFH</Button>
+                <Button variant="outlined" color="primary" onClick={() => navigate("/salary")} startIcon={<CurrencyRupeeIcon />}>Salary</Button>
               </Stack>
             </Box>
             <AnnouncementCard announcements={announcements} loading={loading} />

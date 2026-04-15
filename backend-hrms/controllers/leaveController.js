@@ -367,23 +367,33 @@ export const getMyLeaves = async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
 
+  const status = req.query.status;
+
+  let whereClauses = ["l.employee_id = :employee_id"];
+  let replacements = { employee_id: employeeId, limit, offset };
+
+  if (status) {
+    whereClauses.push("l.status = :status");
+    replacements.status = status;
+  }
+
   try {
     const leaves = await sequelize.query(
       `SELECT l.*, e.name 
        FROM leaves l 
        JOIN employees e ON l.employee_id = e.id 
-       WHERE l.employee_id = :employee_id 
+       WHERE ${whereClauses.join(" AND ")}
        ORDER BY l.created_at DESC 
        LIMIT :limit OFFSET :offset`,
       {
-        replacements: { employee_id: employeeId, limit, offset },
+        replacements,
         type: QueryTypes.SELECT
       }
     );
 
     const countResult = await sequelize.query(
-      `SELECT COUNT(*) as total FROM leaves WHERE employee_id = :employee_id`,
-      { replacements: { employee_id: employeeId }, type: QueryTypes.SELECT }
+      `SELECT COUNT(*) as total FROM leaves l WHERE ${whereClauses.join(" AND ")}`,
+      { replacements, type: QueryTypes.SELECT }
     );
 
     const total = countResult[0].total;

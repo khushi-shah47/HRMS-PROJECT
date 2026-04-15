@@ -43,9 +43,10 @@ import HistoryIcon from "@mui/icons-material/History";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import PaymentsIcon from "@mui/icons-material/Payments";
 import EditIcon from "@mui/icons-material/Edit";
+import DownloadIcon from "@mui/icons-material/Download";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PaymentsIcon from "@mui/icons-material/Payments";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import SummarizeIcon from "@mui/icons-material/Summarize";
@@ -145,7 +146,7 @@ const SalaryPage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await api.get("/employees?page=1&limit=200");
+      const res = await api.get("/employees?page=1&limit=10000");
       setEmployees(res.data.employees || res.data.data || []);
     } catch (err) { console.error(err); }
   };
@@ -264,6 +265,52 @@ const SalaryPage = () => {
       fetchPayrollSummary();
     } catch (err) { showSnackbar("Failed to delete record", "error"); }
   };
+
+  const handleDownloadPDF = (payslip = null) => {
+    const slip = payslip || selectedPayslip;
+    if (!slip) return;
+    
+    const monthName = months.find(m => m.value == slip.month)?.label || "";
+    
+    const printWindow = window.open("", "", "width=800,height=600");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Payslip - ${monthName} ${slip.year}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+            .header { text-align: center; border-bottom: 2px solid #1976d2; padding-bottom: 20px; margin-bottom: 30px; }
+            .header h1 { margin: 0; color: #1976d2; }
+            .row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+            .total { font-weight: bold; font-size: 18px; border-top: 2px solid #333; padding-top: 15px; margin-top: 20px; border-bottom: none; }
+            .text-error { color: #d32f2f; }
+            .text-success { color: #2e7d32; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>PAYSLIP</h1>
+            <h2>${monthName} ${slip.year}</h2>
+          </div>
+          <div class="row"><span>Basic Salary</span><span>Rs. ${parseFloat(slip.basic_salary).toLocaleString()}</span></div>
+          <div class="row"><span>Allowance</span><span>+ Rs. ${parseFloat(slip.allowance || 0).toLocaleString()}</span></div>
+          <div class="row"><span>Bonus</span><span>+ Rs. ${parseFloat(slip.bonus || 0).toLocaleString()}</span></div>
+          <div class="row text-error"><span>Leave Deduction (${slip.leave_days || 0} Days)</span><span>- Rs. ${parseFloat(slip.deduction || 0).toLocaleString()}</span></div>
+          <div class="row total text-success"><span>Net Payout</span><span>Rs. ${parseFloat(slip.final_salary).toLocaleString()}</span></div>
+          <div style="margin-top: 50px; text-align: center; font-size: 12px; color: #777;">
+            <p>This is a computer-generated document and does not require a signature.</p>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  };
+
   // const totalCount = data.length === paginatedReport.length ? filteredReport.length : data.length;
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
@@ -669,7 +716,12 @@ const SalaryPage = () => {
             </Stack>
           )}
         </DialogContent>
-        <DialogActions><Button fullWidth variant="outlined" onClick={() => setPayslipDialogOpen(false)}>Close</Button></DialogActions>
+        <DialogActions>
+          <Button startIcon={<DownloadIcon />} variant="contained" color="primary" onClick={() => handleDownloadPDF()}>
+            Download PDF
+          </Button>
+          <Button fullWidth variant="outlined" onClick={() => setPayslipDialogOpen(false)}>Close</Button>
+        </DialogActions>
       </Dialog>
 
       <Snackbar open={snackbar.open} autoHideDuration={5000} onClose={() => setSnackbar({ ...snackbar, open: false })}>

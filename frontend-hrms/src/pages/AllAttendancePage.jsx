@@ -31,7 +31,7 @@ const AllAttendancePage = () => {
 
   const fetchAllAttendance = async () => {
     try {
-      const res = await api.get("/attendance/my");
+      const res = await api.get("/attendance/my?limit=10000");
       const data = res.data.data || res.data;
       setAttendanceData(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -68,13 +68,19 @@ const AllAttendancePage = () => {
     }
   };
 
-  const formatDateTime = (date) => {
-    if (!date) return "-"; // handle null/undefined
+  const formatDateOnly = (date) => {
+    if (!date) return "-";
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatTimeOnly = (date) => {
+    if (!date) return "-";
     const d = new Date(date);
     return d.toLocaleString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -119,18 +125,18 @@ const AllAttendancePage = () => {
               ) : (
                 paginatedData.map((rec) => (
                   <TableRow key={rec.id} hover>
-                    {/* Date + Time */}
+                    {/* Date */}
                     <TableCell>
-                      {rec.time_in ? formatDateTime(rec.time_in) : "-"}
+                      {rec.time_in ? formatDateOnly(rec.time_in) : (rec.date ? formatDateOnly(rec.date) : "-")}
                     </TableCell>
                     <TableCell>{rec.name}</TableCell>
                     {/* Time In */}
                     <TableCell>
-                      {rec.time_in ? formatDateTime(rec.time_in) : "-"}
+                      {rec.time_in ? formatTimeOnly(rec.time_in) : "-"}
                     </TableCell>
                     {/* Time Out */}
                     <TableCell>
-                      {rec.time_out ? formatDateTime(rec.time_out) : "-"}
+                      {rec.time_out ? formatTimeOnly(rec.time_out) : "-"}
                     </TableCell>
                     <TableCell>
                       {rec.total_hours ? Number(rec.total_hours).toFixed(2) : "-"}

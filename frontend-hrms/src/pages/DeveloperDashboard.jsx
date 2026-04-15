@@ -212,12 +212,12 @@ export default function DeveloperDashboard() {
 
   const getStatusChip = (status) => {
     const colors = {
-      "in_progress": { bg: "warning.light", color: "warning.dark", label: "In Progress" },
-      "completed": { bg: "success.light", color: "success.dark", label: "Completed" },
-      "pending": { bg: "action.hover", color: "text.secondary", label: "Pending" },
-      "WFH": { bg: "secondary.light", color: "secondary.dark", label: "WFH" },
-      "Leave": { bg: "primary.light", color: "primary.dark", label: "Leave" },
-      "Present": { bg: "success.light", color: "success.dark", label: "Present" }
+      "in_progress": { bg: "warning.main", color: "warning.contrastText", label: "In Progress" },
+      "completed": { bg: "success.main", color: "success.contrastText", label: "Completed" },
+      "pending": { bg: "grey.300", color: "text.primary", label: "Pending" },
+      "WFH": { bg: "info.main", color: "info.contrastText", label: "WFH" },
+      "Leave": { bg: "error.main", color: "error.contrastText", label: "Leave" },
+      "Present": { bg: "success.main", color: "success.contrastText", label: "Present" }
     };
     const style = colors[status] || colors.pending;
     return <Chip label={style.label || status} size="small" sx={{ bgcolor: style.bg, color: style.color, fontWeight: "bold" }} />;
@@ -350,7 +350,7 @@ export default function DeveloperDashboard() {
                       Role
                     </Typography>
                     <Typography variant="h6">
-                      {(user && user.role) ? user.role : "-"}
+                      {(user && user.role) ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "-"}
                     </Typography>
                   </Grid>
 
@@ -506,6 +506,7 @@ export default function DeveloperDashboard() {
               <Stack spacing={1}>
                 <Button variant="outlined" onClick={() => navigate("/leave")} startIcon={<BeachAccessIcon />}>Request Leave</Button>
                 <Button variant="outlined" onClick={() => navigate("/wfh")} startIcon={<HomeWorkIcon />}>Request WFH</Button>
+                <Button variant="outlined" onClick={() => navigate("/salary")} startIcon={<AttachMoneyIcon />}>View Salary</Button>
               </Stack>
             </Box>
             <AnnouncementCard announcements={announcements} loading={loading} />

@@ -91,15 +91,19 @@ export default function HRDashboard() {
 
   const [employee,setEmployee] = useState([]);
   useEffect(() => {
-  if (user?.id) {
+    if (user?.id) {
       api.get(`/employees/user/${user.id}`)
         .then(res => setEmployee(res.data))
         .catch(err => console.error(err));
     }
+    const interval = setInterval(() => {
+      fetchAllData(false); // poll silently
+    }, 10000);
+    return () => clearInterval(interval);
   }, [user]);
 
-  const fetchAllData = async () => {
-    setLoading(true);
+  const fetchAllData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       await Promise.all([
         fetchDashboardStats(),
@@ -261,6 +265,16 @@ export default function HRDashboard() {
     return <Chip label={status} size="small" sx={{ background: style.bg, color: style.color, fontWeight: "bold" }} />;
   };
 
+  const formatDateLocal = (dateString) => {
+    if (!dateString) return "-";
+    const d = new Date(dateString);
+    if (isNaN(d)) return dateString.split("T")[0] || "-";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${day}-${month}-${year}`;
+  };
+
   const hrStats = [
     { title: "Total Employees", value: stats.totalEmployees, icon: <PeopleIcon />, color: "primary.main", bg: "action.hover" },
     { title: "Present Today", value: stats.presentToday, icon: <CheckCircleIcon />, color: "success.main", bg: "action.hover" },
@@ -361,7 +375,7 @@ export default function HRDashboard() {
               Role
             </Typography>
             <Typography variant="h6">
-              {(user && user.role) ? user.role : "-"}
+              {(user && user.role) ? (user.role.toLowerCase() === "hr" ? "HR" : user.role.charAt(0).toUpperCase() + user.role.slice(1)) : "-"}
             </Typography>
           </Grid>
 
@@ -389,37 +403,17 @@ export default function HRDashboard() {
                     No employees found
                   </Typography>
                 ) : (
-                  <TableContainer>
-                    <TableContainer sx={{ overflowX: 'auto' }}>
-                   <Table>
-                      <TableHead>
-                        <TableRow sx={{ background: "action.hover" }}>
-                          <TableCell sx={{ fontWeight: "bold" }}>Employee</TableCell>
-                          <TableCell sx={{ fontWeight: "bold" }}>Position</TableCell>
-                          <TableCell sx={{ fontWeight: "bold" }}>Department</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {employees.slice(0, 5).map((emp, i) => (
-                          <TableRow key={emp.id || i} sx={{ "&:hover": { background: "action.hover" } }}>
-                            <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                {/* <Avatar sx={{ width: 32, height: 32, background: theme.palette.primary.main, fontSize: "0.8rem" }}>
-                                  {emp.name?.split(" ").map(n => n[0]).join("").substring(0, 2)}
-                                </Avatar> */}
-                                <Typography fontWeight="500" variant="body2">{emp.name}</Typography>
-                              </Box>
-                            </TableCell>
-                            <TableCell variant="body2">{emp.position || "-"}</TableCell>
-                            <TableCell>
-                              <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "action.selected", color: "primary.main" }} />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                    </TableContainer>
-                  </TableContainer>
+                  employees.slice(0, 5).map((emp, i) => (
+                    <Box key={emp.id || i} sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1, p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}>
+                      <Box>
+                        <Typography variant="body2" fontWeight="600">{emp.name}</Typography>
+                        <Typography variant="caption" color="textSecondary">{emp.position || emp.role}</Typography>
+                      </Box>
+                      <Box sx={{ ml: "auto" }}>
+                        <Chip label={emp.department_name || "Not Assigned"} size="small" sx={{ background: "action.selected", color: "primary.main", fontSize: '0.7rem' }} />
+                      </Box>
+                    </Box>
+                  ))
                 )}
               </CardContent>
             </Card>
@@ -550,7 +544,8 @@ export default function HRDashboard() {
                             </Typography>
 
                             <Typography variant="caption" color="textSecondary">
-                              {request.date?.split("T")[0]}
+                              {request.start_date ? formatDateLocal(request.start_date) : (request.date ? formatDateLocal(request.date) : "-")}
+                              {request.end_date && request.end_date !== request.start_date ? ` to ${formatDateLocal(request.end_date)}` : ""}
                             </Typography>
                           </Box>
 

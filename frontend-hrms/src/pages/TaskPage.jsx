@@ -120,7 +120,7 @@ const TaskPage = () => {
       } else {
         res = await api.get("/tasks/my"); // dev/intern unchanged
       }
-      setTasks(res.data || []);
+      setTasks(Array.isArray(res.data) ? res.data : (res.data?.data || []));
     } catch (error) {
       console.error("Error fetching tasks:", error);
       showSnackbar("Failed to load tasks", "error");
@@ -133,7 +133,7 @@ const TaskPage = () => {
     if (!canCreateTask) return;
     setEmployeesLoading(true);
     try {
-      const endpoint = "/employees?limit=100";
+      const endpoint = "/employees?limit=10000";
       const res = await api.get(endpoint);
       let employeesArray = [];
       if (Array.isArray(res.data)) {
@@ -143,7 +143,17 @@ const TaskPage = () => {
       } else if (res.data.data) {
         employeesArray = res.data.data;
       }
-      setEmployees(employeesArray);
+      let assignableEmployees = employeesArray.filter(e => e.role !== "admin"); // nobody can assign admin
+
+      if (userRole === "manager") {
+         assignableEmployees = assignableEmployees.filter(e => 
+           (e.role === "developer" || e.role === "intern") && e.manager_id === employeeId
+         );
+      } else if (userRole === "hr") {
+         assignableEmployees = assignableEmployees.filter(e => e.role === "manager");
+      }
+      
+      setEmployees(assignableEmployees);
     } catch (error) {
       console.error("Error fetching employees:", error);
       showSnackbar("No employees available. Contact admin.", "warning");
@@ -182,11 +192,15 @@ const TaskPage = () => {
   const formatDateLocal = (dateString) => {
     if (!dateString) return "-";
     const d = new Date(dateString);
-    if (isNaN(d)) return dateString.split("T")[0] || "-";
+    if (isNaN(d)) {
+      const parts = dateString.split("-");
+      if (parts.length === 3) return `${parts[2].slice(0,2)}-${parts[1]}-${parts[0]}`;
+      return dateString.split("T")[0] || "-";
+    }
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return `${day}-${month}-${year}`;
   };
 
   const resetAddForm = () => {
@@ -241,7 +255,7 @@ const TaskPage = () => {
     setEditDescription(task.description || "");
     setEditAssignedTo(task.assigned_to || "");
     setEditPriority(task.priority || "medium");
-    setEditDueDate(formatDateLocal(task.due_date));
+    setEditDueDate(task.due_date ? new Date(task.due_date).toISOString().split("T")[0] : "");
     setEditDialogOpen(true);
   };
 

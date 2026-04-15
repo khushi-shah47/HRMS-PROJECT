@@ -3,7 +3,7 @@ import { createNotification } from "./notificationController.js";
 
 export const getAnnouncements = (req, res) => {
   const sql = `
-    SELECT a.*, u.username as author_name
+    SELECT a.*, u.username as author_name, u.role as author_role
     FROM announcements a
     LEFT JOIN users u ON a.created_by = u.id
     ORDER BY a.created_at DESC

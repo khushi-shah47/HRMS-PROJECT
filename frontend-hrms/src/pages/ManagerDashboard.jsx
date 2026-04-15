@@ -66,6 +66,16 @@ export default function ManagerDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const formatDateLocal = (dateString) => {
+    if (!dateString) return "-";
+    const d = new Date(dateString);
+    if (isNaN(d)) return dateString.split("T")[0] || "-";
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${day}-${month}-${year}`;
+  };
+
   const [stats, setStats] = useState({
     pendingLeaves: 0,
     activeTasks: 0,
@@ -89,6 +99,10 @@ export default function ManagerDashboard() {
       setUser(JSON.parse(userData));
     }
     fetchAllData();
+    const interval = setInterval(() => {
+      fetchAllData(false); // poll silently
+    }, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const [employee,setEmployee] = useState([]);
@@ -100,8 +114,8 @@ export default function ManagerDashboard() {
     }
   }, [user]);
 
-  const fetchAllData = async () => {
-    setLoading(true);
+  const fetchAllData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       await Promise.all([
         fetchTasks(),
@@ -360,7 +374,7 @@ export default function ManagerDashboard() {
                 Role
               </Typography>
               <Typography variant="h6">
-                {(user && user.role) ? user.role : "-"}
+                {(user && user.role) ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "-"}
               </Typography>
             </Grid>
 
@@ -386,15 +400,12 @@ export default function ManagerDashboard() {
                   <Typography variant="body2" color="textSecondary">No team members found</Typography>
                 ) : (
                   teamMembers.slice(0, 5).map((member, i) => (
-                    <Box key={member.id || i} sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                      {/* <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.light" }}>
-                        {member.name?.charAt(0)}
-                      </Avatar> */}
+                    <Card variant="outlined" key={member.id || i} sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1.5, p: 2, borderRadius: 2 }}>
                       <Box>
-                        <Typography variant="body2" fontWeight="600">{member.name}</Typography>
-                        <Typography variant="caption" color="textSecondary">{member.position || member.role}</Typography>
+                        <Typography variant="body1" fontWeight="600">{member.name}</Typography>
+                        <Typography variant="caption" color="textSecondary">{member.position || (member.role ? member.role.charAt(0).toUpperCase() + member.role.slice(1) : "-")}</Typography>
                       </Box>
-                    </Box>
+                    </Card>
                   ))
                 )}
               </CardContent>
@@ -430,7 +441,7 @@ export default function ManagerDashboard() {
                 >
                   <Typography variant="body2" fontWeight="600" noWrap>{task.title}</Typography>
                   <Typography variant="caption" color="textSecondary" sx={{ display: 'block' }}>
-                    {getEmployeeName(task.assigned_to)} | Due: {task.due_date?.split("T")[0] || "N/A"}
+                    {getEmployeeName(task.assigned_to)} | Due: {formatDateLocal(task.due_date)}
                   </Typography>
                 </Box>
               ))
@@ -456,16 +467,17 @@ export default function ManagerDashboard() {
                     <Typography variant="body2" color="textSecondary">No pending leaves</Typography>
                   ) : (
                     leaveRequests.map((leave, i) => (
-                      <Box key={leave.id || i} sx={{ p: 1.5, mb: 1, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
-                        <Typography variant="body2" fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
-                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-                          {leave.start_date?.split("T")[0]} to {leave.end_date?.split("T")[0]}
+                      <Card variant="outlined" key={leave.id || i} sx={{ p: 2, mb: 1.5, borderRadius: 2 }}>
+                        <Typography variant="body1" fontWeight="600">{leave.name || getEmployeeName(leave.employee_id)}</Typography>
+                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1.5 }}>
+                          {leave.start_date ? formatDateLocal(leave.start_date) : (leave.date ? formatDateLocal(leave.date) : "-")}
+                          {leave.end_date && leave.end_date !== leave.start_date ? ` to ${formatDateLocal(leave.end_date)}` : ""}
                         </Typography>
                         <Box sx={{ display: "flex", gap: 1 }}>
-                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleApproveLeave(leave.id)}>Approve</Button>
-                          <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectLeave(leave.id)}>Reject</Button>
+                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.75rem', px: 2 }} onClick={() => handleApproveLeave(leave.id)}>Approve</Button>
+                          <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.75rem', px: 2 }} onClick={() => handleRejectLeave(leave.id)}>Reject</Button>
                         </Box>
-                      </Box>
+                      </Card>
                     ))
                   )}
                 </CardContent>
@@ -490,16 +502,17 @@ export default function ManagerDashboard() {
                     <Typography variant="body2" color="textSecondary">No pending WFH</Typography>
                   ) : (
                     wfhList.map((wfh, i) => (
-                      <Box key={wfh.id || i} sx={{ p: 1.5, mb: 1, borderRadius: 2, bgcolor: "background.paper", border: "1px solid", borderColor: "divider" }}>
-                        <Typography variant="body2" fontWeight="600">{wfh.name || getEmployeeName(wfh.employee_id)}</Typography>
-                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
-                          {wfh.start_date?.split("T")[0]} to {wfh.end_date?.split("T")[0]}
+                      <Card variant="outlined" key={wfh.id || i} sx={{ p: 2, mb: 1.5, borderRadius: 2 }}>
+                        <Typography variant="body1" fontWeight="600">{wfh.name || getEmployeeName(wfh.employee_id)}</Typography>
+                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1.5 }}>
+                          {wfh.start_date ? formatDateLocal(wfh.start_date) : (wfh.date ? formatDateLocal(wfh.date) : "-")}
+                          {wfh.end_date && wfh.end_date !== wfh.start_date ? ` to ${formatDateLocal(wfh.end_date)}` : ""}
                         </Typography>
                         <Box sx={{ display: "flex", gap: 1 }}>
-                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.65rem', px: 1, color: 'white' }} onClick={() => handleApproveWFH(wfh.id)}>Approve</Button>
-                          <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.65rem', px: 1 }} onClick={() => handleRejectWFH(wfh.id)}>Reject</Button>
+                          <Button size="small" variant="contained" color="success" sx={{ fontSize: '0.75rem', px: 2, color: 'white' }} onClick={() => handleApproveWFH(wfh.id)}>Approve</Button>
+                          <Button size="small" variant="outlined" color="error" sx={{ fontSize: '0.75rem', px: 2 }} onClick={() => handleRejectWFH(wfh.id)}>Reject</Button>
                         </Box>
-                      </Box>
+                      </Card>
                     ))
                   )}
                 </CardContent>

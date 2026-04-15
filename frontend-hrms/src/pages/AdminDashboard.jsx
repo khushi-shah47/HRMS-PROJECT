@@ -353,7 +353,7 @@ return (
               Role
             </Typography>
             <Typography variant="h6">
-              {(user && user.role) ? user.role : "-"}
+              {(user && user.role) ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "-"}
             </Typography>
           </Grid>
 
