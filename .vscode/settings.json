@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "sonar-equest-solutions",
+        "projectKey": "equest-solutions_hrms_497d0f09-50ce-4006-8387-e158bdfd3074"
+    }
+}
